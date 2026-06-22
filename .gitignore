@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+frontend/.next/
+frontend/.turbo/
+
 # production
 /build
 
