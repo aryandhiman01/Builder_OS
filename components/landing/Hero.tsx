@@ -1,5 +1,8 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export default function Hero() {
   return (
@@ -8,8 +11,6 @@ export default function Hero() {
       <div className="mx-auto max-w-7xl px-6">
 
         <div className="grid items-center gap-20 lg:grid-cols-2">
-
-          {/* LEFT */}
 
           <div>
 
@@ -48,6 +49,7 @@ export default function Hero() {
                 text-black
                 hover:bg-zinc-200
                 "
+                onClick={() => signIn()}
               >
                 Start Building
 
@@ -70,8 +72,6 @@ export default function Hero() {
             </div>
 
           </div>
-
-          {/* RIGHT */}
 
           <div className="grid grid-cols-2 gap-4">
 
