@@ -5,240 +5,327 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import Logo from "@/components/shared/Logo";
+import SocialAuthButtons from "./SocialAuthButtons";
 
 export default function SignupForm() {
-  const router = useRouter();
+const router = useRouter();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
 
-  const handleSignup = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+const handleSignup = async (
+e: React.FormEvent<HTMLFormElement>
+) => {
+e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
 
-    try {
-      setLoading(true);
+setError("");
 
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
+if (!name.trim()) {
+  setError("Name is required");
+  return;
+}
 
-      const data = await response.json();
+if (password.length < 8) {
+  setError("Password must be at least 8 characters");
+  return;
+}
 
-      if (!response.ok) {
-        alert(data.error);
-        return;
-      }
+if (password !== confirmPassword) {
+  setError("Passwords do not match");
+  return;
+}
 
-      // Auto Login
+try {
+  setLoading(true);
 
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+  const response = await fetch("/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+    }),
+  });
 
-      if (result?.error) {
-        alert(result.error);
-        return;
-      }
+  const data = await response.json();
 
-      router.push("/dashboard");
-      router.refresh();
+  if (!response.ok) {
+    setError(data.error);
+    return;
+  }
 
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const result = await signIn("credentials", {
+    email,
+    password,
+    redirect: false,
+  });
 
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-[#050505] px-6">
+  if (result?.error) {
+    setError(result.error);
+    return;
+  }
 
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+  router.push("/dashboard");
+  router.refresh();
 
-        <div className="mb-8 text-center">
+} catch (error) {
+  console.error(error);
+  setError("Something went wrong");
+} finally {
+  setLoading(false);
+}
 
-          <h1 className="text-3xl font-bold text-white">
-            Create Account
-          </h1>
 
-          <p className="mt-2 text-zinc-400">
-            Start building with BuilderOS
-          </p>
+};
 
-        </div>
+return ( <main className="flex min-h-screen items-center justify-center bg-[#050505] px-4">
 
-        {/* SOCIAL LOGIN */}
+    <div
+    className="
+    w-full
+    max-w-md
+    rounded-3xl
+    border
+    border-white/10
+    bg-white/[0.02]
+    p-8
+    shadow-2xl
+    backdrop-blur-xl    
+    "
+    >
 
-        <div className="space-y-3">
+    {/* HEADER */}
 
-          <button
-            onClick={() =>
-              signIn("google", {
-                callbackUrl: "/dashboard",
-              })
-            }
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white px-4 py-3 font-medium text-black hover:bg-zinc-200"
-          >
-            <FcGoogle size={22} />
-            Continue with Google
-          </button>
+    <div className="mb-6 text-center">
 
-          <button
-            onClick={() =>
-              signIn("github", {
-                callbackUrl: "/dashboard",
-              })
-            }
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 font-medium text-white hover:bg-zinc-800"
-          >
-            <FaGithub size={20} />
-            Continue with GitHub
-          </button>
+      <div className="mb-5 flex justify-center">
+        <Logo />
+      </div>
 
-        </div>
+      <h1 className="text-3xl font-bold text-white">
+        Create Account
+      </h1>
 
-        <div className="my-8 flex items-center gap-4">
+      <p className="mt-2 text-sm text-zinc-500">
+        Start building products with BuilderOS
+      </p>
 
-          <div className="h-px flex-1 bg-white/10" />
+    </div>
 
-          <span className="text-sm text-zinc-500">
-            OR
-          </span>
+    {/* SOCIAL LOGIN */}
 
-          <div className="h-px flex-1 bg-white/10" />
+    <SocialAuthButtons />
 
-        </div>
+    {/* DIVIDER */}
 
-        {/* FORM */}
+    <div className="my-7 flex items-center gap-4">
 
-        <form
-          onSubmit={handleSignup}
-          className="space-y-5"
-        >
+      <div className="h-px flex-1 bg-white/10" />
 
-          <div>
+      <span className="font-medium text-zinc-600">
+        or
+      </span>
 
-            <label className="mb-2 block text-sm text-zinc-300">
-              Full Name
-            </label>
+      <div className="h-px flex-1 bg-white/10" />
 
-            <input
-              type="text"
-              value={name}
-              onChange={(e) =>
-                setName(e.target.value)
-              }
-              placeholder="Aryan Dhiman"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-            />
+    </div>
 
-          </div>
+    {/* FORM */}
 
-          <div>
+    <form
+      onSubmit={handleSignup}
+      className="space-y-5"
+    >
 
-            <label className="mb-2 block text-sm text-zinc-300">
-              Email
-            </label>
+      <div>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
-              placeholder="aryan@example.com"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-            />
+        <label className="mb-2 block text-sm font-medium text-zinc-400">
+          Full Name
+        </label>
 
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm text-zinc-300">
-              Password
-            </label>
-
-            <input
-              type="password"
-              value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-            />
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block text-sm text-zinc-300">
-              Confirm Password
-            </label>
-
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) =>
-                setConfirmPassword(e.target.value)
-              }
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none focus:border-white/30"
-            />
-
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-white py-3 font-semibold text-black hover:bg-zinc-200 disabled:opacity-50"
-          >
-            {loading
-              ? "Creating Account..."
-              : "Create Account"}
-          </button>
-
-        </form>
-
-        <p className="mt-8 text-center text-sm text-zinc-400">
-
-          Already have an account?{" "}
-
-          <Link
-            href="/login"
-            className="font-medium text-white"
-          >
-            Log In
-          </Link>
-
-        </p>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) =>
+            setName(e.target.value)
+          }
+          placeholder="Aryan Dhiman"
+          className="
+        w-full
+        rounded-xl
+        border
+        border-white/10
+        bg-white/[0.03]
+        px-4
+        py-3
+        text-white
+        outline-none
+        transition
+        placeholder:text-zinc-600
+        focus:border-white/20
+        "
+        />
 
       </div>
 
-    </main>
-  );
+      <div>
+
+        <label className="mb-2 block text-sm text-zinc-400">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          placeholder="aryan@example.com"
+          className="
+            w-full
+            rounded-xl
+            border
+            border-white/10
+            bg-white/[0.03]
+            px-4
+            py-3
+            text-white
+            outline-none
+            transition
+            placeholder:text-zinc-600
+            focus:border-white/20
+            "
+        />
+
+      </div>
+
+      <div>
+
+        <label className="mb-2 block text-sm text-zinc-400">
+          Password
+        </label>
+
+        <input
+          type="password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          placeholder="••••••••"
+          className="
+            w-full
+            rounded-xl
+            border
+            border-white/10
+            bg-white/[0.03]
+            px-4
+            py-3
+            text-white
+            outline-none
+            transition
+            placeholder:text-zinc-600
+            focus:border-white/20
+"
+        />
+
+      </div>
+
+      <div>
+
+        <label className="mb-2 block text-sm text-zinc-400">
+          Confirm Password
+        </label>
+
+        <input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) =>
+            setConfirmPassword(e.target.value)
+          }
+          placeholder="••••••••"
+          className="
+            w-full
+            rounded-xl
+            border
+            border-white/10
+            bg-white/[0.03]
+            px-4
+            py-3
+            text-white
+            outline-none
+            transition
+            placeholder:text-zinc-600
+            focus:border-white/20
+            "
+        />
+
+      </div>
+
+      {error && (
+        <div
+          className="
+            rounded-xl
+            border
+            border-red-500/20
+            bg-red-500/10
+            px-4
+            py-3
+            text-sm
+            text-red-400
+            "
+        >
+          {error}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="
+        w-full
+        rounded-xl
+        bg-white
+        py-3
+        font-semibold
+        text-black
+        transition
+        hover:bg-zinc-200
+        disabled:opacity-50
+        "
+      >
+        {loading
+          ? "Creating Account..."
+          : "Create Account"}
+      </button>
+
+    </form>
+
+    <p className="mt-6 text-center text-sm text-zinc-500">
+
+      Already have an account?{" "}
+
+      <Link
+        href="/login"
+        className="font-medium text-white"
+      >
+        Log In
+      </Link>
+
+    </p>
+
+  </div>
+
+</main>
+
+);
 }

@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import Logo from "@/components/shared/Logo";
+import SocialAuthButtons from "./SocialAuthButtons";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -15,11 +15,14 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+
+    setError("");
 
     try {
       setLoading(true);
@@ -31,7 +34,7 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        alert(result.error);
+        setError(result.error);
         return;
       }
 
@@ -40,7 +43,7 @@ export default function LoginForm() {
 
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      setError("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -49,62 +52,49 @@ export default function LoginForm() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050505] px-6">
 
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl">
+      <div
+        className="
+        w-full
+        max-w-md
+        rounded-3xl
+        border
+        border-white/10
+        bg-white/[0.02]
+        p-8
+        backdrop-blur-xl
+        "
+      >
 
-        <div className="mb-8 text-center">
+        {/* HEADER */}
+
+        <div className="mb-10 text-center">
+
+          <div className="mb-5 flex justify-center">
+            <Logo />
+          </div>
 
           <h1 className="text-3xl font-bold text-white">
             Welcome Back
           </h1>
 
-          <p className="mt-2 text-zinc-400">
+          <p className="mt-2 text-sm text-zinc-500">
             Continue building products with BuilderOS
           </p>
 
         </div>
 
-        {/* GOOGLE */}
+        {/* SOCIAL LOGIN */}
 
-        <div className="space-y-3">
-
-          <button
-            onClick={() =>
-              signIn("google", {
-                callbackUrl: "/dashboard",
-              })
-            }
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white px-4 py-3 font-medium text-black transition hover:bg-zinc-200"
-          >
-            <FcGoogle size={22} />
-
-            Continue with Google
-          </button>
-
-          {/* GITHUB */}
-
-          <button
-            onClick={() =>
-              signIn("github", {
-                callbackUrl: "/dashboard",
-              })
-            }
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 font-medium text-white transition hover:bg-zinc-800"
-          >
-            <FaGithub size={20} />
-
-            Continue with GitHub
-          </button>
-
-        </div>
+        <SocialAuthButtons />
 
         {/* DIVIDER */}
 
-        <div className="my-8 flex items-center gap-4">
+        <div className="my-7 flex items-center gap-4">
 
           <div className="h-px flex-1 bg-white/10" />
 
-          <span className="text-sm text-zinc-500">
-            OR
+          <span className="font-medium text-zinc-600">
+            or
           </span>
 
           <div className="h-px flex-1 bg-white/10" />
@@ -120,8 +110,8 @@ export default function LoginForm() {
 
           <div>
 
-            <label className="mb-2 block text-sm text-zinc-300">
-              Email
+            <label className="mb-2 block text-sm text-zinc-400">
+              Email Address
             </label>
 
             <input
@@ -131,14 +121,27 @@ export default function LoginForm() {
                 setEmail(e.target.value)
               }
               placeholder="aryan@example.com"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-white/30"
+              className="
+              w-full
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              px-4
+              py-3
+              text-white
+              outline-none
+              transition
+              placeholder:text-zinc-600
+              focus:border-white/20
+              "
             />
 
           </div>
 
           <div>
 
-            <label className="mb-2 block text-sm text-zinc-300">
+            <label className="mb-2 block text-sm text-zinc-400">
               Password
             </label>
 
@@ -149,16 +152,46 @@ export default function LoginForm() {
                 setPassword(e.target.value)
               }
               placeholder="••••••••"
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-white/30"
+              className="
+              w-full
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              px-4
+              py-3
+              text-white
+              outline-none
+              transition
+              placeholder:text-zinc-600
+              focus:border-white/20
+              "
             />
 
           </div>
+
+          {error && (
+            <div
+              className="
+              rounded-2xl
+              border
+              border-red-500/20
+              bg-red-500/10
+              px-4
+              py-3
+              text-sm
+              text-red-400
+              "
+            >
+              {error}
+            </div>
+          )}
 
           <div className="flex justify-end">
 
             <Link
               href="/forgot-password"
-              className="text-sm text-zinc-400 hover:text-white"
+              className="text-sm text-zinc-500 transition hover:text-white"
             >
               Forgot Password?
             </Link>
@@ -168,7 +201,17 @@ export default function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-white py-3 font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-50"
+            className="
+            w-full
+            rounded-xl
+            bg-white
+            py-3
+            font-semibold
+            text-black
+            transition
+            hover:bg-zinc-200
+            disabled:opacity-50
+            "
           >
             {loading
               ? "Logging in..."
@@ -177,7 +220,7 @@ export default function LoginForm() {
 
         </form>
 
-        <p className="mt-8 text-center text-sm text-zinc-400">
+        <p className="mt-6 text-center text-sm text-zinc-500">
 
           Don&apos;t have an account?{" "}
 
