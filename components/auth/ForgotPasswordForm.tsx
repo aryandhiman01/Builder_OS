@@ -11,27 +11,40 @@ export default function ForgotPasswordForm() {
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // API baad me connect karenge
+    const response = await fetch(
+      "/api/forgot-password",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+        }),
+      }
+    );
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1200)
-      );
+    const data = await response.json();
 
-      setSuccess(true);
-
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.error);
     }
-  };
+
+    setSuccess(true);
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050505] px-4">
