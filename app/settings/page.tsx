@@ -1,6 +1,8 @@
 import { getServerSession } from "next-auth";;
 import { authOptions } from "@/lib/auth";;
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
 import Image from "next/image";
 
@@ -11,7 +13,16 @@ export default async function SettingsPage() {
         redirect("/login");
     }
 
-     return (
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user?.email!,
+      },
+      include: {
+        accounts: true,
+      },
+});
+
+    return (
     <main className="mx-auto max-w-5xl px-6 py-10">
 
       <div className="mb-10">
@@ -100,7 +111,7 @@ export default async function SettingsPage() {
 
           <div className="space-y-4">
 
-            <a
+            <Link
               href="/change-password"
               className="
               block
@@ -119,9 +130,9 @@ export default async function SettingsPage() {
               <p className="text-sm text-zinc-500">
                 Update your account password.
               </p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/forgot-password"
               className="
               block
@@ -140,9 +151,9 @@ export default async function SettingsPage() {
               <p className="text-sm text-zinc-500">
                 Request a password reset email.
               </p>
-            </a>
+            </Link>
 
-          </div>
+          </div>  
         </div>
 
         {/* ACCOUNT */}
