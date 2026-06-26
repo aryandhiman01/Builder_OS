@@ -1,27 +1,29 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
-    X,
-    FolderPlus,
-    Loader2,
-    Check,
+  X,
+  FolderPlus,
+  Loader2,
+  Check,
 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
+
 interface CreateProjectModalProps {
-    open: boolean;
-    onClose: () => void;
+  open: boolean;
+  onClose: () => void;
 }
 
 const categories = [
-    "Saas",
-    "AI Product",
-    "Web App",
-    "E-commerce",
-    "Mobile App",
-    "Internal Tool",
-    "Portfolio",
-    "Other",
+  "Saas",
+  "AI Product",
+  "Web App",
+  "E-commerce",
+  "Mobile App",
+  "Internal Tool",
+  "Portfolio",
+  "Other",
 ];
 
 const colors = [
@@ -35,54 +37,74 @@ const colors = [
   "#EC4899",
 ];
 
-export default function CreateProductModal({ open, onClose}: CreateProjectModalProps) {
-    const [title, setTitle] = useState("");
-    
-    const [description, setDescription] = useState("");
+export default function CreateProjectModal({ open, onClose }: CreateProjectModalProps) {
 
-    const [category, setCategory] = useState("Saas");
+  const router = useRouter();
 
-    const [color, setColor] = useState(colors[0]);
+  const [title, setTitle] = useState("");
 
-    const [loading, setLoading] = useState(false);
+  const [description, setDescription] = useState("");
 
-    const [error, setError] = useState("");
+  const [category, setCategory] = useState("Saas");
 
-    if(!open) {
-        return null;
+  const [color, setColor] = useState(colors[0]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
+
+  if (!open) {
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (!title.trim()) {
+      setError("Project name is required");
+      return;
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    try {
+      setLoading(true);
 
-        setError("");
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          category,
+          color,
+        }),
+      });
 
-        if(!title.trim()) {
-            setError("Project name is required");
-            return;
-        }
+      const data = await response.json();
 
-        try {
-            setLoading(true);
+      if (!response.ok) {
+        setError(data.error);
+        return;
+      }
 
-            console.log({
-                title,
-                description,
-                category,
-                color,
-            });
+      onClose();
 
-            onClose();
-        } catch (error) {
-            console.error(error);
+      router.push(`/projects/${data.project.id}`);
+      router.refresh();
 
-            setError("Something went wrong");
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (error) {
+      console.error(error);
 
-    return (
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
     <div
       className="
       fixed
