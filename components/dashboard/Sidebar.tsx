@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
     FolderKanban,
-    Sparkles,
+    Brain,
     CheckSquare,
     Map,
     Settings,
@@ -28,7 +28,7 @@ const sidebarItems = [
     {
         title: "AI Workspace",
         href: "/ai",
-        icon: Sparkles,
+        icon: Brain,
     },
     {
         title: "Tasks",
