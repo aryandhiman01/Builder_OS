@@ -90,10 +90,16 @@ export default function CreateProjectModal({ open, onClose }: CreateProjectModal
         return;
       }
 
+      router.refresh();
+
+      setTitle("");
+      setDescription("");
+      setCategory("Saas");
+      setColor(colors[0]);
+
       onClose();
 
       router.push(`/projects/${data.project.id}`);
-      router.refresh();
 
     } catch (error) {
       console.error(error);
@@ -358,7 +364,11 @@ export default function CreateProjectModal({ open, onClose }: CreateProjectModal
 
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                    if (!loading) {
+                        onClose();
+                    }
+                }}
                 disabled={loading}
                 className="
                 rounded-2xl

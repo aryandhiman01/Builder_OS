@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Search,
@@ -12,11 +12,53 @@ import {
 import ProjectCard from "@/components/dashboard/ProjectCard";
 import CreateProjectModal from "./CreateProjectModal";
 
-export default function ProjectsClient() {
+interface Project {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  category: string;
+  color: string;
+  createdAt: Date;
+}
+
+interface ProjectsClientProps {
+  projects: Project[];
+}
+
+export default function ProjectsClient({
+  projects,
+}: ProjectsClientProps) {
+
   const [open, setOpen] = useState(false);
+
+  const [search, setSearch] = useState("");
+
+  const [filter, setFilter] = useState("All");
+
+  const filteredProjects = useMemo(() => {
+
+    return projects.filter((project) => {
+
+      const matchesSearch =
+        project.title
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+      const matchesFilter =
+        filter === "All"
+          ? true
+          : project.status === filter;
+
+      return matchesSearch && matchesFilter;
+
+    });
+
+  }, [projects, search, filter]);
 
   return (
     <>
+
       <div className="space-y-10">
 
         {/* Header */}
@@ -30,7 +72,8 @@ export default function ProjectsClient() {
             </h1>
 
             <p className="mt-2 text-zinc-500">
-              Manage and organize all your product ideas in one place.
+              Manage and organize all your
+              product ideas in one place.
             </p>
 
           </div>
@@ -59,11 +102,9 @@ export default function ProjectsClient() {
 
         </div>
 
-        {/* Search & Filters */}
+        {/* Search */}
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-
-          {/* Search */}
 
           <div
             className="
@@ -80,12 +121,17 @@ export default function ProjectsClient() {
             py-3
             "
           >
+
             <Search
               size={18}
               className="text-zinc-500"
             />
 
             <input
+              value={search}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
               placeholder="Search projects..."
               className="
               w-full
@@ -102,67 +148,35 @@ export default function ProjectsClient() {
 
           <div className="flex flex-wrap gap-3">
 
-            <button
-              className="
-              rounded-full
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-black
-              "
-            >
-              All
-            </button>
+            {[
+              "All",
+              "Planning",
+              "Building",
+              "Completed",
+            ].map((item) => (
 
-            <button
-              className="
-              rounded-full
-              border
-              border-white/10
-              px-4
-              py-2
-              text-sm
-              text-zinc-400
-              transition
-              hover:bg-white/[0.03]
-              "
-            >
-              Active
-            </button>
+              <button
+                key={item}
+                onClick={() => setFilter(item)}
+                className={`
+                rounded-full
+                px-4
+                py-2
+                text-sm
+                font-medium
+                transition
 
-            <button
-              className="
-              rounded-full
-              border
-              border-white/10
-              px-4
-              py-2
-              text-sm
-              text-zinc-400
-              transition
-              hover:bg-white/[0.03]
-              "
-            >
-              Completed
-            </button>
+                ${
+                  filter === item
+                    ? "bg-white text-black"
+                    : "border border-white/10 text-zinc-400 hover:bg-white/[0.03]"
+                }
+                `}
+              >
+                {item}
+              </button>
 
-            <button
-              className="
-              rounded-full
-              border
-              border-white/10
-              px-4
-              py-2
-              text-sm
-              text-zinc-400
-              transition
-              hover:bg-white/[0.03]
-              "
-            >
-              Archived
-            </button>
+            ))}
 
           </div>
 
@@ -172,38 +186,68 @@ export default function ProjectsClient() {
 
         <section className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
 
-          <ProjectCard
-            id="builderos"
-            title="BuilderOS"
-            description="The operating system for product builders. Research, plan and build products with AI."
-            status="Building"
-            progress={72}
-            updatedAt="2 hours ago"
-            members={3}
-          />
+          {filteredProjects.length === 0 ? (
 
-          <ProjectCard
-            id="food-delivery"
-            title="Food Delivery Platform"
-            description="AI-powered food delivery application with customer, restaurant and rider dashboards."
-            status="Planning"
-            progress={24}
-            updatedAt="Today"
-            members={2}
-          />
+            <div
+              className="
+              col-span-full
+              rounded-3xl
+              border
+              border-dashed
+              border-white/10
+              p-16
+              text-center
+              "
+            >
 
-          <ProjectCard
-            id="crm"
-            title="CRM Platform"
-            description="Modern CRM system with automation and analytics."
-            status="Completed"
-            progress={100}
-            updatedAt="Yesterday"
-            members={5}
-          />
+              <FolderKanban
+                size={52}
+                className="mx-auto mb-5 text-zinc-600"
+              />
+
+              <h2 className="text-2xl font-semibold text-white">
+                No Projects Found
+              </h2>
+
+              <p className="mt-3 text-zinc-500">
+                Create your first project
+                to start using BuilderOS.
+              </p>
+
+            </div>
+
+          ) : (
+
+            filteredProjects.map((project) => (
+
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                title={project.title}
+                description={
+                  project.description ??
+                  "No description added yet."
+                }
+                status={
+                  project.status as
+                    | "Planning"
+                    | "Building"
+                    | "Completed"
+                }
+                progress={0}
+                updatedAt={new Date(
+                  project.createdAt
+                ).toLocaleDateString()}
+                members={1}
+              />
+
+            ))
+
+          )}
+
         </section>
 
-        {/* Workspace Summary */}
+                {/* Workspace Summary */}
 
         <div
           className="
@@ -234,7 +278,7 @@ export default function ProjectsClient() {
               </p>
 
               <p className="mt-2 text-3xl font-bold text-white">
-                3
+                {projects.length}
               </p>
 
             </div>
@@ -252,7 +296,12 @@ export default function ProjectsClient() {
                 />
 
                 <span className="text-3xl font-bold text-white">
-                  1
+                  {
+                    projects.filter(
+                      (project) =>
+                        project.status === "Completed"
+                    ).length
+                  }
                 </span>
 
               </div>
@@ -265,7 +314,7 @@ export default function ProjectsClient() {
 
       </div>
 
-      {/* Modal */}
+      {/* Create Project Modal */}
 
       <CreateProjectModal
         open={open}
