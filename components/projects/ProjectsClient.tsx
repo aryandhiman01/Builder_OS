@@ -20,6 +20,12 @@ interface Project {
   category: string;
   color: string;
   createdAt: Date;
+  updatedAt: Date;
+
+  tasks: {
+    id: string;
+    status: string;
+  }[];
 }
 
 interface ProjectsClientProps {
@@ -218,36 +224,54 @@ export default function ProjectsClient({
 
           ) : (
 
-            filteredProjects.map((project) => (
+            filteredProjects.map((project) => {
 
-              <ProjectCard
-                key={project.id}
-                id={project.id}
-                title={project.title}
-                description={
-                  project.description ??
-                  "No description added yet."
-                }
-                status={
-                  project.status as
-                    | "Planning"
-                    | "Building"
-                    | "Completed"
-                }
-                progress={0}
-                updatedAt={new Date(
-                  project.createdAt
-                ).toLocaleDateString()}
-                members={1}
-              />
+              const totalTasks = project.tasks.length;
 
-            ))
+              const completedTasks = project.tasks.filter(
+                (task) => task.status === "completed"
+              ).length;
+
+              const progress =
+                totalTasks === 0
+                  ? 0
+                  : Math.round(
+                      (completedTasks / totalTasks) * 100
+                    );
+
+              return (
+
+                <ProjectCard
+                  key={project.id}
+                  id={project.id}
+                  title={project.title}
+                  description={
+                    project.description ??
+                    "No description added yet."
+                  }
+                  status={
+                    project.status as
+                      | "Planning"
+                      | "Building"
+                      | "Completed"
+                  }
+                  progress={progress}
+                  updatedAt={new Date(
+                    project.updatedAt
+                  ).toLocaleDateString()}
+                  members={1}
+                  color={project.color}
+                />
+
+              );
+
+            })
 
           )}
 
         </section>
 
-                {/* Workspace Summary */}
+        {/* Workspace Summary */}
 
         <div
           className="

@@ -28,17 +28,40 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
 
     const { projectId } = await params;
     const project = await prisma.project.findFirst({
-        where: {
-          id: projectId,
-          user: {
-              email: session.user.email!,
-          },
-          },
-  });
+      where: {
+      id: projectId,
+      user: {
+      email: session.user.email!,
+      },
+  },
+  include: {
+    tasks: true,
+    ideas: true,
+  },
+}); 
 
     if(!project) {
         notFound();
     }
+
+    const totalTasks = project.tasks.length;
+
+    const completedTasks = project.tasks.filter(
+      (task) => task.status === "completed"
+    ).length;
+
+    const progress =
+      totalTasks === 0
+        ? 0
+        : Math.round((completedTasks / totalTasks) * 100);
+
+    const updatedDate = new Intl.DateTimeFormat("en-IN", {
+      dateStyle: "medium",
+    }).format(project.updatedAt);
+
+    const createdDate = new Intl.DateTimeFormat("en-IN", {
+      dateStyle: "medium",
+    }).format(project.createdAt);
 
     return (
     <div className="space-y-8">
@@ -116,11 +139,13 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
           </div>
 
           <h3 className="mt-6 text-3xl font-bold text-white">
-            0%
+            {progress}%
           </h3>
 
           <p className="mt-2 text-sm text-zinc-500">
-            Project Started
+            {totalTasks === 0
+            ? "No tasks created yet"
+            : `${completedTasks} / ${totalTasks} Tasks Completed`}
           </p>
 
         </div>
@@ -148,11 +173,11 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
           </div>
 
           <h3 className="mt-6 text-xl font-semibold text-white">
-            {project.createdAt.toLocaleDateString()}
+            {createdDate}
           </h3>
 
           <p className="mt-2 text-sm text-zinc-500">
-            Workspace Created
+            Project Created
           </p>
 
         </div>
@@ -180,11 +205,11 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
           </div>
 
           <h3 className="mt-6 text-xl font-semibold text-white">
-            Just Now
+            {updatedDate}
           </h3>
 
           <p className="mt-2 text-sm text-zinc-500">
-            Latest Activity
+            Last Updated
           </p>
 
         </div>
@@ -216,13 +241,15 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
             />
 
             <h3 className="text-lg font-semibold text-white">
-              AI Research
+              AI Generation Status
             </h3>
 
-            <p className="mt-2 text-sm text-zinc-500">
-              Generate competitor analysis and
-              market research using AI.
-            </p>
+            <div className="mt-3 space-y-2 text-sm text-zinc-500">
+              <p>Research • Not Generated</p>
+              <p>PRD • Not Generated</p>
+              <p>Roadmap • Not Generated</p>
+              <p>Architecture • Not Generated</p>
+            </div>
 
           </div>
 
@@ -332,9 +359,19 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
               </p>
 
               <p className="mt-1 text-white">
-                Planning
+                {project.status}
               </p>
 
+            </div>
+
+            <div>
+              <p className="text-sm text-zinc-500">
+                Category
+              </p>
+
+              <p className="mt-1 text-white">
+                {project.category}
+              </p>
             </div>
 
           </div>
@@ -376,10 +413,8 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
             </div>
 
             <p className="mt-3 text-sm leading-7 text-zinc-300">
-              Your workspace is ready.
-              Generate research, PRD,
-              roadmap, architecture and
-              development tasks using AI.
+              No AI assets have been generated for this project yet.
+              Start with Research to begin building your product.
             </p>
 
           </div>
@@ -410,18 +445,17 @@ export default async function ProjectPage({ params}: ProjectPageProps) {
             <div>
 
               <p className="font-medium text-white">
-                Workspace Created
+                Created on {createdDate}
               </p>
 
               <p className="text-sm text-zinc-500">
-                BuilderOS created your
-                project successfully.
+                Project workspace was successfully created.
               </p>
 
             </div>
 
             <span className="text-sm text-zinc-500">
-              Just Now
+              {updatedDate}
             </span>
 
           </div>

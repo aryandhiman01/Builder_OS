@@ -15,9 +15,10 @@ interface ProjectCardProps {
     progress: number;
     updatedAt: string;
     members: number;
+    color: string;
 }
 
-export default function ProjectCard({ id, title, description, status, progress, updatedAt, members}: ProjectCardProps) {
+export default function ProjectCard({ id, title, description, status, progress, updatedAt, members, color}: ProjectCardProps) {
     const statusStyles = {
         Planning: "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
         Building: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
@@ -54,12 +55,14 @@ export default function ProjectCard({ id, title, description, status, progress, 
         h-32
         w-32
         rounded-full
-        bg-white/5
         blur-3xl
         transition
         duration-500
-        group-hover:bg-white/10
         "
+        style={{
+          backgroundColor: color,
+          opacity: 0.12,
+        }}
       />
 
       {/* Header */}
@@ -71,6 +74,8 @@ export default function ProjectCard({ id, title, description, status, progress, 
           <div
             className={`
             inline-flex
+            items-center
+            gap-2
             rounded-full
             px-3
             py-1
@@ -79,6 +84,13 @@ export default function ProjectCard({ id, title, description, status, progress, 
             ${statusStyles[status]}
             `}
           >
+            <div
+              className="h-2.5 w-2.5 rounded-full"
+              style={{
+                backgroundColor: color,
+              }}
+            />
+
             {status}
           </div>
 
@@ -129,12 +141,12 @@ export default function ProjectCard({ id, title, description, status, progress, 
             className="
             h-full
             rounded-full
-            bg-white
             transition-all
             duration-500
             "
             style={{
               width: `${progress}%`,
+              backgroundColor: color,
             }}
           />
 
