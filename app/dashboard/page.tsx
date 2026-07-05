@@ -165,6 +165,7 @@ export default async function DashboardPage() {
             progress={72}
             updatedAt="2 hours ago"
             members={4}
+            color="#38bdf8"
           />
 
           <ProjectCard
@@ -175,6 +176,7 @@ export default async function DashboardPage() {
             progress={18}
             updatedAt="Today"
             members={2}
+            color="#a78bfa"
           />
 
         </div>
