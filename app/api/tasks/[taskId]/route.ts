@@ -93,5 +93,64 @@ export async function PATCH(req: Request, { params }: RouteContext) {
 export async function DELETE(req: Request, { params }: RouteContext) {
     try {
         const session = await getServerSession(authOptions);
+
+        if(!session?.user?.email) {
+            return NextResponse.json(
+                {
+                    error: "Unauthorized",
+                },
+                {
+                    status: 401,
+                }
+            );
+        }
+
+        const { taskId } = await params;
+
+        const task = await prisma.task.findFirst({
+            where: {
+                id: taskId,
+                project: {
+                    user: {
+                        email: session.user.email,
+                    },
+                },
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        if(!task) {
+            return NextResponse.json(
+                {
+                    error: "Task not found",
+                },
+                {
+                    status: 404,
+                }
+            );
+        }
+
+        await prisma.task.delete({
+            where: {
+                id: task.id,
+            },
+        });
+
+        return NextResponse.json({
+            success: true,
+        });
+    } catch (error) {
+        console.error("[DELETE_TASK]", error);
+
+        return NextResponse.json(
+            {
+                error: " Something went wrong",
+            },
+            {
+                status: 500,
+            }
+        );
     }
 }
