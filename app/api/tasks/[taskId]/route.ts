@@ -87,3 +87,11 @@ export async function PATCH(req: Request, { params }: RouteContext) {
         );
     }
 }
+
+
+// DELETE Operation
+export async function DELETE(req: Request, { params }: RouteContext) {
+    try {
+        const session = await getServerSession(authOptions);
+    }
+}
