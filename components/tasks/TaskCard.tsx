@@ -14,6 +14,7 @@ import ActionMenu from "@/components/ui/ActionMenu";
 
 import { Task } from "./TaskBoard";
 import EditTaskModal from "./EditTaskModal";
+import ConfirmModal from "../ui/ConfirmModal";
 
 interface TaskCardProps {
   task: Task;
@@ -39,6 +40,7 @@ export default function TaskCard({
     useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   async function updateStatus(
     status:
@@ -176,7 +178,7 @@ export default function TaskCard({
 
       danger: true,
 
-      onClick: deleteTask,
+      onClick: () => setDeleteOpen(true),
     },
   ];
 
@@ -323,6 +325,18 @@ export default function TaskCard({
           dueDate: task.dueDate,
         }}
       />
+
+      <ConfirmModal
+      open={deleteOpen}
+      onClose={() => setDeleteOpen(false)}
+      onConfirm={deleteTask}
+      title="Delete Task"
+      description="Are you sure you want to delete this task? This action cannot be undone."
+      confirmText="Delete Task"
+      cancelText="Cancel"
+      loading={loading}
+      danger
+    />
     </>
   );
 }
