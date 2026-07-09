@@ -13,6 +13,7 @@ import {
 import ActionMenu from "@/components/ui/ActionMenu";
 
 import { Task } from "./TaskBoard";
+import EditTaskModal from "./EditTaskModal";
 
 interface TaskCardProps {
   task: Task;
@@ -36,6 +37,8 @@ export default function TaskCard({
 
   const [loading, setLoading] =
     useState(false);
+
+  const [editOpen, setEditOpen] = useState(false);
 
   async function updateStatus(
     status:
@@ -129,9 +132,8 @@ export default function TaskCard({
 
       icon: <Pencil size={16} />,
 
-      onClick: () => {
-        console.log("Edit");
-      },
+      onClick: () =>
+        setEditOpen(true),
     },
 
     {
@@ -179,132 +181,148 @@ export default function TaskCard({
   ];
 
     return (
-    <div
-      className="
-      rounded-2xl
-      border
-      border-white/10
-      bg-[#0D0D0D]
-      p-5
-      transition
-      hover:border-white/20
-      hover:bg-[#121212]
-      "
-    >
-
-      {/* Header */}
-
-      <div className="flex items-start justify-between">
-
-        <div className="flex-1">
-
-          <h3
-            className="
-            text-base
-            font-semibold
-            text-white
-            "
-          >
-            {task.title}
-          </h3>
-
-          {task.description && (
-
-            <p
-              className="
-              mt-2
-              text-sm
-              leading-6
-              text-zinc-500
-              "
-            >
-              {task.description}
-            </p>
-
-          )}
-
-        </div>
-
-        <div className="ml-3">
-
-          <ActionMenu
-            items={menuItems}
-          />
-
-        </div>
-
-      </div>
-
-      {/* Footer */}
-
+    <>
       <div
         className="
-        mt-6
-        flex
-        items-center
-        justify-between
+        rounded-2xl
+        border
+        border-white/10
+        bg-[#0D0D0D]
+        p-5
+        transition
+        hover:border-white/20
+        hover:bg-[#121212]
         "
       >
 
-        <span
-          className={`
-          rounded-full
-          px-3
-          py-1
-          text-xs
-          font-medium
-          ${
-            priorityStyles[
-              task.priority as keyof typeof priorityStyles
-            ]
-          }
-          `}
-        >
-          {task.priority}
-        </span>
+        {/* Header */}
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-start justify-between">
 
-          {loading && (
+          <div className="flex-1">
 
-            <Loader2
-              size={16}
+            <h3
               className="
-              animate-spin
-              text-zinc-500
-              "
-            />
-
-          )}
-
-          {task.dueDate && (
-
-            <div
-              className="
-              flex
-              items-center
-              gap-2
-              text-sm
-              text-zinc-500
+              text-base
+              font-semibold
+              text-white
               "
             >
+              {task.title}
+            </h3>
 
-              <CalendarDays size={15} />
+            {task.description && (
 
-              {new Date(
-                task.dueDate
-              ).toLocaleDateString(
-                "en-IN"
-              )}
+              <p
+                className="
+                mt-2
+                text-sm
+                leading-6
+                text-zinc-500
+                "
+              >
+                {task.description}
+              </p>
 
-            </div>
+            )}
 
-          )}
+          </div>
+
+          <div className="ml-3">
+
+            <ActionMenu
+              items={menuItems}
+            />
+
+          </div>
+
+        </div>
+
+        {/* Footer */}
+
+        <div
+          className="
+          mt-6
+          flex
+          items-center
+          justify-between
+          "
+        >
+
+          <span
+            className={`
+            rounded-full
+            px-3
+            py-1
+            text-xs
+            font-medium
+            ${
+              priorityStyles[
+                task.priority as keyof typeof priorityStyles
+              ]
+            }
+            `}
+          >
+            {task.priority}
+          </span>
+
+          <div className="flex items-center gap-3">
+
+            {loading && (
+
+              <Loader2
+                size={16}
+                className="
+                animate-spin
+                text-zinc-500
+                "
+              />
+
+            )}
+
+            {task.dueDate && (
+
+              <div
+                className="
+                flex
+                items-center
+                gap-2
+                text-sm
+                text-zinc-500
+                "
+              >
+
+                <CalendarDays size={15} />
+
+                {new Date(
+                  task.dueDate
+                ).toLocaleDateString(
+                  "en-IN"
+                )}
+
+              </div>
+
+            )}
+
+          </div>
 
         </div>
 
       </div>
 
-    </div>
+      <EditTaskModal
+        open={editOpen}
+        onClose={() =>
+          setEditOpen(false)
+        }
+        task={{
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority as "low" | "medium" | "high",
+          dueDate: task.dueDate,
+        }}
+      />
+    </>
   );
 }
