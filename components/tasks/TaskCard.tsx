@@ -42,61 +42,7 @@ export default function TaskCard({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  async function updateStatus(
-    status:
-      | "todo"
-      | "in-progress"
-      | "completed"
-  ) {
-    try {
-
-      setLoading(true);
-
-      const response = await fetch(
-        `/api/tasks/${task.id}`,
-        {
-          method: "PATCH",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            status,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to update task."
-        );
-      }
-
-      router.refresh();
-
-    } catch (error) {
-
-      console.error(error);
-
-    } finally {
-
-      setLoading(false);
-
-    }
-  }
-
   async function deleteTask() {
-
-    const confirmed =
-      window.confirm(
-        "Delete this task?"
-      );
-
-    if (!confirmed) {
-      return;
-    }
 
     try {
 
@@ -114,6 +60,8 @@ export default function TaskCard({
           "Failed to delete task."
         );
       }
+
+      setDeleteOpen(false);
 
       router.refresh();
 
@@ -136,39 +84,6 @@ export default function TaskCard({
 
       onClick: () =>
         setEditOpen(true),
-    },
-
-    {
-    label: "Move To",
-
-        children: [
-
-            {
-            label: "Todo",
-
-            onClick: () =>
-                updateStatus("todo"),
-            },
-
-            {
-            label: "In Progress",
-
-            onClick: () =>
-                updateStatus(
-                "in-progress"
-                ),
-            },
-
-            {
-            label: "Completed",
-
-            onClick: () =>
-                updateStatus(
-                "completed"
-                ),
-            },
-
-        ],
     },
 
     {
@@ -327,16 +242,16 @@ export default function TaskCard({
       />
 
       <ConfirmModal
-      open={deleteOpen}
-      onClose={() => setDeleteOpen(false)}
-      onConfirm={deleteTask}
-      title="Delete Task"
-      description="Are you sure you want to delete this task? This action cannot be undone."
-      confirmText="Delete Task"
-      cancelText="Cancel"
-      loading={loading}
-      danger
-    />
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={deleteTask}
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete Task"
+        cancelText="Cancel"
+        loading={loading}
+        danger
+      />
     </>
   );
 }
