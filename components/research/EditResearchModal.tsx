@@ -1,25 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  Brain,
   Loader2,
+  Pencil,
   X,
 } from "lucide-react";
 
-interface GenerateResearchModalProps {
+interface EditResearchModalProps {
   open: boolean;
+
   onClose: () => void;
-  projectId: string;
+
+  research: {
+    id: string;
+    title: string;
+    prompt: string;
+    content: string;
+  };
 }
 
-export default function GenerateResearchModal({
+export default function EditResearchModal({
   open,
   onClose,
-  projectId,
-}: GenerateResearchModalProps) {
+  research,
+}: EditResearchModalProps) {
 
   const router = useRouter();
 
@@ -32,8 +39,23 @@ export default function GenerateResearchModal({
   const [prompt, setPrompt] =
     useState("");
 
+  const [content, setContent] =
+    useState("");
+
   const [error, setError] =
     useState("");
+
+  useEffect(() => {
+
+    if (!open) return;
+
+    setTitle(research.title);
+
+    setPrompt(research.prompt);
+
+    setContent(research.content);
+
+  }, [open, research]);
 
   if (!open) {
     return null;
@@ -48,19 +70,35 @@ export default function GenerateResearchModal({
     setError("");
 
     if (!title.trim()) {
+
       setError(
-        "Research title is required."
+        "Title is required."
       );
+
       return;
+
     }
 
     if (
       prompt.trim().length < 10
     ) {
+
       setError(
         "Prompt must contain at least 10 characters."
       );
+
       return;
+
+    }
+
+    if (!content.trim()) {
+
+      setError(
+        "Research content is required."
+      );
+
+      return;
+
     }
 
     try {
@@ -69,9 +107,9 @@ export default function GenerateResearchModal({
 
       const response =
         await fetch(
-          `/api/projects/${projectId}/research`,
+          `/api/research/${research.id}`,
           {
-            method: "POST",
+            method: "PATCH",
 
             headers: {
               "Content-Type":
@@ -79,28 +117,27 @@ export default function GenerateResearchModal({
             },
 
             body: JSON.stringify({
-                title: title.trim(),
-                prompt: prompt.trim(),
+
+              title,
+
+              prompt,
+
+              content,
+
             }),
+
           }
         );
 
-        if (!response.ok) {
+      if (!response.ok) {
 
-            const error =
-                await response.json();
+        throw new Error(
+          "Failed to update research."
+        );
 
-            throw new Error(
-                error.message ??
-                "Failed to generate research."
-            );
-        }
+      }
 
       router.refresh();
-
-      setTitle("");
-
-      setPrompt("");
 
       onClose();
 
@@ -109,11 +146,7 @@ export default function GenerateResearchModal({
       console.error(error);
 
       setError(
-
-        error instanceof Error
-            ? error.message
-            : "Something went wrong."
-
+        "Something went wrong."
       );
 
     } finally {
@@ -125,6 +158,7 @@ export default function GenerateResearchModal({
   }
 
     return (
+
     <div
       className="
       fixed
@@ -141,7 +175,7 @@ export default function GenerateResearchModal({
       <div
         className="
         w-full
-        max-w-2xl
+        max-w-4xl
         rounded-3xl
         border
         border-white/10
@@ -159,8 +193,8 @@ export default function GenerateResearchModal({
 
             <div className="flex items-center gap-3">
 
-              <Brain
-                size={26}
+              <Pencil
+                size={24}
                 className="text-blue-400"
               />
 
@@ -171,7 +205,7 @@ export default function GenerateResearchModal({
                 text-white
                 "
               >
-                Generate AI Research
+                Edit Research
               </h2>
 
             </div>
@@ -182,9 +216,8 @@ export default function GenerateResearchModal({
               text-zinc-500
               "
             >
-              Describe your product idea and
-              BuilderOS AI will generate
-              structured market research.
+              Update your research details and
+              markdown content.
             </p>
 
           </div>
@@ -264,16 +297,16 @@ export default function GenerateResearchModal({
               text-zinc-300
               "
             >
-              Product Prompt
+              Prompt
             </label>
 
             <textarea
-              rows={8}
+              rows={5}
               value={prompt}
               onChange={(e) =>
                 setPrompt(e.target.value)
               }
-              placeholder="Example: Build an AI-powered CRM for lawyers that automates case management, client communication and document generation."
+              placeholder="Describe your product idea..."
               className="
               w-full
               resize-none
@@ -283,6 +316,49 @@ export default function GenerateResearchModal({
               bg-white/[0.03]
               px-4
               py-3
+              text-white
+              outline-none
+              transition
+              focus:border-blue-500
+              "
+            />
+
+          </div>
+
+          <div>
+
+            <label
+              className="
+              mb-2
+              block
+              text-sm
+              font-medium
+              text-zinc-300
+              "
+            >
+              Research Content (Markdown)
+            </label>
+
+            <textarea
+              rows={14}
+              value={content}
+              onChange={(e) =>
+                setContent(e.target.value)
+              }
+              placeholder="# Market Research..."
+              className="
+              min-h-[350px]
+              w-full
+              resize-y
+              rounded-2xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              px-4
+              py-3
+              font-mono
+              text-sm
+              leading-7
               text-white
               outline-none
               transition
@@ -370,7 +446,7 @@ export default function GenerateResearchModal({
                     className="animate-spin"
                   />
 
-                  Generating...
+                  Saving...
 
                 </>
 
@@ -378,9 +454,9 @@ export default function GenerateResearchModal({
 
                 <>
 
-                  <Brain size={18} />
+                  <Pencil size={18} />
 
-                  Generate Research
+                  Save Changes
 
                 </>
 
@@ -395,5 +471,6 @@ export default function GenerateResearchModal({
       </div>
 
     </div>
+
   );
 }

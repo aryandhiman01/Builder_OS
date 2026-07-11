@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+import { generateResearch } from "@/lib/ai/research";
+
 interface RouteParams {
     params: Promise<{
         projectId: string;
@@ -128,12 +130,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         const body = await request.json();
 
-        const{ title, prompt, content, model, tokens, generationTime } = body;
+        const { title, prompt } = body;
 
-        if(!title || !prompt || !content) {
+        if(!title || !prompt) {
             return NextResponse.json(
                 {
-                    message: "Title, prompt and content are required",
+                    message: "Title and prompt are required",
                 },
                 {
                     status: 400,
@@ -163,16 +165,33 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         );
         }
 
-        const research = await prisma.research.create({
+        const aiResearch = await generateResearch(prompt.trim());
+
+        const research =
+        await prisma.research.create({
+
             data: {
-                title: title.trim(),
-                prompt: prompt.trim(),
-                content: content.trim(),
-                model,
-                tokens,
-                generationTime,
-                projectId,
+
+            title: title.trim(),
+
+            prompt: prompt.trim(),
+
+            content:
+                aiResearch.content,
+
+            model:
+                aiResearch.model,
+
+            tokens:
+                aiResearch.tokens,
+
+            generationTime:
+                aiResearch.generationTime,
+
+            projectId,
+
             },
+
         });
 
         return NextResponse.json(
