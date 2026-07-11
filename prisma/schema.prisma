@@ -136,7 +136,7 @@ model Research {
 
   model String
 
-  token Int?
+  tokens Int?
 
   generationTime Int?
 
