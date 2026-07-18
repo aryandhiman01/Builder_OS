@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -49,6 +49,11 @@ export default function ResearchViewer({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function copyContent() {
     await navigator.clipboard.writeText(research.content);
@@ -152,18 +157,42 @@ export default function ResearchViewer({
 
           <div className="flex items-center gap-3">
 
-        <PDFDownloadLink
-            document={
-            <ResearchPDF
-                research={research}
-            />
-            }
-            fileName={`BuilderOS-${research.title}.pdf`}
-        >
-
-            {({ loading }) => (
-
-            <button
+            {mounted ? (
+              <PDFDownloadLink
+                key={research.updatedAt ? new Date(research.updatedAt).getTime() : Date.now()}
+                document={
+                  <ResearchPDF
+                    research={research}
+                  />
+                }
+                fileName={`BuilderOS-${research.title}.pdf`}
+              >
+                {({ loading }) => (
+                  <button
+                    className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-xl
+                    border
+                    border-white/10
+                    bg-white/[0.03]
+                    px-4
+                    py-2
+                    text-sm
+                    font-medium
+                    text-white
+                    transition
+                    hover:bg-white/[0.06]
+                    "
+                  >
+                    <FileText size={16} />
+                    {loading ? "Preparing..." : "PDF"}
+                  </button>
+                )}
+              </PDFDownloadLink>
+            ) : (
+              <button
                 className="
                 inline-flex
                 items-center
@@ -176,27 +205,19 @@ export default function ResearchViewer({
                 py-2
                 text-sm
                 font-medium
-                text-white
-                transition
-                hover:bg-white/[0.06]
+                text-zinc-500
+                cursor-not-allowed
                 "
-            >
-
+                disabled
+              >
                 <FileText size={16} />
-
-                {loading
-                ? "Preparing..."
-                : "PDF"}
-
-            </button>
-
+                PDF
+              </button>
             )}
 
-        </PDFDownloadLink>
-
-        <button
-            onClick={copyContent}
-            className="
+            <button
+              onClick={copyContent}
+              className="
             inline-flex
             items-center
             gap-2
@@ -212,27 +233,27 @@ export default function ResearchViewer({
             transition
             hover:bg-white/[0.06]
             "
-        >
+            >
 
-            {copied ? (
-            <>
-                <Check size={16} />
-                Copied
-            </>
-            ) : (
-            <>
-                <Copy size={16} />
-                Copy
-            </>
-            )}
+              {copied ? (
+                <>
+                  <Check size={16} />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  Copy
+                </>
+              )}
 
-        </button>
+            </button>
 
-        <ActionMenu
-            items={menuItems}
-        />
+            <ActionMenu
+              items={menuItems}
+            />
 
-        </div>
+          </div>
         </div>
 
         {/* Research Header */}
