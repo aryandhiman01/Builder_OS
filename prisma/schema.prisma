@@ -93,6 +93,8 @@ model Project {
   tasks Task[]
 
   researches Research[]
+
+  prds PRD[]
 }
 
 model Idea {
@@ -147,4 +149,23 @@ model Research {
   projectId String
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model PRD {
+  id              String   @id @default(cuid())
+  title           String
+  prompt          String   @db.Text
+  content         String   @db.Text
+
+  model           String?
+  tokens          Int?
+  generationTime  Int?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
