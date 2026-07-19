@@ -1,11 +1,11 @@
 import {
   ai,
   DEFAULT_MODEL,
-} from "./client";
+} from "../client";
 
 import {
   buildResearchPrompt,
-} from "./prompts";
+} from "../prompts/research";
 
 export interface ResearchResult {
   content: string;

@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-import { generateResearch } from "@/lib/ai/research";
+import { generateResearch } from "@/lib/ai/services/generateResearch";
 
 interface RouteParams {
     params: Promise<{
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
         const session = await getServerSession(authOptions);
 
-        if(!session?.user?.email) {
+        if (!session?.user?.email) {
             return NextResponse.json(
                 {
                     message: "Unauthorized",
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             },
         });
 
-        if(!project) {
+        if (!project) {
             return NextResponse.json(
                 {
                     message: "Project not found",
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         );
     } catch (error) {
         console.error(error);
-        
+
         return NextResponse.json(
             {
                 message: "Something went wrong",
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     try {
         const session = await getServerSession(authOptions);
 
-        if(!session?.user?.email) {
+        if (!session?.user?.email) {
             return NextResponse.json(
                 {
                     message: "Unauthorized",
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             },
         });
 
-        if(!project) {
+        if (!project) {
             return NextResponse.json(
                 {
                     message: "Project not found",
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
         const { title, prompt } = body;
 
-        if(!title || !prompt) {
+        if (!title || !prompt) {
             return NextResponse.json(
                 {
                     message: "Title and prompt are required",
@@ -161,38 +161,38 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 },
                 {
                     status: 400,
-            }
-        );
+                }
+            );
         }
 
         const aiResearch = await generateResearch(prompt.trim());
 
         const research =
-        await prisma.research.create({
+            await prisma.research.create({
 
-            data: {
+                data: {
 
-            title: title.trim(),
+                    title: title.trim(),
 
-            prompt: prompt.trim(),
+                    prompt: prompt.trim(),
 
-            content:
-                aiResearch.content,
+                    content:
+                        aiResearch.content,
 
-            model:
-                aiResearch.model,
+                    model:
+                        aiResearch.model,
 
-            tokens:
-                aiResearch.tokens,
+                    tokens:
+                        aiResearch.tokens,
 
-            generationTime:
-                aiResearch.generationTime,
+                    generationTime:
+                        aiResearch.generationTime,
 
-            projectId,
+                    projectId,
 
-            },
+                },
 
-        });
+            });
 
         return NextResponse.json(
             research,
