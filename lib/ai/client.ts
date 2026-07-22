@@ -11,4 +11,4 @@ export const ai = new GoogleGenAI({
 });
 
 export const DEFAULT_MODEL =
-  "gemini-3.5-flash";
+  "gemini-3.6-flash";

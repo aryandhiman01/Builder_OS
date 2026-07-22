@@ -4,10 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+
 import { PRDCard } from "@/components/prd/PRDCard";
 import { GeneratePRDModal } from "@/components/prd/GeneratePRDModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GenerateCustomPRDModal } from "@/components/prd/GenerateCustomPRDModal";
 
 import {
   FileText,
@@ -20,6 +29,8 @@ import {
   CheckCircle2,
   ArrowRight,
   Clock3,
+  Wand2,
+  ChevronDown
 } from "lucide-react";
 
 interface ResearchItem {
@@ -57,14 +68,15 @@ export default function PRDPageClient({
 }: PRDPageClientProps) {
   const [activeTab, setActiveTab] = useState<"prds" | "research">("prds");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isResearchModalOpen, setIsResearchModalOpen] = useState(false);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [targetResearchId, setTargetResearchId] = useState<string | undefined>(
     undefined
   );
 
   const handleOpenGenerateModal = (researchId?: string) => {
     setTargetResearchId(researchId);
-    setIsModalOpen(true);
+    setIsResearchModalOpen(true);
   };
 
   const filteredPrds = initialPrds.filter((prd) =>
@@ -115,13 +127,50 @@ export default function PRDPageClient({
 
           <div className="flex flex-wrap items-center gap-3">
             {researches.length > 0 ? (
-              <Button
-                onClick={() => handleOpenGenerateModal()}
-                className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-xl shadow-white/10 rounded-xl"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Generate PRD from Research
-              </Button>
+              <DropdownMenu>
+
+                  <DropdownMenuTrigger asChild>
+
+                      <Button className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl">
+
+                          <Sparkles className="mr-2 h-4 w-4"/>
+
+                          New PRD
+
+                          <ChevronDown className="ml-2 h-4 w-4"/>
+
+                      </Button>
+
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                      align="end"
+                      className="w-64 rounded-xl border-white/10 bg-[#0a0a0c] text-white"
+                  >
+
+                      <DropdownMenuItem
+                          onClick={() => handleOpenGenerateModal()}
+                          className="cursor-pointer"
+                      >
+                          <Brain className="mr-2 h-4 w-4 text-blue-400"/>
+
+                          Generate from Research
+
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                          onClick={() => setIsCustomModalOpen(true)}
+                          className="cursor-pointer"
+                      >
+                          <Wand2 className="mr-2 h-4 w-4 text-purple-400"/>
+
+                          Generate from Custom Prompt
+
+                      </DropdownMenuItem>
+
+                  </DropdownMenuContent>
+
+              </DropdownMenu>
             ) : (
               <Button
                 asChild
@@ -248,11 +297,12 @@ export default function PRDPageClient({
 
               {researches.length > 0 ? (
                 <Button
-                  onClick={() => handleOpenGenerateModal()}
-                  className="mt-6 bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                    variant="outline"
+                    onClick={() => setIsCustomModalOpen(true)}
+                    className="mt-3 rounded-xl"
                 >
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Generate Your First PRD
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Generate Custom PRD
                 </Button>
               ) : (
                 <div className="mt-6 flex flex-col items-center gap-3">
@@ -415,11 +465,17 @@ export default function PRDPageClient({
 
       {/* Modal for PRD Generation */}
       <GeneratePRDModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        projectId={projectId}
-        researchId={targetResearchId}
-        researches={researches}
+          open={isResearchModalOpen}
+          onOpenChange={setIsResearchModalOpen}
+          projectId={projectId}
+          researchId={targetResearchId}
+          researches={researches}
+      />
+
+      <GenerateCustomPRDModal
+          open={isCustomModalOpen}
+          onOpenChange={setIsCustomModalOpen}
+          projectId={projectId}
       />
     </div>
   );

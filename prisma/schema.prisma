@@ -95,25 +95,33 @@ model Project {
   researches Research[]
 
   prds PRD[]
+
+  roadmaps Roadmap[]
 }
 
 model Idea {
-  id          String  @id @default(cuid())
-  title       String
+  id String @id @default(cuid())
+
+  title String
+
   description String?
 
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id])
-
   createdAt DateTime @default(now())
+
+  projectId String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id          String  @id @default(cuid())
-  title       String
+  id String @id @default(cuid())
+
+  title String
+
   description String?
 
-  status   String @default("todo")
+  status String @default("todo")
+
   priority String @default("medium")
 
   dueDate DateTime?
@@ -121,10 +129,12 @@ model Task {
   order Int @default(0)
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
   projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Research {
@@ -132,7 +142,7 @@ model Research {
 
   title String
 
-  prompt String
+  prompt String @db.Text
 
   content String @db.Text
 
@@ -149,23 +159,71 @@ model Research {
   projectId String
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Optional because one research may never generate a PRD
+  prd PRD?
 }
 
 model PRD {
-  id              String   @id @default(cuid())
-  title           String
-  prompt          String   @db.Text
-  content         String   @db.Text
+  id String @id @default(cuid())
 
-  model           String?
-  tokens          Int?
-  generationTime  Int?
+  title String
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  prompt String @db.Text
 
-  projectId       String
-  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content String @db.Text
+
+  model String?
+
+  tokens Int?
+
+  generationTime Int?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  projectId String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // NULL => Custom PRD
+  researchId String? @unique
+
+  research Research? @relation(fields: [researchId], references: [id], onDelete: Cascade)
+
+  roadmap Roadmap?
+
+  @@index([projectId])
+}
+
+model Roadmap {
+  id String @id @default(cuid())
+
+  title String
+
+  prompt String @db.Text
+
+  content String @db.Text
+
+  model String?
+
+  tokens Int?
+
+  generationTime Int?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  projectId String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Every roadmap belongs to one PRD
+  prdId String @unique
+
+  prd PRD @relation(fields: [prdId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
 }

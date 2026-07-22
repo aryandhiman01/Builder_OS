@@ -80,7 +80,7 @@ export function GeneratePRDModal({
     try {
       setLoading(true);
 
-      const response = await fetch(`/api/projects/${projectId}/prd`, {
+      const response = await fetch(`/api/projects/${projectId}/prd/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,8 +100,8 @@ export function GeneratePRDModal({
       toast.success("PRD generated successfully!");
       onOpenChange(false);
 
-      if (data?.id) {
-        router.push(`/projects/${projectId}/prd/${data.id}`);
+      if (data?.prd?.id) {
+        router.push(`/projects/${projectId}/prd/${data.prd.id}`);
       } else {
         router.refresh();
       }
