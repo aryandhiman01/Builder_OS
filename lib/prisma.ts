@@ -1,4 +1,9 @@
 import { PrismaClient } from "@prisma/client"
+import dns from "node:dns";
+
+if (typeof window === "undefined") {
+    dns.setDefaultResultOrder("ipv4first");
+}
 
 const globalForPrisma = globalThis as unknown as {
     prisma : PrismaClient | undefined;

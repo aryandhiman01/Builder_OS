@@ -12,12 +12,14 @@ import {
   Trash2,
   Loader2,
   Pencil,
+  Sparkles,
 } from "lucide-react";
 
 import { Research } from "./ResearchClient";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ActionMenu from "@/components/ui/ActionMenu";
 import EditResearchModal from "./EditResearchModal";
+import { GeneratePRDModal } from "@/components/prd/GeneratePRDModal";
 
 interface ResearchCardProps {
   projectId: string;
@@ -31,7 +33,8 @@ export default function ResearchCard({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] =useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [generatePrdOpen, setGeneratePrdOpen] = useState(false);
 
   async function deleteResearch() {
     try {
@@ -58,6 +61,14 @@ export default function ResearchCard({
   }
 
   const menuItems = [
+    {
+      label: "Generate PRD",
+
+      icon: <Sparkles size={16} />,
+
+      onClick: () =>
+        setGeneratePrdOpen(true),
+    },
 
     {
       label: "Edit Research",
@@ -340,6 +351,14 @@ export default function ResearchCard({
         cancelText="Cancel"
         loading={loading}
         danger
+      />
+
+      <GeneratePRDModal
+        open={generatePrdOpen}
+        onOpenChange={setGeneratePrdOpen}
+        projectId={projectId}
+        researchId={research.id}
+        researches={[{ id: research.id, title: research.title, prompt: research.prompt }]}
       />
     </>
   );
