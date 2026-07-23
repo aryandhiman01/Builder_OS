@@ -221,9 +221,9 @@ model Roadmap {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Every roadmap belongs to one PRD
-  prdId String @unique
+  prdId String? @unique
 
-  prd PRD @relation(fields: [prdId], references: [id], onDelete: Cascade)
+  prd PRD? @relation(fields: [prdId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
 }

@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+import { generateRoadmap } from "@/lib/ai/services/generate-roadmap";
+
+interface RouteParams {
+  params: Promise<{
+    projectId: string;
+  }>;
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    const { projectId } = await params;
+
+    const body = await request.json();
+
+    const {
+      title,
+      prompt,
+    } = body;
+
+    if (!title?.trim()) {
+      return NextResponse.json(
+        {
+          message: "Title is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (!prompt?.trim()) {
+      return NextResponse.json(
+        {
+          message: "Prompt is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const project =
+      await prisma.project.findFirst({
+        where: {
+          id: projectId,
+          user: {
+            email: session.user.email,
+          },
+        },
+      });
+
+    if (!project) {
+      return NextResponse.json(
+        {
+          message: "Project not found.",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    const result =
+      await generateRoadmap(prompt);
+
+    const roadmap =
+      await prisma.roadmap.create({
+        data: {
+          title,
+          prompt,
+          content: result.content,
+          model: result.model,
+          tokens: result.tokens,
+          generationTime:
+            result.generationTime,
+          projectId,
+
+          // Custom roadmap
+          // No PRD relation
+          prdId: undefined as never,
+        },
+      });
+
+    return NextResponse.json(
+      {
+        message:
+          "Custom roadmap generated successfully.",
+        roadmap,
+      },
+      {
+        status: 201,
+      }
+    );
+  } catch (error: any) {
+    console.error(error);
+
+    if (error?.status === 503) {
+      return NextResponse.json(
+        {
+          message:
+            "Gemini AI is currently busy. Please try again shortly.",
+        },
+        {
+          status: 503,
+        }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message:
+          error?.message ??
+          "Failed to generate roadmap.",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
