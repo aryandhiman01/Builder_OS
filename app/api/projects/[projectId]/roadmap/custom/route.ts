@@ -21,92 +21,65 @@ export async function POST(
 
     if (!session?.user?.email) {
       return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-        }
+        { message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
     const { projectId } = await params;
 
-    const body = await request.json();
-
-    const {
-      title,
-      prompt,
-    } = body;
+    const { title, prompt } = await request.json();
 
     if (!title?.trim()) {
       return NextResponse.json(
-        {
-          message: "Title is required.",
-        },
-        {
-          status: 400,
-        }
+        { message: "Title is required." },
+        { status: 400 }
       );
     }
 
     if (!prompt?.trim()) {
       return NextResponse.json(
-        {
-          message: "Prompt is required.",
-        },
-        {
-          status: 400,
-        }
+        { message: "Prompt is required." },
+        { status: 400 }
       );
     }
 
-    const project =
-      await prisma.project.findFirst({
-        where: {
-          id: projectId,
-          user: {
-            email: session.user.email,
-          },
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        user: {
+          email: session.user.email,
         },
-      });
+      },
+    });
 
     if (!project) {
       return NextResponse.json(
-        {
-          message: "Project not found.",
-        },
-        {
-          status: 404,
-        }
+        { message: "Project not found." },
+        { status: 404 }
       );
     }
 
-    const result =
-      await generateRoadmap(prompt);
+    const result = await generateRoadmap(prompt);
 
-    const roadmap =
-      await prisma.roadmap.create({
-        data: {
-          title,
-          prompt,
-          content: result.content,
-          model: result.model,
-          tokens: result.tokens,
-          generationTime:
-            result.generationTime,
-          projectId,
+    const roadmap = await prisma.roadmap.create({
+      data: {
+        title,
+        prompt,
+        content: result.content,
+        model: result.model,
+        tokens: result.tokens,
+        generationTime: result.generationTime,
+        projectId,
 
-          // Custom roadmap
-          // No PRD relation
-          prdId: undefined as never,
-        },
-      });
+        // Custom roadmap
+        prdId: null,
+      },
+    });
 
     return NextResponse.json(
       {
-        message:
-          "Custom roadmap generated successfully.",
+        message: "Roadmap generated successfully.",
         roadmap,
       },
       {
@@ -120,7 +93,7 @@ export async function POST(
       return NextResponse.json(
         {
           message:
-            "Gemini AI is currently busy. Please try again shortly.",
+            "Gemini AI is currently busy. Please try again in a few moments.",
         },
         {
           status: 503,
