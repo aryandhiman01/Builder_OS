@@ -5,7 +5,7 @@ import { buildRoadmapPrompt } from "../prompts/roadmap";
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000;
 
-export async function generationRoadmap(prd: string) {
+export async function generateRoadmap(prd: string) {
     const start = Date.now();
 
     let lastError: unknown;
