@@ -16,7 +16,7 @@ export default async function RoadmapsPage({ params }: PageProps) {
     const session = await getServerSession(authOptions);
     
     if(!session?.user?.email) {
-        redirect("/login");
+        redirect("/login"); 
     }
 
     const { projectId } = await params;

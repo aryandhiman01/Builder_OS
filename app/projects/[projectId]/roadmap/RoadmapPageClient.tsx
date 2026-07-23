@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import {
   DropdownMenu,
@@ -10,54 +11,51 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  Search,
-  Map,
-  Plus,
-  Sparkles,
-  FileText,
-  Calendar,
-  Clock,
-  ChevronDown,
-} from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import GenerateRoadmapModal from "@/components/roadmap/GenerateRoadmapModal";
+import GenerateCustomRoadmapModal from "@/components/roadmap/GenerateCustomRoadmapModal";
 
+import {
+  Map as MapIcon,
+  Sparkles,
+  Search,
+  Plus,
+  FileText,
+  Layers,
+  Zap,
+  CheckCircle2,
+  ArrowRight,
+  Clock3,
+  Wand2,
+  ChevronDown,
+  Calendar,
+} from "lucide-react";
 
 interface PRD {
-    id: string;
-    title: string;
-    prompt: string;
-
-    model: string | null;
-
-    tokens: number | null;
-
-    generationTime: number | null;
-
-    createdAt: Date;
+  id: string;
+  title: string;
+  prompt: string;
+  model: string | null;
+  tokens: number | null;
+  generationTime: number | null;
+  createdAt: Date;
 }
 
 interface Roadmap {
+  id: string;
+  title: string;
+  prompt: string;
+  content: string;
+  model: string | null;
+  tokens: number | null;
+  generationTime: number | null;
+  createdAt: Date;
+  prd?: {
     id: string;
     title: string;
-    prompt: string;
-    content: string;
-
-    model: string | null;
-
-    tokens: number | null;
-
-    generationTime: number | null;
-
-    createdAt: Date;
-
-    prd?: {
-        id: string;
-        title: string;
-    } | null;
+  } | null;
 }
 
 interface RoadmapPageClientProps {
@@ -75,472 +73,541 @@ export default function RoadmapPageClient({
 }: RoadmapPageClientProps) {
   const router = useRouter();
 
-  const [roadmaps, setRoadmaps] = useState(initialRoadmaps);
-
-  const [search, setSearch] = useState("");
-
-  const [tab, setTab] = useState<"roadmaps" | "prds">("roadmaps");
-
+  const [activeTab, setActiveTab] = useState<"roadmaps" | "prds">("roadmaps");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showGenerate, setShowGenerate] = useState(false);
-
   const [showCustomGenerate, setShowCustomGenerate] = useState(false);
+  const [selectedPrdId, setSelectedPrdId] = useState<string>();
 
-  const filteredRoadmaps = useMemo(() => {
-    return roadmaps.filter((roadmap) =>
-      roadmap.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [roadmaps, search]);
+  const filteredRoadmaps = useMemo(
+    () =>
+      initialRoadmaps.filter((roadmap) =>
+        roadmap.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [initialRoadmaps, searchQuery]
+  );
 
-  const totalTokens = roadmaps.reduce(
+  const filteredPrds = useMemo(
+    () =>
+      prds.filter(
+        (prd) =>
+          prd.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          prd.prompt.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [prds, searchQuery]
+  );
+
+  const totalTokens = initialRoadmaps.reduce(
     (sum, roadmap) => sum + (roadmap.tokens ?? 0),
     0
   );
 
-  const avgGenerationTime =
-    roadmaps.length === 0
-      ? 0
-      : Math.round(
-          roadmaps.reduce(
-            (sum, roadmap) => sum + (roadmap.generationTime ?? 0),
-            0
-          ) / roadmaps.length
-        );
+  // Map PRD id -> roadmap generated from it
+  const roadmapMapByPrdId = new Map<string, Roadmap>();
+  initialRoadmaps.forEach((roadmap) => {
+    if (roadmap.prd?.id) {
+      roadmapMapByPrdId.set(roadmap.prd.id, roadmap);
+    }
+  });
+
+  const handleGenerateModalChange = (open: boolean) => {
+    setShowGenerate(open);
+
+    if (!open) {
+      setSelectedPrdId(undefined);
+      router.refresh();
+    }
+  };
+
+  const handleCustomModalChange = (open: boolean) => {
+    setShowCustomGenerate(open);
+    if (!open) router.refresh();
+  };
 
   return (
-    <div className="space-y-8">
-
-      {/* Header */}
-
-      <div className="flex items-center justify-between">
-
-        <div>
-
-          <h1 className="text-4xl font-bold tracking-tight">
-            Product Roadmaps
-          </h1>
-
-          <p className="mt-2 text-muted-foreground">
-            Generate AI-powered execution plans for{" "}
-            <span className="font-semibold">
-              {projectTitle}
-            </span>
-          </p>
-
-        </div>
-
-        <DropdownMenu>
-
-        <DropdownMenuTrigger asChild>
-
-            <Button>
-
-            <Plus className="mr-2 h-4 w-4" />
-
-            New Roadmap
-
-            <ChevronDown className="ml-2 h-4 w-4" />
-
-            </Button>
-
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end" className="w-60">
-
-            <DropdownMenuItem
-            onClick={() => setShowGenerate(true)}
-            >
-            <Sparkles className="mr-2 h-4 w-4" />
-
-            Generate from PRD
-
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-            onClick={() =>
-                setShowCustomGenerate(true)
-            }
-            >
-            <FileText className="mr-2 h-4 w-4" />
-
-            Custom Prompt
-
-            </DropdownMenuItem>
-
-        </DropdownMenuContent>
-
-        </DropdownMenu>
-
-      </div>
-
-      {/* Hero */}
-
-      <div className="rounded-2xl border bg-card p-8">
-
-        <div className="flex items-center gap-3">
-
-          <div className="rounded-xl bg-primary/10 p-3">
-
-            <Map className="h-7 w-7 text-primary" />
-
-          </div>
-
-          <div>
-
-            <h2 className="text-2xl font-bold">
-              AI Product Roadmaps
-            </h2>
-
-            <p className="text-muted-foreground">
-              Convert your PRDs into detailed implementation
-              roadmaps with milestones, sprint planning,
-              priorities and timelines.
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* Stats */}
-
-      <div className="grid gap-4 md:grid-cols-4">
-
-        <div className="rounded-xl border p-5">
-
-          <Map className="mb-3 h-5 w-5 text-primary" />
-
-          <p className="text-3xl font-bold">
-            {roadmaps.length}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            Total Roadmaps
-          </p>
-
-        </div>
-
-        <div className="rounded-xl border p-5">
-
-          <FileText className="mb-3 h-5 w-5 text-primary" />
-
-          <p className="text-3xl font-bold">
-            {prds.length}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            Available PRDs
-          </p>
-
-        </div>
-
-        <div className="rounded-xl border p-5">
-
-          <Sparkles className="mb-3 h-5 w-5 text-primary" />
-
-          <p className="text-3xl font-bold">
-            {totalTokens.toLocaleString()}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            AI Tokens Used
-          </p>
-
-        </div>
-
-        <div className="rounded-xl border p-5">
-
-          <Clock className="mb-3 h-5 w-5 text-primary" />
-
-          <p className="text-3xl font-bold">
-            {avgGenerationTime}s
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            Avg Generation Time
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* Search */}
-
-      <div className="relative">
-
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-
-        <Input
-          placeholder="Search roadmaps..."
-          className="pl-10"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-      </div>
-
-      {/* Tabs */}
-
-      <div className="flex gap-3">
-
-        <Button
-          variant={
-            tab === "roadmaps"
-              ? "default"
-              : "outline"
-          }
-          onClick={() =>
-            setTab("roadmaps")
-          }
-        >
-          Roadmaps
-        </Button>
-
-        <Button
-          variant={
-            tab === "prds"
-              ? "default"
-              : "outline"
-          }
-          onClick={() =>
-            setTab("prds")
-          }
-        >
-          Source PRDs
-        </Button>
-
-      </div>
-
-        {/* ================================
-            Roadmaps
-        ================================ */}
-
-        {tab === "roadmaps" && (
-        <>
-            {filteredRoadmaps.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-16 text-center">
-
-                <Map className="mx-auto mb-5 h-12 w-12 text-muted-foreground" />
-
-                <h3 className="text-xl font-semibold">
-                {search
-                    ? "No Roadmaps Found"
-                    : "No Roadmaps Yet"}
-                </h3>
-
-                <p className="mt-2 text-muted-foreground">
-                {search
-                    ? "Try another search keyword."
-                    : "Generate your first AI roadmap from a PRD."}
-                </p>
-
-                {!search && (
-                <Button
-                    className="mt-6"
-                    onClick={() => setShowGenerate(true)}
-                >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate Roadmap
-                </Button>
-                )}
-
+    <div className="space-y-8 pb-16">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] via-white/[0.02] to-transparent p-8 backdrop-blur-2xl">
+        <div className="absolute right-0 top-0 -mr-20 -mt-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute left-1/3 bottom-0 h-56 w-56 rounded-full bg-purple-500/10 blur-3xl" />
+
+        <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-medium text-blue-400">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>AI Execution Planning Engine</span>
             </div>
+
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Product Roadmaps
+            </h1>
+
+            <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+              Generate, manage, and review detailed execution roadmaps derived
+              from your PRDs for{" "}
+              <span className="font-semibold text-white">{projectTitle}</span>.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {prds.length > 0 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    New Roadmap
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 rounded-xl border-white/10 bg-[#0a0a0c] text-white"
+                >
+                  <DropdownMenuItem
+                    onClick={() => setShowGenerate(true)}
+                    className="cursor-pointer"
+                  >
+                    <MapIcon className="mr-2 h-4 w-4 text-blue-400" />
+                    Generate from PRD
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => setShowCustomGenerate(true)}
+                    className="cursor-pointer"
+                  >
+                    <Wand2 className="mr-2 h-4 w-4 text-purple-400" />
+                    Generate from Custom Prompt
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <Button
+                asChild
+                className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+              >
+                <Link href={`/projects/${projectId}/prd`}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Create a PRD First
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
 
-                {filteredRoadmaps.map((roadmap) => (
+        {/* Quick Stats Grid */}
+        <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 sm:grid-cols-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <MapIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">
+                {initialRoadmaps.length}
+              </p>
+              <p className="text-xs text-zinc-400">Roadmaps</p>
+            </div>
+          </div>
 
-                <div
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{prds.length}</p>
+              <p className="text-xs text-zinc-400">Source PRDs</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <Zap className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">
+                {totalTokens > 0 ? totalTokens.toLocaleString() : "—"}
+              </p>
+              <p className="text-xs text-zinc-400">AI Tokens Processed</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3.5 col-span-2 sm:col-span-1">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <Clock3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">
+                {initialRoadmaps.length === 0
+                  ? "—"
+                  : `${Math.round(
+                      initialRoadmaps.reduce(
+                        (sum, r) => sum + (r.generationTime ?? 0),
+                        0
+                      ) / initialRoadmaps.length
+                    )}s`}
+              </p>
+              <p className="text-xs text-zinc-400">Avg. Generation Time</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs & Search Header */}
+      <div className="flex flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur-md">
+          <button
+            onClick={() => setActiveTab("roadmaps")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+              activeTab === "roadmaps"
+                ? "bg-white text-black shadow-md"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <MapIcon className="h-4 w-4" />
+            <span>Generated Roadmaps</span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] ${
+                activeTab === "roadmaps"
+                  ? "bg-black/10 text-black"
+                  : "bg-white/10 text-zinc-300"
+              }`}
+            >
+              {initialRoadmaps.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("prds")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+              activeTab === "prds"
+                ? "bg-white text-black shadow-md"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            <span>Source PRDs</span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] ${
+                activeTab === "prds"
+                  ? "bg-black/10 text-black"
+                  : "bg-white/10 text-zinc-300"
+              }`}
+            >
+              {prds.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Input
+            type="text"
+            placeholder={
+              activeTab === "roadmaps"
+                ? "Search roadmaps..."
+                : "Search PRDs..."
+            }
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-white/[0.03] border-white/10 text-white placeholder:text-zinc-500 focus:border-white/30 focus:ring-0 rounded-xl"
+          />
+        </div>
+      </div>
+
+      {/* Tab Content 1: Roadmaps Grid */}
+      {activeTab === "roadmaps" && (
+        <>
+          {initialRoadmaps.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.01] py-16 px-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.05] text-zinc-400 border border-white/10 mb-4">
+                <MapIcon className="h-8 w-8 text-blue-400" />
+              </div>
+
+              <h3 className="text-xl font-semibold text-white">
+                No Roadmaps Generated Yet
+              </h3>
+              <p className="mt-2 max-w-md text-sm text-zinc-400">
+                Convert your PRDs into detailed implementation roadmaps with
+                milestones, sprint planning, priorities and timelines.
+              </p>
+
+              {prds.length > 0 ? (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCustomGenerate(true)}
+                  className="mt-3 rounded-xl"
+                >
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Generate Custom Roadmap
+                </Button>
+              ) : (
+                <div className="mt-6 flex flex-col items-center gap-3">
+                  <p className="text-xs text-amber-400/90 bg-amber-400/10 px-3 py-1.5 rounded-lg border border-amber-400/20">
+                    Notice: A PRD is required before generating a roadmap.
+                  </p>
+                  <Button
+                    asChild
+                    className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                  >
+                    <Link href={`/projects/${projectId}/prd`}>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Create a PRD First
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : filteredRoadmaps.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
+              <p className="text-zinc-400">
+                No roadmaps matching &quot;{searchQuery}&quot;
+              </p>
+              <Button
+                variant="ghost"
+                onClick={() => setSearchQuery("")}
+                className="mt-2 text-xs text-white hover:underline"
+              >
+                Clear Search Filter
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredRoadmaps.map((roadmap) => {
+                const createdTimeAgo = new Date(
+                  roadmap.createdAt
+                ).toLocaleDateString();
+
+                return (
+                  <div
                     key={roadmap.id}
                     onClick={() =>
-                    router.push(
+                      router.push(
                         `/projects/${projectId}/roadmap/${roadmap.id}`
-                    )
+                      )
                     }
-                    className="cursor-pointer rounded-2xl border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
-                >
+                    className="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/[0.04] hover:shadow-2xl"
+                  >
+                    <div className="space-y-4">
+                      {/* Header Badge */}
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+                          <MapIcon className="h-3.5 w-3.5" />
+                          <span>{roadmap.model || "Roadmap"}</span>
+                        </div>
 
-                    <div className="flex items-start justify-between">
+                        {roadmap.prd ? (
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Linked to PRD</span>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">
+                            <span>Custom Prompt</span>
+                          </div>
+                        )}
+                      </div>
 
-                    <div>
-
-                        <h3 className="line-clamp-2 text-lg font-semibold">
-                        {roadmap.title}
+                      {/* Title & Prompt */}
+                      <div>
+                        <h3 className="text-lg font-semibold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                          {roadmap.title}
                         </h3>
-
-                        <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                        {roadmap.prompt}
+                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-zinc-400">
+                          {roadmap.prompt}
                         </p>
+                      </div>
 
-                    </div>
-
-                    <Map className="h-5 w-5 text-primary" />
-
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-2">
-
-                    {roadmap.prd && (
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                        {roadmap.prd.title}
+                      {/* Meta Info */}
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 border-t border-white/5 pt-3">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {createdTimeAgo}
                         </span>
-                    )}
-
-                    <span className="rounded-full border px-3 py-1 text-xs">
-                        {roadmap.model}
-                    </span>
-
+                        {roadmap.tokens && (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-300">
+                            {roadmap.tokens.toLocaleString()} tokens
+                          </span>
+                        )}
+                        {roadmap.generationTime && (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-300">
+                            {roadmap.generationTime}s
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-
-                    <div className="flex items-center gap-1">
-
-                        <Sparkles className="h-4 w-4" />
-
-                        {(roadmap.tokens ?? 0).toLocaleString()} Tokens
-
+                    {/* Action Row */}
+                    <div className="mt-6 pt-4 border-t border-white/10">
+                      <Button
+                        variant="outline"
+                        className="w-full border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 font-medium rounded-xl"
+                      >
+                        <FileText className="mr-2 h-4 w-4 text-blue-400" />
+                        View Roadmap
+                        <ArrowRight className="ml-auto h-4 w-4" />
+                      </Button>
                     </div>
-
-                    <div className="flex items-center gap-1">
-
-                        <Clock className="h-4 w-4" />
-
-                        {roadmap.generationTime ?? 0}s
-
-                    </div>
-
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-
-                    <Calendar className="h-4 w-4" />
-
-                    {new Date(
-                        roadmap.createdAt
-                    ).toLocaleDateString()}
-
-                    </div>
-
-                </div>
-
-                ))}
-
+                  </div>
+                );
+              })}
             </div>
-            )}
+          )}
         </>
-        )}
+      )}
 
-        {/* ================================
-            PRDs
-        ================================ */}
-
-        {tab === "prds" && (
+      {/* Tab Content 2: Source PRDs */}
+      {activeTab === "prds" && (
         <>
-            {prds.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-16 text-center">
+          {prds.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.01] py-16 px-4 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.05] text-purple-400 border border-white/10 mb-4">
+                <FileText className="h-8 w-8" />
+              </div>
 
-                <FileText className="mx-auto mb-5 h-12 w-12 text-muted-foreground" />
-
-                <h3 className="text-xl font-semibold">
+              <h3 className="text-xl font-semibold text-white">
                 No PRDs Available
-                </h3>
+              </h3>
+              <p className="mt-2 max-w-md text-sm text-zinc-400">
+                Generate a product requirements document to form the
+                foundation for a roadmap.
+              </p>
 
-                <p className="mt-2 text-muted-foreground">
-                Generate a PRD before creating roadmaps.
-                </p>
-
-                <Button
-                className="mt-6"
-                onClick={() =>
-                    router.push(`/projects/${projectId}/prd`)
-                }
-                >
-                View PRDs
-                </Button>
-
+              <Button
+                asChild
+                className="mt-6 bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+              >
+                <Link href={`/projects/${projectId}/prd`}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Generate a PRD
+                </Link>
+              </Button>
             </div>
-            ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          ) : filteredPrds.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
+              <p className="text-zinc-400">
+                No PRDs matching &quot;{searchQuery}&quot;
+              </p>
+              <Button
+                variant="ghost"
+                onClick={() => setSearchQuery("")}
+                className="mt-2 text-xs text-white hover:underline"
+              >
+                Clear Search Filter
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPrds.map((prd) => {
+                const linkedRoadmap = roadmapMapByPrdId.get(prd.id);
+                const createdTimeAgo = new Date(
+                  prd.createdAt
+                ).toLocaleDateString();
 
-                {prds.map((prd) => (
-
-                <div
+                return (
+                  <div
                     key={prd.id}
-                    className="rounded-2xl border bg-card p-6 transition-all hover:border-primary"
-                >
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/[0.04] hover:shadow-2xl"
+                  >
+                    <div className="space-y-4">
+                      {/* Header Badge */}
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+                          <FileText className="h-3.5 w-3.5" />
+                          <span>{prd.model || "PRD"}</span>
+                        </div>
 
-                    <div className="flex items-center justify-between">
+                        {linkedRoadmap ? (
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Roadmap Ready</span>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">
+                            <span>No Roadmap Yet</span>
+                          </div>
+                        )}
+                      </div>
 
-                    <FileText className="h-5 w-5 text-primary" />
+                      {/* Title & Prompt */}
+                      <div>
+                        <h3 className="text-lg font-semibold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                          {prd.title}
+                        </h3>
+                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-zinc-400">
+                          {prd.prompt}
+                        </p>
+                      </div>
 
-                    <span className="rounded-full border px-3 py-1 text-xs">
-                        {prd.model}
-                    </span>
-
+                      {/* Meta Info */}
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 border-t border-white/5 pt-3">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {createdTimeAgo}
+                        </span>
+                        {prd.tokens && (
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-300">
+                            {prd.tokens.toLocaleString()} tokens
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <h3 className="mt-4 line-clamp-2 text-lg font-semibold">
-                    {prd.title}
-                    </h3>
-
-                    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
-                    {prd.prompt}
-                    </p>
-
-                    <div className="mt-6 flex justify-between text-sm text-muted-foreground">
-
-                    <span>
-                        {(prd.tokens ?? 0).toLocaleString()} Tokens
-                    </span>
-
-                    <span>
-                        {prd.generationTime ?? 0}s
-                    </span>
-
+                    {/* Action Button */}
+                    <div className="mt-6 pt-4 border-t border-white/10">
+                      {linkedRoadmap ? (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 font-medium rounded-xl"
+                        >
+                          <Link
+                            href={`/projects/${projectId}/roadmap/${linkedRoadmap.id}`}
+                          >
+                            <MapIcon className="mr-2 h-4 w-4 text-emerald-400" />
+                            View Linked Roadmap
+                            <ArrowRight className="ml-auto h-4 w-4" />
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => {
+                            setSelectedPrdId(prd.id);
+                            setShowGenerate(true);
+                          }}
+                          className="w-full bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Generate Roadmap for this PRD
+                        </Button>
+                      )}
                     </div>
-
-                    <Button
-                    className="mt-6 w-full"
-                    onClick={() => setShowGenerate(true)}
-                    >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate Roadmap
-                    </Button>
-
-                </div>
-
-                ))}
-
+                  </div>
+                );
+              })}
             </div>
-            )}
+          )}
         </>
-        )}
+      )}
 
-      {/* <GenerateRoadmapModal
+      {/* Modal for Roadmap Generation */}
+      <GenerateRoadmapModal
         open={showGenerate}
-        onOpenChange={(open) => {
-            setShowGenerate(open);
-
-            if (!open) {
-            router.refresh();
-            }
-        }}
+        onOpenChange={handleGenerateModalChange}
         projectId={projectId}
-        />
+        prdId={selectedPrdId}
+        prds={prds.map((prd) => ({
+          id: prd.id,
+          title: prd.title,
+        }))}
+      />
 
-        <GenerateCustomRoadmapModal
+      <GenerateCustomRoadmapModal
         open={showCustomGenerate}
-        onOpenChange={(open) => {
-            setShowCustomGenerate(open);
-
-            if (!open) {
-            router.refresh();
-            }
-        }}
+        onOpenChange={handleCustomModalChange}
         projectId={projectId}
-        /> */}
-
+      />
     </div>
   );
 }
