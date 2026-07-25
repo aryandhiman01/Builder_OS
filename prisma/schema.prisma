@@ -15,29 +15,25 @@ model User {
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
-
-  accounts Account[]
-  sessions Session[]
-
-  projects Project[]
+  accounts      Account[]
+  projects      Project[]
+  sessions      Session[]
 }
 
 model Account {
-  id                String @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-
-  refresh_token String?
-  access_token  String?
-  expires_at    Int?
-  token_type    String?
-  scope         String?
-  id_token      String?
-  session_state String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -47,8 +43,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -68,28 +63,19 @@ model PasswordResetToken {
 }
 
 model Project {
-  id String @id @default(cuid())
-
-  title String
-
+  id          String   @id @default(cuid())
+  title       String
   description String?
-
-  category String @default("SaaS")
-
-  color String @default("#FFFFFF")
-
-  status String @default("Planning")
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  userId String
+  category    String   @default("SaaS")
+  color       String   @default("#FFFFFF")
+  status      String   @default("Planning")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
 
   user User @relation(fields: [userId], references: [id])
 
   ideas Idea[]
-
   tasks Task[]
 
   researches Research[]
@@ -97,102 +83,64 @@ model Project {
   prds PRD[]
 
   roadmaps Roadmap[]
+
+  architectures Architecture[]
 }
 
 model Idea {
-  id String @id @default(cuid())
-
-  title String
-
+  id          String   @id @default(cuid())
+  title       String
   description String?
-
-  createdAt DateTime @default(now())
-
-  projectId String
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  createdAt   DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id String @id @default(cuid())
-
-  title String
-
+  id          String    @id @default(cuid())
+  title       String
   description String?
-
-  status String @default("todo")
-
-  priority String @default("medium")
-
-  dueDate DateTime?
-
-  order Int @default(0)
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  projectId String
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status      String    @default("todo")
+  priority    String    @default("medium")
+  dueDate     DateTime?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model Research {
-  id String @id @default(cuid())
-
-  title String
-
-  prompt String @db.Text
-
-  content String @db.Text
-
-  model String
-
-  tokens Int?
-
+  id             String   @id @default(cuid())
+  title          String
+  prompt         String   @db.Text
+  content        String   @db.Text
+  model          String?
+  tokens         Int?
   generationTime Int?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  projectId String
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Optional because one research may never generate a PRD
-  prd PRD?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  projectId      String
+  prd            PRD?
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model PRD {
-  id String @id @default(cuid())
-
-  title String
-
+  id     String @id @default(cuid())
+  title  String
   prompt String @db.Text
 
-  content String @db.Text
-
-  model String?
-
-  tokens Int?
-
+  content        String    @db.Text
+  model          String?
+  tokens         Int?
   generationTime Int?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  projectId String
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // NULL => Custom PRD
-  researchId String? @unique
-
-  research Research? @relation(fields: [researchId], references: [id], onDelete: Cascade)
-
-  roadmap Roadmap?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  projectId      String
+  researchId     String?   @unique
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  research       Research? @relation(fields: [researchId], references: [id], onDelete: Cascade)
+  roadmap        Roadmap?
 
   @@index([projectId])
 }
@@ -220,10 +168,42 @@ model Roadmap {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  // Every roadmap belongs to one PRD
   prdId String? @unique
 
   prd PRD? @relation(fields: [prdId], references: [id], onDelete: Cascade)
+
+  architecture Architecture?
+
+  @@index([projectId])
+}
+
+model Architecture {
+  id String @id @default(cuid())
+
+  title String
+
+  prompt String @db.Text
+
+  content String @db.Text
+
+  model String?
+
+  tokens Int?
+
+  generationTime Int?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  projectId String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // NULL => Custom Architecture
+  roadmapId String? @unique
+
+  roadmap Roadmap? @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
 }
