@@ -1,0 +1,80 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+import ArchitecturePageClient from "./ArchitecturePageClient";
+
+interface PageProps {
+  params: Promise<{
+    projectId: string;
+  }>;
+}
+
+export default async function ArchitecturePage({
+  params,
+}: PageProps) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
+  const { projectId } = await params;
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      user: {
+        email: session.user.email,
+      },
+    },
+    include: {
+      roadmaps: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          title: true,
+          prompt: true,
+          model: true,
+          tokens: true,
+          generationTime: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    redirect("/projects");
+  }
+
+  const architectures = await prisma.architecture.findMany({
+    where: {
+      projectId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      roadmap: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+
+  return (
+    <ArchitecturePageClient
+      projectId={projectId}
+      projectTitle={project.title}
+      initialArchitectures={architectures}
+      roadmaps={project.roadmaps}
+    />
+  );
+}
