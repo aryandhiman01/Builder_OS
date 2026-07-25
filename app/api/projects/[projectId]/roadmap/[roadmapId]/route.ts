@@ -180,7 +180,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         const roadmap = await prisma.roadmap.findFirst({
             where: {
-                id: projectId,
+                id: roadmapId,
                 projectId,
                 project: {
                     user: {

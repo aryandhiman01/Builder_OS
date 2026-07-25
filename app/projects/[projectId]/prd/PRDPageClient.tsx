@@ -37,7 +37,7 @@ interface ResearchItem {
   id: string;
   title: string;
   prompt: string;
-  model: string;
+  model: string | null;
   tokens: number | null;
   generationTime: number | null;
   createdAt: Date | string;
