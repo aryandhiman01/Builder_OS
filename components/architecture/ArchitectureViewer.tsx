@@ -29,6 +29,7 @@ import { Card } from "@/components/ui/card";
 
 import EditArchitectureModal from "./EditArchitectureModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import MermaidDiagram from "./MermaidDiagram";
 
 interface ArchitectureViewerProps {
   projectId: string;
@@ -524,6 +525,35 @@ export default function ArchitectureViewer({
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
+                  // ── Mermaid / flowchart code blocks ──────────────────
+                  code({ className, children, ...rest }) {
+                    const lang = /language-(\w+)/.exec(className ?? "")?.[1] ?? "";
+                    const code = String(children).replace(/\n$/, "");
+
+                    if (["mermaid", "flowchart", "sequenceDiagram", "classDiagram", "erDiagram", "gantt", "journey", "gitGraph", "pie"].includes(lang.toLowerCase())) {
+                      return <MermaidDiagram chart={code} />;
+                    }
+
+                    // inline code
+                    const isBlock = code.includes("\n");
+                    if (!isBlock) {
+                      return (
+                        <code className={className} {...rest}>
+                          {children}
+                        </code>
+                      );
+                    }
+
+                    return (
+                      <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-zinc-950/90 p-5 text-xs print:border-zinc-200 print:bg-zinc-50">
+                        <code className={className} {...rest}>
+                          {children}
+                        </code>
+                      </pre>
+                    );
+                  },
+
+                  // ── Headings with anchor IDs ──────────────────────────
                   h1: ({ children, ...props }) => {
                     const text = String(children);
                     const id = text
