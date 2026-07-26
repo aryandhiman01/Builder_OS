@@ -66,6 +66,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 100px;
   }
 
   body {
@@ -74,6 +75,16 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sora), var(--font-inter), system-ui, sans-serif;
   }
 
   /* Refined scrollbar */
@@ -81,13 +92,16 @@
     width: 5px;
     height: 5px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.14);
   }
