@@ -40,7 +40,10 @@ export default function CTA() {
   return (
     <>
       {/* Testimonials */}
-      <section className="relative py-24">
+      <section
+        id="testimonials"
+        className="relative py-24 scroll-mt-32 lg:scroll-mt-40"
+      >
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
