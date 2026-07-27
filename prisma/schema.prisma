@@ -85,6 +85,8 @@ model Project {
   roadmaps Roadmap[]
 
   architectures Architecture[]
+
+  documents Document[]
 }
 
 model Idea {
@@ -204,6 +206,28 @@ model Architecture {
   roadmapId String? @unique
 
   roadmap Roadmap? @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Document {
+  id             String   @id @default(cuid())
+
+  title          String
+  type           String
+
+  prompt         String   @db.Text
+  content        String   @db.Text
+
+  model          String?
+  tokens         Int?
+  generationTime Int?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  projectId      String
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
 }
