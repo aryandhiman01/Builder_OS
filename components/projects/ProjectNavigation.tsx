@@ -55,11 +55,6 @@ export default function ProjectNavigation({
       icon: CheckSquare,
     },
     {
-      title: "Docs",
-      href: `/projects/${projectId}/docs`,
-      icon: BookOpen,
-    },
-    {
       title: "Settings",
       href: `/projects/${projectId}/settings`,
       icon: Settings,
