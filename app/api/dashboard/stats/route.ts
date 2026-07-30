@@ -51,21 +51,64 @@ export async function GET() {
 
     const projectsCount = projects.length;
 
-    // 2. Compute Tasks & Completion Metrics
+    // 2. Compute Tasks, Project Progress & Workspace Completion Percentage
     let totalTasksCount = 0;
     let completedTasksCount = 0;
+    let totalProjectsProgressSum = 0;
 
-    projects.forEach((proj) => {
-      totalTasksCount += proj.tasks.length;
-      completedTasksCount += proj.tasks.filter(
+    const allMappedProjects = projects.map((p) => {
+      const projTotalTasks = p.tasks.length;
+      const projCompletedTasks = p.tasks.filter(
         (t) => t.status === "completed" || t.status === "done"
       ).length;
+
+      totalTasksCount += projTotalTasks;
+      completedTasksCount += projCompletedTasks;
+
+      const hasResearch = p.researches.length > 0;
+      const hasPRD = p.prds.length > 0;
+      const hasRoadmap = p.roadmaps.length > 0;
+      const hasArchitecture = p.architectures.length > 0;
+      const aiMilestones =
+        (hasResearch ? 1 : 0) +
+        (hasPRD ? 1 : 0) +
+        (hasRoadmap ? 1 : 0) +
+        (hasArchitecture ? 1 : 0);
+
+      let progress = 0;
+      if (projTotalTasks > 0) {
+        const taskRatio = projCompletedTasks / projTotalTasks;
+        const aiRatio = aiMilestones / 4;
+        progress = Math.round(aiRatio * 30 + taskRatio * 70);
+      } else {
+        progress = Math.round((aiMilestones / 4) * 100);
+      }
+
+      totalProjectsProgressSum += progress;
+
+      let validStatus: "Planning" | "Building" | "Completed" = "Planning";
+      if (progress === 100) {
+        validStatus = "Completed";
+      } else if (progress > 0 || projTotalTasks > 0) {
+        validStatus = "Building";
+      }
+
+      return {
+        id: p.id,
+        title: p.title,
+        description: p.description || "No description provided.",
+        status: validStatus,
+        progress,
+        updatedAt: getRelativeTimeString(p.updatedAt),
+        members: 1,
+        color: p.color || "#38bdf8",
+      };
     });
 
     const remainingTasksCount = totalTasksCount - completedTasksCount;
     const completionPercentage =
-      totalTasksCount > 0
-        ? Math.round((completedTasksCount / totalTasksCount) * 100)
+      projectsCount > 0
+        ? Math.round(totalProjectsProgressSum / projectsCount)
         : 0;
 
     // 3. Compute AI Requests Count
@@ -92,50 +135,8 @@ export async function GET() {
       architecturesCount +
       documentsCount;
 
-    // 4. Map Recent Projects (Top 4) with Accurate Progress Algorithm
-    const recentProjects = projects.slice(0, 4).map((p) => {
-      const projTotalTasks = p.tasks.length;
-      const projCompletedTasks = p.tasks.filter(
-        (t) => t.status === "completed" || t.status === "done"
-      ).length;
-
-      const hasResearch = p.researches.length > 0;
-      const hasPRD = p.prds.length > 0;
-      const hasRoadmap = p.roadmaps.length > 0;
-      const hasArchitecture = p.architectures.length > 0;
-      const aiMilestones =
-        (hasResearch ? 1 : 0) +
-        (hasPRD ? 1 : 0) +
-        (hasRoadmap ? 1 : 0) +
-        (hasArchitecture ? 1 : 0);
-
-      let progress = 0;
-      if (projTotalTasks > 0) {
-        const taskRatio = projCompletedTasks / projTotalTasks;
-        const aiRatio = aiMilestones / 4;
-        progress = Math.round(aiRatio * 30 + taskRatio * 70);
-      } else {
-        progress = Math.round((aiMilestones / 4) * 100);
-      }
-
-      let validStatus: "Planning" | "Building" | "Completed" = "Planning";
-      if (progress === 100) {
-        validStatus = "Completed";
-      } else if (progress > 0 || projTotalTasks > 0) {
-        validStatus = "Building";
-      }
-
-      return {
-        id: p.id,
-        title: p.title,
-        description: p.description || "No description provided.",
-        status: validStatus,
-        progress,
-        updatedAt: getRelativeTimeString(p.updatedAt),
-        members: 1,
-        color: p.color || "#38bdf8",
-      };
-    });
+    // 4. Recent Projects (Top 4)
+    const recentProjects = allMappedProjects.slice(0, 4);
 
     // 5. Gather Recent Activities
     const [recentProjectsRaw, recentResearches, recentPrds, recentRoadmaps, recentArchitectures, recentTasks] =

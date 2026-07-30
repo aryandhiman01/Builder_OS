@@ -67,12 +67,32 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // 1. AI Asset Status
+    // 1. AI Asset Status & Token Analytics
     const researchesCount = project.researches.length;
     const prdsCount = project.prds.length;
     const roadmapsCount = project.roadmaps.length;
     const architecturesCount = project.architectures.length;
     const documentsCount = project.documents.length;
+
+    const sumTokens = (items: { tokens?: number | null }[]) =>
+      items.reduce((acc, curr) => acc + (curr.tokens || 0), 0);
+
+    const sumGenTime = (items: { generationTime?: number | null }[]) =>
+      items.reduce((acc, curr) => acc + (curr.generationTime || 0), 0);
+
+    const resTokens = sumTokens(project.researches);
+    const prdTokens = sumTokens(project.prds);
+    const rmTokens = sumTokens(project.roadmaps);
+    const archTokens = sumTokens(project.architectures);
+    const docTokens = sumTokens(project.documents);
+
+    const totalTokens = resTokens + prdTokens + rmTokens + archTokens + docTokens;
+    const totalGenTime =
+      sumGenTime(project.researches) +
+      sumGenTime(project.prds) +
+      sumGenTime(project.roadmaps) +
+      sumGenTime(project.architectures) +
+      sumGenTime(project.documents);
 
     const hasResearch = researchesCount > 0;
     const hasPRD = prdsCount > 0;
@@ -85,15 +105,25 @@ export async function GET(request: Request, { params }: RouteParams) {
       (hasRoadmap ? 1 : 0) +
       (hasArchitecture ? 1 : 0);
 
-    // 2. Tasks Status
+    // 2. Tasks Status Breakdown
     const totalTasks = project.tasks.length;
     const completedTasks = project.tasks.filter(
       (t) => t.status === "completed" || t.status === "done"
     ).length;
-    const remainingTasks = totalTasks - completedTasks;
+    const inProgressTasks = project.tasks.filter(
+      (t) => t.status === "in_progress" || t.status === "building"
+    ).length;
+    const todoTasks = totalTasks - completedTasks - inProgressTasks;
+
+    const highPriorityCount = project.tasks.filter(t => t.priority === "high").length;
+    const mediumPriorityCount = project.tasks.filter(t => t.priority === "medium").length;
+    const lowPriorityCount = project.tasks.filter(t => t.priority === "low").length;
 
     // 3. Progress Calculation
     let progress = 0;
+    const taskProgressPercentage =
+      totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
     if (totalTasks > 0) {
       const taskRatio = completedTasks / totalTasks;
       const aiRatio = aiMilestonesCompleted / 4;
@@ -117,7 +147,30 @@ export async function GET(request: Request, { params }: RouteParams) {
       });
     }
 
-    // 4. Project Specific Recent Activity
+    // 4. Graph Datasets
+    const milestoneAnalytics = [
+      { name: "Research", completion: hasResearch ? 100 : 0 },
+      { name: "PRD", completion: hasPRD ? 100 : 0 },
+      { name: "Roadmap", completion: hasRoadmap ? 100 : 0 },
+      { name: "Architecture", completion: hasArchitecture ? 100 : 0 },
+      { name: "Tasks Execution", completion: taskProgressPercentage },
+    ];
+
+    const taskStatusChart = [
+      { name: "Completed", value: completedTasks, color: "#22C55E" },
+      { name: "In Progress", value: inProgressTasks, color: "#38BDF8" },
+      { name: "To Do", value: Math.max(0, todoTasks), color: "#F59E0B" },
+    ];
+
+    const aiDistributionChart = [
+      { name: "Research", count: researchesCount, tokens: resTokens },
+      { name: "PRD", count: prdsCount, tokens: prdTokens },
+      { name: "Roadmap", count: roadmapsCount, tokens: rmTokens },
+      { name: "Architecture", count: architecturesCount, tokens: archTokens },
+      { name: "Docs", count: documentsCount, tokens: docTokens },
+    ];
+
+    // 5. Recent Activity Feed
     type ActivityItem = {
       id: string;
       title: string;
@@ -189,8 +242,9 @@ export async function GET(request: Request, { params }: RouteParams) {
         description: t.title,
         time: getRelativeTimeString(t.updatedAt),
         timestamp: new Date(t.updatedAt).getTime(),
+        iconType: "CheckCircle2",
         type: "task",
-      });
+      } as any);
     });
 
     activities.sort((a, b) => b.timestamp - a.timestamp);
@@ -210,7 +264,12 @@ export async function GET(request: Request, { params }: RouteParams) {
       taskStats: {
         total: totalTasks,
         completed: completedTasks,
-        remaining: remainingTasks,
+        inProgress: inProgressTasks,
+        todo: Math.max(0, todoTasks),
+        remaining: totalTasks - completedTasks,
+        highPriority: highPriorityCount,
+        mediumPriority: mediumPriorityCount,
+        lowPriority: lowPriorityCount,
       },
       aiStatus: {
         research: {
@@ -235,6 +294,13 @@ export async function GET(request: Request, { params }: RouteParams) {
         },
         documentsCount,
         milestonesCompleted: aiMilestonesCompleted,
+        totalTokens,
+        totalGenTime,
+      },
+      analytics: {
+        milestoneAnalytics,
+        taskStatusChart,
+        aiDistributionChart,
       },
       recentActivity: activities.slice(0, 10),
     });
