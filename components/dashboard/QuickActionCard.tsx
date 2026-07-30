@@ -2,16 +2,22 @@ import Link from "next/link";
 import { LucideIcon, ArrowRight } from "lucide-react";
 
 interface QuickActionCardProps {
-    title: string;
-    description: string;
-    href: string;
-    icon: LucideIcon;
+  title: string;
+  description: string;
+  href?: string;
+  icon: LucideIcon;
+  onClick?: () => void;
 }
 
-export default function QuickActionCard({ title, description, href, icon: Icon}: QuickActionCardProps) {
-    return (
-    <Link
-      href={href}
+export default function QuickActionCard({
+  title,
+  description,
+  href,
+  icon: Icon,
+  onClick,
+}: QuickActionCardProps) {
+  const cardContent = (
+    <div
       className="
       group
       relative
@@ -26,10 +32,10 @@ export default function QuickActionCard({ title, description, href, icon: Icon}:
       hover:-translate-y-1
       hover:border-white/20
       hover:bg-white/[0.05]
+      cursor-pointer
       "
     >
       {/* Glow */}
-
       <div
         className="
         absolute
@@ -47,7 +53,6 @@ export default function QuickActionCard({ title, description, href, icon: Icon}:
       />
 
       {/* Icon */}
-
       <div
         className="
         mb-6
@@ -64,26 +69,16 @@ export default function QuickActionCard({ title, description, href, icon: Icon}:
         group-hover:scale-105
         "
       >
-        <Icon
-          size={26}
-          className="text-white"
-        />
+        <Icon size={26} className="text-white" />
       </div>
 
       {/* Title */}
-
-      <h3 className="text-lg font-semibold text-white">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
 
       {/* Description */}
-
-      <p className="mt-2 text-sm leading-6 text-zinc-500">
-        {description}
-      </p>
+      <p className="mt-2 text-sm leading-6 text-zinc-500">{description}</p>
 
       {/* Footer */}
-
       <div
         className="
         mt-6
@@ -96,7 +91,6 @@ export default function QuickActionCard({ title, description, href, icon: Icon}:
         "
       >
         Open
-
         <ArrowRight
           size={16}
           className="
@@ -106,6 +100,12 @@ export default function QuickActionCard({ title, description, href, icon: Icon}:
           "
         />
       </div>
-    </Link>
+    </div>
   );
+
+  if (onClick) {
+    return <div onClick={onClick}>{cardContent}</div>;
+  }
+
+  return <Link href={href || "#"}>{cardContent}</Link>;
 }
