@@ -14,24 +14,22 @@ export default async function ProjectsPage() {
   }
 
   const projects = await prisma.project.findMany({
-  where: {
-    user: {
-      email: session.user.email!,
+    where: {
+      user: {
+        email: session.user.email,
+      },
     },
-  },
+    include: {
+      tasks: true,
+      researches: true,
+      prds: true,
+      roadmaps: true,
+      architectures: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
 
-  include: {
-    tasks: true,
-  },
-
-  orderBy: {
-    updatedAt: "desc",
-  },
-});
-
-  return (
-    <ProjectsClient
-      projects={projects}
-    />
-  );
+  return <ProjectsClient projects={projects} />;
 }

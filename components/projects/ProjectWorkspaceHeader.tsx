@@ -125,7 +125,7 @@ export default function ProjectWorkspaceHeader({
               <Clock3 size={16} />
 
               Updated{" "}
-              {project.updatedAt.toLocaleDateString()}
+              {new Date(project.updatedAt).toLocaleDateString()}
 
             </div>
 
@@ -144,6 +144,12 @@ export default function ProjectWorkspaceHeader({
         <div className="flex items-center gap-3">
 
           <button
+            onClick={() => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Project link copied to clipboard!");
+              }
+            }}
             className="
             inline-flex
             items-center
@@ -159,6 +165,7 @@ export default function ProjectWorkspaceHeader({
             text-white
             transition
             hover:bg-white/[0.05]
+            cursor-pointer
             "
           >
             <Share2 size={18} />
@@ -166,7 +173,8 @@ export default function ProjectWorkspaceHeader({
             Share
           </button>
 
-          <button
+          <Link
+            href={`/projects/${project.id}/research`}
             className="
             inline-flex
             items-center
@@ -185,7 +193,7 @@ export default function ProjectWorkspaceHeader({
             <Sparkles size={18} />
 
             AI Assistant
-          </button>
+          </Link>
 
         </div>
 

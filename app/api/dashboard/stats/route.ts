@@ -36,11 +36,15 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // 1. Fetch User Projects with Tasks
+    // 1. Fetch User Projects with Tasks & AI Relations
     const projects = await prisma.project.findMany({
       where: { userId: user.id },
       include: {
         tasks: true,
+        researches: true,
+        prds: true,
+        roadmaps: true,
+        architectures: true,
       },
       orderBy: { updatedAt: "desc" },
     });
@@ -88,23 +92,36 @@ export async function GET() {
       architecturesCount +
       documentsCount;
 
-    // 4. Map Recent Projects (Top 4)
+    // 4. Map Recent Projects (Top 4) with Accurate Progress Algorithm
     const recentProjects = projects.slice(0, 4).map((p) => {
       const projTotalTasks = p.tasks.length;
       const projCompletedTasks = p.tasks.filter(
         (t) => t.status === "completed" || t.status === "done"
       ).length;
-      const progress =
-        projTotalTasks > 0
-          ? Math.round((projCompletedTasks / projTotalTasks) * 100)
-          : 0;
+
+      const hasResearch = p.researches.length > 0;
+      const hasPRD = p.prds.length > 0;
+      const hasRoadmap = p.roadmaps.length > 0;
+      const hasArchitecture = p.architectures.length > 0;
+      const aiMilestones =
+        (hasResearch ? 1 : 0) +
+        (hasPRD ? 1 : 0) +
+        (hasRoadmap ? 1 : 0) +
+        (hasArchitecture ? 1 : 0);
+
+      let progress = 0;
+      if (projTotalTasks > 0) {
+        const taskRatio = projCompletedTasks / projTotalTasks;
+        const aiRatio = aiMilestones / 4;
+        progress = Math.round(aiRatio * 30 + taskRatio * 70);
+      } else {
+        progress = Math.round((aiMilestones / 4) * 100);
+      }
 
       let validStatus: "Planning" | "Building" | "Completed" = "Planning";
-      if (p.status === "Building" || p.status === "Completed") {
-        validStatus = p.status;
-      } else if (progress === 100 && projTotalTasks > 0) {
+      if (progress === 100) {
         validStatus = "Completed";
-      } else if (progress > 0) {
+      } else if (progress > 0 || projTotalTasks > 0) {
         validStatus = "Building";
       }
 

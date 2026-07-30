@@ -6,7 +6,6 @@ import {
   Search,
   Plus,
   FolderKanban,
-  CheckCircle2,
 } from "lucide-react";
 
 import ProjectCard from "@/components/dashboard/ProjectCard";
@@ -26,6 +25,10 @@ interface Project {
     id: string;
     status: string;
   }[];
+  researches?: { id: string }[];
+  prds?: { id: string }[];
+  roadmaps?: { id: string }[];
+  architectures?: { id: string }[];
 }
 
 interface ProjectsClientProps {
@@ -229,15 +232,35 @@ export default function ProjectsClient({
               const totalTasks = project.tasks.length;
 
               const completedTasks = project.tasks.filter(
-                (task) => task.status === "completed"
+                (task) => task.status === "completed" || task.status === "done"
               ).length;
 
-              const progress =
-                totalTasks === 0
-                  ? 0
-                  : Math.round(
-                      (completedTasks / totalTasks) * 100
-                    );
+              const hasResearch = (project.researches?.length ?? 0) > 0;
+              const hasPRD = (project.prds?.length ?? 0) > 0;
+              const hasRoadmap = (project.roadmaps?.length ?? 0) > 0;
+              const hasArchitecture = (project.architectures?.length ?? 0) > 0;
+
+              const aiMilestones =
+                (hasResearch ? 1 : 0) +
+                (hasPRD ? 1 : 0) +
+                (hasRoadmap ? 1 : 0) +
+                (hasArchitecture ? 1 : 0);
+
+              let progress = 0;
+              if (totalTasks > 0) {
+                const taskRatio = completedTasks / totalTasks;
+                const aiRatio = aiMilestones / 4;
+                progress = Math.round(aiRatio * 30 + taskRatio * 70);
+              } else {
+                progress = Math.round((aiMilestones / 4) * 100);
+              }
+
+              let validStatus: "Planning" | "Building" | "Completed" = "Planning";
+              if (progress === 100) {
+                validStatus = "Completed";
+              } else if (progress > 0 || totalTasks > 0) {
+                validStatus = "Building";
+              }
 
               return (
 
@@ -249,12 +272,7 @@ export default function ProjectsClient({
                     project.description ??
                     "No description added yet."
                   }
-                  status={
-                    project.status as
-                      | "Planning"
-                      | "Building"
-                      | "Completed"
-                  }
+                  status={validStatus}
                   progress={progress}
                   updatedAt={new Date(
                     project.updatedAt
@@ -271,74 +289,7 @@ export default function ProjectsClient({
 
         </section>
 
-        {/* Workspace Summary */}
-
-        <div
-          className="
-          rounded-3xl
-          border
-          border-white/10
-          bg-white/[0.03]
-          p-6
-          "
-        >
-
-          <div className="flex items-center gap-3">
-
-            <FolderKanban className="text-white" />
-
-            <h2 className="text-lg font-semibold text-white">
-              Workspace Summary
-            </h2>
-
-          </div>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-
-            <div>
-
-              <p className="text-sm text-zinc-500">
-                Total Projects
-              </p>
-
-              <p className="mt-2 text-3xl font-bold text-white">
-                {projects.length}
-              </p>
-
-            </div>
-
-            <div>
-
-              <p className="text-sm text-zinc-500">
-                Completed Projects
-              </p>
-
-              <div className="mt-2 flex items-center gap-2">
-
-                <CheckCircle2
-                  className="text-green-400"
-                />
-
-                <span className="text-3xl font-bold text-white">
-                  {
-                    projects.filter(
-                      (project) =>
-                        project.status === "Completed"
-                    ).length
-                  }
-                </span>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
       </div>
-
-      {/* Create Project Modal */}
 
       <CreateProjectModal
         open={open}
