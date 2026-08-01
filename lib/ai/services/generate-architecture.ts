@@ -1,5 +1,6 @@
 import { ai, DEFAULT_MODEL } from "../client";
 import { architecturePrompt } from "../prompts/architecture";
+import { normalizeArchitectureMermaid } from "@/lib/mermaid";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000;
@@ -29,15 +30,19 @@ export async function generateArchitecture(
       });
 
       return {
-        content: response.text ?? "",
+        content: normalizeArchitectureMermaid(response.text ?? ""),
         model: DEFAULT_MODEL,
         tokens: response.usageMetadata?.totalTokenCount ?? 0,
         generationTime: Math.round((Date.now() - start) / 1000),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
 
-      const status = error?.status ?? error?.error?.code;
+      const status =
+        error && typeof error === "object"
+          ? (error as { status?: unknown; error?: { code?: unknown } }).status ??
+            (error as { error?: { code?: unknown } }).error?.code
+          : undefined;
 
       if (status !== 503 || attempt === MAX_RETRIES) {
         throw error;

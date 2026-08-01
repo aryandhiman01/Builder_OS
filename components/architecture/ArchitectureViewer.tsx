@@ -30,6 +30,7 @@ import { Card } from "@/components/ui/card";
 import EditArchitectureModal from "./EditArchitectureModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import MermaidDiagram from "./MermaidDiagram";
+import { normalizeArchitectureMermaid } from "@/lib/mermaid";
 
 interface ArchitectureViewerProps {
   projectId: string;
@@ -117,7 +118,7 @@ export default function ArchitectureViewer({
   async function copyMarkdown() {
 
     await navigator.clipboard.writeText(
-      architecture.content
+      normalizeArchitectureMermaid(architecture.content)
     );
 
     setCopied(true);
@@ -133,7 +134,7 @@ export default function ArchitectureViewer({
   function downloadMarkdown() {
 
     const blob = new Blob(
-      [architecture.content],
+      [normalizeArchitectureMermaid(architecture.content)],
       {
         type: "text/markdown;charset=utf-8;",
       }
