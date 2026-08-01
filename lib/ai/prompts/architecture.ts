@@ -28,6 +28,8 @@ OUTPUT RULES
 - Return ONLY Markdown.
 - Never wrap the response inside triple backticks.
 - Every Mermaid diagram MUST use valid Mermaid syntax.
+- Mermaid supports flowchart, sequenceDiagram, classDiagram, erDiagram, stateDiagram, journey, gantt, pie, gitGraph, mindmap, timeline, and C4 diagrams only.
+- Never output componentDiagram, component, package, @startuml, or any PlantUML syntax. For component views, use flowchart LR with Mermaid subgraph ... end groups.
 - Use proper Markdown headings.
 - Use Markdown tables where appropriate.
 - Be highly detailed.
@@ -158,7 +160,7 @@ Explain
 - Validation
 - Error Handling
 
-Generate Mermaid Component Diagram.
+Generate a Mermaid component view as a valid flowchart LR, using subgraph ... end groups where useful. Do not use componentDiagram, component, or package.
 
 ---
 
@@ -174,7 +176,7 @@ Explain
 - Repository Pattern
 - Database Layer
 
-Generate Mermaid Component Diagram.
+Generate a Mermaid component view as a valid flowchart LR, using subgraph ... end groups where useful. Do not use componentDiagram, component, or package.
 
 ---
 

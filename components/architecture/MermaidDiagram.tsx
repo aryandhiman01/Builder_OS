@@ -45,9 +45,10 @@ function isNativelySupported(chart: string): boolean {
   return SUPPORTED_PREFIXES.some((p) => tok === p || tok.startsWith(p));
 }
 
-// ─── Convert `component` diagrams → flowchart LR ─────────────────────────────
-// The AI generates component / package diagrams that use flowchart-compatible
-// arrows (-->) and subgraphs. We re-map them to valid Mermaid flowchart syntax.
+// ─── Convert component-style diagrams → flowchart LR ─────────────────────────
+// Mermaid does not have a `componentDiagram` type. Older generated documents
+// use a PlantUML-like component/package notation, so normalise it into a native
+// Mermaid flowchart before attempting to render it.
 
 let _nodeIdx = 0;
 const _nodeMap = new Map<string, string>();
@@ -79,7 +80,7 @@ function convertComponentToFlowchart(raw: string): string {
   const out: string[] = ["flowchart LR"];
   let openPackages = 0;
 
-  // Skip the first line (the `component` keyword)
+  // Skip the first line (the component diagram keyword).
   for (let i = 1; i < lines.length; i++) {
     const trimmed = lines[i].trim();
 
@@ -89,9 +90,9 @@ function convertComponentToFlowchart(raw: string): string {
     }
 
     // package "Name" {  →  subgraph Name
-    const pkgMatch = trimmed.match(/^package\s+"([^"]+)"\s*\{/);
+    const pkgMatch = trimmed.match(/^package\s+(?:"([^"]+)"|([^\{]+?))\s*\{$/i);
     if (pkgMatch) {
-      out.push(`subgraph ${JSON.stringify(pkgMatch[1])}`);
+      out.push(`subgraph ${JSON.stringify((pkgMatch[1] ?? pkgMatch[2]).trim())}`);
       openPackages++;
       continue;
     }
@@ -104,21 +105,38 @@ function convertComponentToFlowchart(raw: string): string {
     }
 
     // subgraph / end pass-through
-    if (trimmed.startsWith("subgraph ") || trimmed === "end") {
+    if (trimmed.startsWith("subgraph ")) {
       out.push(trimmed);
+      continue;
+    }
+
+    // PlantUML-style component output sometimes uses a final `end` after all
+    // packages are already closed. It has no flowchart equivalent, so ignore it.
+    if (trimmed.toLowerCase() === "end" || /^@end\w*$/i.test(trimmed)) {
+      continue;
+    }
+
+    if (/^@start\w*$/i.test(trimmed)) {
       continue;
     }
 
     // Arrow:  [A] --> [B]  or  [A] --> [B]: label
     const arrowRe =
-      /^\[([^\]]+)\]\s*(--[->x]|<-->|==|\.\.>|==>)\s*\[([^\]]+)\](?:\s*:\s*(.+))?$/;
+      /^\[([^\]]+)\]\s*(<-->|-->|--|->|<-|\.\.>|<\.\.|==>|<==|<==>)\s*\[([^\]]+)\](?:\s*:\s*(.+))?$/;
     const arrowMatch = trimmed.match(arrowRe);
     if (arrowMatch) {
-      const [, fromLabel, arrow, toLabel, edgeLabel] = arrowMatch;
+      const [, fromLabel, rawArrow, toLabel, edgeLabel] = arrowMatch;
       const fromId = toNodeId(fromLabel);
       const toId = toNodeId(toLabel);
       const fromDef = `${fromId}["${sanitizeLabel(fromLabel)}"]`;
       const toDef = `${toId}["${sanitizeLabel(toLabel)}"]`;
+      const arrow = rawArrow === "->" || rawArrow === "==>" || rawArrow === "..>"
+        ? "-->"
+        : rawArrow === "<-" || rawArrow === "<==" || rawArrow === "<.."
+          ? "<--"
+          : rawArrow === "--"
+            ? "---"
+            : rawArrow;
       if (edgeLabel) {
         out.push(`${fromDef} ${arrow}|"${sanitizeLabel(edgeLabel)}"| ${toDef}`);
       } else {
@@ -139,6 +157,12 @@ function convertComponentToFlowchart(raw: string): string {
     out.push(trimmed);
   }
 
+  // Be forgiving of incomplete generated package blocks.
+  while (openPackages > 0) {
+    out.push("end");
+    openPackages--;
+  }
+
   return out.join("\n");
 }
 
@@ -147,7 +171,7 @@ function convertComponentToFlowchart(raw: string): string {
 function prepareChart(raw: string): { chart: string; converted: boolean } {
   const tok = firstToken(raw);
 
-  if (tok === "component") {
+  if (tok === "component" || tok === "componentdiagram") {
     return { chart: convertComponentToFlowchart(raw), converted: true };
   }
 
@@ -178,7 +202,11 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     const { chart: prepared, converted } = prepareChart(chart);
 
     if (!isNativelySupported(prepared) && !converted) {
-      setState({ status: "unsupported", type: firstToken(chart) });
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setState({ status: "unsupported", type: firstToken(chart) });
+        }
+      });
       return;
     }
 
