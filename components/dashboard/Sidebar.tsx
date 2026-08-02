@@ -27,7 +27,7 @@ const sidebarItems = [
     },
     {
         title: "AI Workspace",
-        href: "/ai",
+        href: "/ai-workspace",
         icon: Brain,
     },
     {
