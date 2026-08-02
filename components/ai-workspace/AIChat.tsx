@@ -8,8 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 import { ChatMessage } from "./AIWorkspace";
 
@@ -75,11 +74,9 @@ export default function AIChat({
 
                 <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-zinc-300 prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none">
 
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+                  <MarkdownRenderer
+                    content={message.content}
+                  />
 
                 </div>
 
