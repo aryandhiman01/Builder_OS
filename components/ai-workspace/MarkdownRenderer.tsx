@@ -2,9 +2,8 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 
-import "highlight.js/styles/github-dark.css";
+import CodeBlock from "./CodeBlock";
 
 interface MarkdownRendererProps {
   content: string;
@@ -13,14 +12,55 @@ interface MarkdownRendererProps {
 export default function MarkdownRenderer({
   content,
 }: MarkdownRendererProps) {
+
   return (
-    <div className="prose prose-invert max-w-none prose-pre:border prose-pre:border-white/10 prose-pre:bg-zinc-950 prose-code:text-cyan-300 prose-headings:text-white prose-p:text-zinc-300 prose-li:text-zinc-300 prose-strong:text-white prose-a:text-cyan-400">
+
+    <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-zinc-300 prose-li:text-zinc-300 prose-a:text-cyan-400">
+
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        components={{
+          code(props) {
+
+            const { children, className } = props;
+
+            const match = /language-(\w+)/.exec(
+              className || ""
+            );
+
+            const code = String(children).replace(/\n$/, "");
+
+            if (!match) {
+
+              return (
+
+                <code className="rounded bg-zinc-900 px-1.5 py-1 text-cyan-300">
+
+                  {children}
+
+                </code>
+
+              );
+
+            }
+
+            return (
+
+              <CodeBlock
+                language={match[1]}
+                value={code}
+              />
+
+            );
+
+          },
+        }}
       >
         {content}
       </ReactMarkdown>
+
     </div>
+
   );
+
 }
