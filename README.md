@@ -1,4 +1,4 @@
-# Builder OS
+<h1 align="center">Builder OS</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs" alt="Next.js 16" />
@@ -14,9 +14,11 @@
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Stack-Modern%20AI%20Stack-00BFA5?style=for-the-badge" alt="Tech Stack" /></a>
 </p>
 
-Builder OS is an AI-powered product planning and execution workspace built with Next.js, Prisma, and Gemini-driven workflows. It helps teams transform a raw idea into structured research, product requirements documents, roadmaps, technical architecture, task execution, and collaborative delivery in one unified platform.
+<p align="center">
+  Builder OS is an AI-native workspace for turning ambitious ideas into structured product outcomes. It helps teams move from discovery and research to PRDs, roadmaps, architecture, execution, and collaboration through one intelligent workflow.
+</p>
 
-> From concept to execution, Builder OS gives product teams a single intelligent operating system for planning, building, and shipping.
+> Builder OS brings strategy, planning, and delivery together in a single unified workspace for modern product teams.
 
 ## Why Builder OS
 
