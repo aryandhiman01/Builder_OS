@@ -16,9 +16,10 @@ interface ProjectCardProps {
     updatedAt: string;
     members: number;
     color: string;
+    isShared?: boolean;
 }
 
-export default function ProjectCard({ id, title, description, status, progress, updatedAt, members, color}: ProjectCardProps) {
+export default function ProjectCard({ id, title, description, status, progress, updatedAt, members, color, isShared = false }: ProjectCardProps) {
     const statusStyles = {
         Planning: "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
         Building: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
@@ -71,27 +72,36 @@ export default function ProjectCard({ id, title, description, status, progress, 
 
         <div>
 
-          <div
-            className={`
-            inline-flex
-            items-center
-            gap-2
-            rounded-full
-            px-3
-            py-1
-            text-xs
-            font-medium
-            ${statusStyles[status]}
-            `}
-          >
+          <div className="flex items-center gap-2 flex-wrap">
             <div
-              className="h-2.5 w-2.5 rounded-full"
-              style={{
-                backgroundColor: color,
-              }}
-            />
+              className={`
+              inline-flex
+              items-center
+              gap-2
+              rounded-full
+              px-3
+              py-1
+              text-xs
+              font-medium
+              ${statusStyles[status]}
+              `}
+            >
+              <div
+                className="h-2.5 w-2.5 rounded-full"
+                style={{
+                  backgroundColor: color,
+                }}
+              />
 
-            {status}
+              {status}
+            </div>
+
+            {isShared && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-400">
+                <Users size={10} />
+                Shared
+              </div>
+            )}
           </div>
 
           <h3 className="mt-4 text-xl font-semibold text-white">

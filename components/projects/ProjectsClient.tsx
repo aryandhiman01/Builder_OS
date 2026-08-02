@@ -20,6 +20,7 @@ interface Project {
   color: string;
   createdAt: Date;
   updatedAt: Date;
+  isShared: boolean;
 
   tasks: {
     id: string;
@@ -29,6 +30,7 @@ interface Project {
   prds?: { id: string }[];
   roadmaps?: { id: string }[];
   architectures?: { id: string }[];
+  members?: { id: string }[];
 }
 
 interface ProjectsClientProps {
@@ -265,21 +267,22 @@ export default function ProjectsClient({
               return (
 
                 <ProjectCard
-                  key={project.id}
-                  id={project.id}
-                  title={project.title}
-                  description={
-                    project.description ??
-                    "No description added yet."
-                  }
-                  status={validStatus}
-                  progress={progress}
-                  updatedAt={new Date(
-                    project.updatedAt
-                  ).toLocaleDateString()}
-                  members={1}
-                  color={project.color}
-                />
+                key={project.id}
+                id={project.id}
+                title={project.title}
+                description={
+                  project.description ??
+                  "No description added yet."
+                }
+                status={validStatus}
+                progress={progress}
+                updatedAt={new Date(
+                  project.updatedAt
+                ).toLocaleDateString()}
+                members={1 + (project.members?.length ?? 0)}
+                color={project.color}
+                isShared={project.isShared}
+              />
 
               );
 

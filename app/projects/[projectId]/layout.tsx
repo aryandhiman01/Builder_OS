@@ -26,28 +26,44 @@ export default async function ProjectLayout({
     redirect("/login");
   }
 
-const { projectId } = await params;
+  const { projectId } = await params;
 
+  // Allow access if user is owner OR an accepted member
   const project = await prisma.project.findFirst({
     where: {
-        id: projectId,
-        userId: session.user.id,
+      id: projectId,
+      OR: [
+        { userId: session.user.id },
+        { members: { some: { userId: session.user.id } } },
+      ],
     },
-    });
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      status: true,
+      color: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true,
+    },
+  });
 
   if (!project) {
     notFound();
   }
 
+  const isOwner = project.userId === session.user.id;
+
   return (
     <main className="min-h-screen bg-[#050505] text-white">
       <ProjectWorkspaceHeader project={project} />
 
-      <ProjectNavigation projectId={project.id} />
+      <ProjectNavigation projectId={project.id} isOwner={isOwner} />
 
       <section className="mx-auto max-w-7xl px-8 py-8">
         {children}
       </section>
     </main>
   );
-}
+}

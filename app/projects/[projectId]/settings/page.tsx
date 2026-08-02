@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import EditProjectForm from "@/components/projects/EditProjectForm";
+import MembersPanel from "@/components/projects/members/MembersPanel";
 
 interface ProjectSettingsPageProps {
   params: Promise<{
@@ -39,6 +40,13 @@ export default async function ProjectSettingsPage({
       status: true,
       createdAt: true,
       updatedAt: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
     },
   });
 
@@ -47,7 +55,7 @@ export default async function ProjectSettingsPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-5xl space-y-10">
 
       {/* Heading */}
 
@@ -58,7 +66,7 @@ export default async function ProjectSettingsPage({
         </h1>
 
         <p className="mt-2 text-zinc-500">
-          Update your project details and workspace preferences.
+          Update your project details and manage team members.
         </p>
 
       </div>
@@ -69,6 +77,26 @@ export default async function ProjectSettingsPage({
         project={project}
       />
 
+      {/* Team Members */}
+
+      <div className="space-y-4">
+
+        <div>
+          <h2 className="text-xl font-bold text-white">Team Members</h2>
+          <p className="mt-1 text-sm text-zinc-500">
+            Invite teammates to collaborate. Members can access all project features except Settings.
+          </p>
+        </div>
+
+        <MembersPanel
+          projectId={project.id}
+          ownerName={project.user.name}
+          ownerEmail={project.user.email}
+          ownerImage={project.user.image}
+        />
+
+      </div>
+
     </div>
   );
-}
+}

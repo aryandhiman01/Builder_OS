@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import Logo from "@/components/shared/Logo";
@@ -10,6 +10,8 @@ import SocialAuthButtons from "./SocialAuthButtons";
 
 export default function SignupForm() {
 const router = useRouter();
+const searchParams = useSearchParams();
+const inviteToken = searchParams.get("invite");
 
 const [name, setName] = useState("");
 const [email, setEmail] = useState("");
@@ -73,6 +75,24 @@ try {
   if (result?.error) {
     setError(result.error);
     return;
+  }
+
+  // If user came via invite link, accept invitation automatically
+  if (inviteToken) {
+    try {
+      const inviteRes = await fetch(`/api/invitations/${inviteToken}`, {
+        method: "POST",
+      });
+      const inviteData = await inviteRes.json();
+
+      if (inviteRes.ok && inviteData.projectId) {
+        router.push(`/projects/${inviteData.projectId}`);
+        router.refresh();
+        return;
+      }
+    } catch {
+      // fallthrough to dashboard if invite fails
+    }
   }
 
   router.push("/dashboard");

@@ -19,6 +19,7 @@ interface ProjectWorkspaceHeaderProps {
     updatedAt: Date;
     createdAt: Date;
   };
+  isOwner?: boolean;
 }
 
 export default function ProjectWorkspaceHeader({

@@ -16,10 +16,12 @@ import {
 
 interface ProjectNavigationProps {
   projectId: string;
+  isOwner: boolean;
 }
 
 export default function ProjectNavigation({
   projectId,
+  isOwner,
 }: ProjectNavigationProps) {
   const pathname = usePathname();
 
@@ -28,38 +30,50 @@ export default function ProjectNavigation({
       title: "Overview",
       href: `/projects/${projectId}`,
       icon: LayoutDashboard,
+      ownerOnly: false,
     },
     {
       title: "Research",
       href: `/projects/${projectId}/research`,
       icon: Brain,
+      ownerOnly: false,
     },
     {
       title: "PRD",
       href: `/projects/${projectId}/prd`,
       icon: FileText,
+      ownerOnly: false,
     },
     {
       title: "Roadmap",
       href: `/projects/${projectId}/roadmap`,
       icon: Map,
+      ownerOnly: false,
     },
     {
       title: "Architecture",
       href: `/projects/${projectId}/architecture`,
       icon: Boxes,
+      ownerOnly: false,
     },
     {
       title: "Tasks",
       href: `/projects/${projectId}/tasks`,
       icon: CheckSquare,
+      ownerOnly: false,
     },
     {
       title: "Settings",
       href: `/projects/${projectId}/settings`,
       icon: Settings,
+      ownerOnly: true,
     },
+
   ];
+
+  const visibleNav = navigation.filter(
+    (item) => !item.ownerOnly || isOwner
+  );
 
   return (
     <nav
@@ -85,7 +99,7 @@ export default function ProjectNavigation({
         py-4
         "
       >
-        {navigation.map((item) => {
+        {visibleNav.map((item) => {
           const Icon = item.icon;
 
           const active =

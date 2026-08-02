@@ -18,6 +18,10 @@ model User {
   accounts      Account[]
   projects      Project[]
   sessions      Session[]
+
+  // Team collaboration
+  projectMemberships ProjectMember[]
+  sentInvitations    ProjectInvitation[] @relation("InvitedBy")
 }
 
 model Account {
@@ -87,6 +91,10 @@ model Project {
   architectures Architecture[]
 
   documents Document[]
+
+  // Team collaboration
+  members     ProjectMember[]
+  invitations ProjectInvitation[]
 }
 
 model Idea {
@@ -231,3 +239,38 @@ model Document {
 
   @@index([projectId])
 }
+
+// ─── Team Collaboration ────────────────────────────────────────────────────────
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("MEMBER") // "OWNER" | "MEMBER"
+  joinedAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model ProjectInvitation {
+  id          String   @id @default(cuid())
+  projectId   String
+  email       String
+  token       String   @unique
+  status      String   @default("PENDING") // "PENDING" | "ACCEPTED" | "EXPIRED"
+  invitedById String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitedBy User    @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([token])
+  @@index([email])
+}
