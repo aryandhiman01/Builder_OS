@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://builder-os-silk.vercel.app" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Live-Demo-0A84FF?style=for-the-badge" alt="Live Demo" /></a>
   <a href="#installation"><img src="https://img.shields.io/badge/Setup-Quick%20Start-4CAF50?style=for-the-badge" alt="Quick Start" /></a>
   <a href="#workflow-example"><img src="https://img.shields.io/badge/Workflow-Product%20Lifecycle-FF6B6B?style=for-the-badge" alt="Workflow" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/Stack-Modern%20AI%20Stack-00BFA5?style=for-the-badge" alt="Tech Stack" /></a>
