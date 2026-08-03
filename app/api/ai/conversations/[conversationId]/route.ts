@@ -4,8 +4,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const aiConversationClient = (prisma as any).aIConversation;
-
 interface RouteParams {
   params: Promise<{
     conversationId: string;
@@ -30,14 +28,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { conversationId } = await params;
 
-    const conversation = await aiConversationClient.findFirst({
-      where: {
-        id: conversationId,
-        user: {
-          email: session.user.email,
-        },
-      },
-    });
+    const conversationRows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        messages: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }>
+    >`
+      SELECT c.id, c.title, c.messages, c."createdAt", c."updatedAt"
+      FROM "AIConversation" c
+      INNER JOIN "User" u ON c."userId" = u.id
+      WHERE c.id = ${conversationId}
+        AND u.email = ${session.user.email}
+      LIMIT 1
+    `;
+
+    const conversation = conversationRows[0] ?? null;
 
     if (!conversation) {
       return NextResponse.json(
@@ -106,14 +114,24 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const { conversationId } = await params;
 
-    const conversation = await aiConversationClient.findFirst({
-      where: {
-        id: conversationId,
-        user: {
-          email: session.user.email,
-        },
-      },
-    });
+    const conversationRows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        messages: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }>
+    >`
+      SELECT c.id, c.title, c.messages, c."createdAt", c."updatedAt"
+      FROM "AIConversation" c
+      INNER JOIN "User" u ON c."userId" = u.id
+      WHERE c.id = ${conversationId}
+        AND u.email = ${session.user.email}
+      LIMIT 1
+    `;
+
+    const conversation = conversationRows[0] ?? null;
 
     if (!conversation) {
       return NextResponse.json(
@@ -126,11 +144,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    await aiConversationClient.delete({
-      where: {
-        id: conversationId,
-      },
-    });
+    await prisma.$executeRaw`
+      DELETE FROM "AIConversation"
+      WHERE id = ${conversationId}
+        AND "userId" IN (
+          SELECT u.id
+          FROM "User" u
+          WHERE u.email = ${session.user.email}
+        )
+    `;
 
     return NextResponse.json(
       {

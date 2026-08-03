@@ -6,8 +6,6 @@ import { prisma } from "@/lib/prisma";
 
 import { generateChat } from "@/lib/ai/services/chat";
 
-const aiConversationClient = (prisma as any).aIConversation;
-
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -78,17 +76,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let existingConversation = null;
+    let existingConversation: {
+      id: string;
+      title: string;
+      messages: string;
+      userId: string;
+      createdAt: Date;
+      updatedAt: Date;
+    } | null = null;
 
     if (conversationId) {
-      existingConversation = await aiConversationClient.findFirst({
-        where: {
-          id: conversationId,
-          user: {
-            email: session.user.email,
-          },
-        },
-      });
+      const conversationRows = await prisma.$queryRaw<
+        Array<{
+          id: string;
+          title: string;
+          messages: string;
+          userId: string;
+          createdAt: Date;
+          updatedAt: Date;
+        }>
+      >`
+        SELECT c.id, c.title, c.messages, c."userId", c."createdAt", c."updatedAt"
+        FROM "AIConversation" c
+        INNER JOIN "User" u ON c."userId" = u.id
+        WHERE c.id = ${conversationId}
+          AND u.email = ${session.user.email}
+        LIMIT 1
+      `;
+
+      existingConversation = conversationRows[0] ?? null;
 
       if (!existingConversation) {
         return NextResponse.json(
@@ -133,14 +149,11 @@ export async function POST(request: NextRequest) {
     let savedTitle = existingConversation?.title;
 
     if (existingConversation) {
-      await aiConversationClient.update({
-        where: {
-          id: existingConversation.id,
-        },
-        data: {
-          messages: JSON.stringify(updatedMessages),
-        },
-      });
+      await prisma.$executeRaw`
+        UPDATE "AIConversation"
+        SET messages = ${JSON.stringify(updatedMessages)}, "updatedAt" = NOW()
+        WHERE id = ${existingConversation.id}
+      `;
     } else {
       const user = await prisma.user.findUnique({
         where: { email: session.user.email },
@@ -150,16 +163,30 @@ export async function POST(request: NextRequest) {
       if (user) {
         const title = buildTitle(message);
 
-        const created = await aiConversationClient.create({
-          data: {
-            title,
-            messages: JSON.stringify(updatedMessages),
-            userId: user.id,
-          },
-        });
+        const createdRows = await prisma.$queryRaw<
+          Array<{
+            id: string;
+            title: string;
+          }>
+        >`
+          INSERT INTO "AIConversation" (id, title, messages, "userId", "createdAt", "updatedAt")
+          VALUES (
+            ${crypto.randomUUID()},
+            ${title},
+            ${JSON.stringify(updatedMessages)},
+            ${user.id},
+            NOW(),
+            NOW()
+          )
+          RETURNING id, title
+        `;
 
-        savedConversationId = created.id;
-        savedTitle = created.title;
+        const created = createdRows[0];
+
+        if (created) {
+          savedConversationId = created.id;
+          savedTitle = created.title;
+        }
       }
     }
 
