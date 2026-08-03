@@ -11,13 +11,27 @@ import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  Sparkles,
   Zap,
   FileText,
   Map,
   GitBranch,
   CheckSquare,
   Brain,
+  Cpu,
+  Activity,
+  TerminalSquare,
+  Layers,
+  BarChart3,
+  TrendingUp,
+  Users,
+  Clock,
+  Target,
+  Network,
+  Database,
+  Server,
+  Code2,
+  ListChecks,
+  Rocket,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,9 +72,9 @@ const wordVariant: Variants = {
 /* Typewriter badge text                                                */
 /* ------------------------------------------------------------------ */
 const BADGE_TEXTS = [
-  "AI Workspace 2.0 is here",
-  "Generate PRDs in seconds",
-  "Ship faster with AI",
+  "BuilderOS is Live",
+  "Autonomous PRD Drafting",
+  "Ship 10x Faster with AI",
 ];
 
 function TypewriterBadge() {
@@ -86,10 +100,10 @@ function TypewriterBadge() {
   }, [displayed, isDeleting, textIndex]);
 
   return (
-    <span className="inline-block min-w-[180px] text-left">
+    <span className="inline-block font-mono text-[11px] sm:text-xs text-white/90">
       {displayed}
       <span
-        className="ml-0.5 inline-block h-3.5 w-px bg-orange-400 align-middle"
+        className="ml-0.5 inline-block h-3 w-px bg-orange-400 align-middle"
         style={{ animation: "blink 1s step-end infinite" }}
       />
     </span>
@@ -103,90 +117,95 @@ function TypewriterBadge() {
 /* Mock UI — shows inside the floating card                             */
 /* ------------------------------------------------------------------ */
 const mockItems = [
-  { 
-    icon: Brain, 
-    label: "AI Research Engine", 
-    color: "text-violet-400", 
-    bg: "bg-violet-500/10", 
+  {
+    icon: Brain,
+    label: "AI Research Engine",
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
     status: "Complete",
+    progress: 100,
     badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     preview: {
       title: "Market Analysis & Competitor Insight",
       tag: "AI Generated • 1.2s",
       content: [
-        { label: "TAM / SAM", val: "$14.2B Global Market" },
-        { label: "Top Competitors", val: "Linear, Jira, Notion AI" },
-        { label: "Target Audience", val: "Tech Founders & Product Lead" }
-      ]
-    }
+        { label: "TAM / SAM", val: "$14.2B Global Market", icon: BarChart3 },
+        { label: "Top Competitors", val: "Linear, Jira, Notion AI", icon: Target },
+        { label: "Target Audience", val: "Tech Founders & Product Leads", icon: Users },
+      ],
+    },
   },
-  { 
-    icon: FileText, 
-    label: "PRD Generator", 
-    color: "text-blue-400", 
-    bg: "bg-blue-500/10", 
+  {
+    icon: FileText,
+    label: "PRD Generator",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10",
     status: "Generating...",
+    progress: 67,
     badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
     preview: {
       title: "Product Requirements Document (v1.0)",
       tag: "Generating PRD...",
       content: [
-        { label: "Core Scope", val: "AI-assisted sprint planning & auto-PRD drafting" },
-        { label: "Tech Stack", val: "Next.js 15, TypeScript, Tailwind, Prisma, Postgres" },
-        { label: "API Endpoints", val: "POST /api/prd/generate, GET /api/roadmap" }
-      ]
-    }
+        { label: "Core Scope", val: "AI-assisted sprint planning & PRD drafting", icon: Target },
+        { label: "Tech Stack", val: "Next.js 15, TypeScript, Tailwind, Prisma", icon: Code2 },
+        { label: "API Endpoints", val: "POST /api/prd/generate, GET /api/roadmap", icon: TerminalSquare },
+      ],
+    },
   },
-  { 
-    icon: Map, 
-    label: "Roadmap Builder", 
-    color: "text-emerald-400", 
-    bg: "bg-emerald-500/10", 
+  {
+    icon: Map,
+    label: "Roadmap Builder",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
     status: "Pending",
+    progress: 0,
     badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
     preview: {
-      title: "Q3 - Q4 Release Timeline & Milestones",
+      title: "Q3 – Q4 Release Timeline & Milestones",
       tag: "Planned Sprint",
       content: [
-        { label: "Phase 1 (Week 1-2)", val: "MVP Core Engine & Auth Integration" },
-        { label: "Phase 2 (Week 3-4)", val: "Real-time AI Chat & Diagrams" },
-        { label: "Phase 3 (Week 5-6)", val: "Public Beta & Analytics Launch" }
-      ]
-    }
+        { label: "Phase 1 (Week 1–2)", val: "MVP Core Engine & Auth Integration", icon: Layers },
+        { label: "Phase 2 (Week 3–4)", val: "Real-time AI Chat & Diagrams", icon: Network },
+        { label: "Phase 3 (Week 5–6)", val: "Public Beta & Analytics Launch", icon: Rocket },
+      ],
+    },
   },
-  { 
-    icon: GitBranch, 
-    label: "Architecture Diagrams", 
-    color: "text-amber-400", 
-    bg: "bg-amber-500/10", 
+  {
+    icon: GitBranch,
+    label: "Architecture Diagrams",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
     status: "Pending",
+    progress: 0,
     badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
     preview: {
       title: "System Topology & Microservice Schema",
       tag: "Automated Diagram",
       content: [
-        { label: "Frontend Layer", val: "React 19 / Next App Router" },
-        { label: "AI Gateway", val: "GPT-4o Stream Pipeline via Edge Router" },
-        { label: "Database Layer", val: "PostgreSQL DB + Redis Cache Node" }
-      ]
-    }
+        { label: "Frontend Layer", val: "React 19 / Next.js App Router", icon: Layers },
+        { label: "AI Gateway", val: "GPT-4o Stream Pipeline via Edge Router", icon: Cpu },
+        { label: "Database Layer", val: "PostgreSQL DB + Redis Cache Node", icon: Database },
+      ],
+    },
   },
-  { 
-    icon: CheckSquare, 
-    label: "Task Board", 
-    color: "text-rose-400", 
-    bg: "bg-rose-500/10", 
+  {
+    icon: CheckSquare,
+    label: "Task Board",
+    color: "text-rose-400",
+    bg: "bg-rose-500/10",
     status: "Pending",
+    progress: 0,
     badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
     preview: {
       title: "Sprint Kanban & Prioritized Backlog",
       tag: "18 Auto Tasks Created",
       content: [
-        { label: "High Priority", val: "Configure OAuth & Session Handler" },
-        { label: "In Progress", val: "Build Dynamic Interactive Node Graph" },
-        { label: "Backlog", val: "Setup Stripe Webhooks & Billing" }
-      ]
-    }
+        { label: "High Priority", val: "Configure OAuth & Session Handler", icon: Target },
+        { label: "In Progress", val: "Build Dynamic Interactive Node Graph", icon: Activity },
+        { label: "Backlog", val: "Setup Stripe Webhooks & Billing", icon: Server },
+      ],
+    },
   },
 ];
 
@@ -201,6 +220,7 @@ function MockUI() {
   }, []);
 
   const activeItem = mockItems[activeIdx];
+  const progressVal = activeItem.progress;
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -258,7 +278,7 @@ function MockUI() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
-            <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+            <Layers className="h-3.5 w-3.5 text-orange-400" />
             <span className="text-xs font-semibold text-white/90">
               BuilderOS — Workspace
             </span>
@@ -304,13 +324,12 @@ function MockUI() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full border ${
-                        item.status === "Complete"
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : isActive
+                      className={`text-xs px-2 py-0.5 rounded-full border ${item.status === "Complete"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : isActive
                           ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
                           : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
-                      }`}
+                        }`}
                     >
                       {isActive && item.status === "Pending"
                         ? "Generating..."
@@ -332,8 +351,8 @@ function MockUI() {
             })}
           </div>
 
-          {/* Right Column: Live Output Preview for Desktop / Widescreen */}
-          <div className="lg:col-span-7 flex flex-col rounded-xl border border-white/10 bg-black/40 p-4 lg:p-5 relative min-h-[260px] overflow-hidden justify-between">
+          {/* Right Column: Rich Live Output Preview */}
+          <div className="lg:col-span-7 flex flex-col rounded-xl border border-white/10 bg-black/40 p-4 lg:p-5 relative min-h-[260px] overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeItem.label}
@@ -341,7 +360,7 @@ function MockUI() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-4"
+                className="space-y-4 flex-1"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -356,21 +375,42 @@ function MockUI() {
                   </span>
                 </div>
 
-                {/* Content Cards */}
+                {/* Content Cards — each row has its own icon */}
                 <div className="space-y-2.5">
-                  {activeItem.preview.content.map((row, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1"
-                    >
-                      <span className="text-xs text-[#8a8a93] font-medium">
-                        {row.label}
-                      </span>
-                      <span className="text-xs text-white font-mono font-medium">
-                        {row.val}
-                      </span>
-                    </div>
-                  ))}
+                  {activeItem.preview.content.map((row, idx) => {
+                    const RowIcon = (row as { label: string; val: string; icon: React.ElementType }).icon;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: 8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.07, duration: 0.3 }}
+                        className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <RowIcon className="h-3.5 w-3.5 text-[#8a8a93] shrink-0" />
+                          <span className="text-xs text-[#8a8a93] font-medium">{row.label}</span>
+                        </div>
+                        <span className="text-xs text-white font-mono font-medium sm:text-right">{row.val}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Progress bar */}
+                <div className="pt-1">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Module Progress</span>
+                    <span className="text-[10px] text-orange-400 font-mono">{progressVal}%</span>
+                  </div>
+                  <div className="h-1 w-full rounded-full bg-white/[0.06]">
+                    <motion.div
+                      className="h-1 rounded-full bg-gradient-to-r from-orange-500 to-rose-400"
+                      initial={{ width: "0%" }}
+                      animate={{ width: `${progressVal}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -378,33 +418,23 @@ function MockUI() {
             {/* Bottom status badge inside preview */}
             <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-[#8a8a93]">
               <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3 text-orange-400" />
+                <Cpu className="h-3 w-3 text-orange-400" />
                 AI Copilot Active
               </span>
-              <span className="font-mono text-[11px] text-zinc-500">
+              <span className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500">
+                <Clock className="h-3 w-3" />
                 Ready to Export
               </span>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar matching Image 1 & 2 */}
+        {/* Bottom Bar */}
         <div className="border-t border-white/[0.07] bg-white/[0.02] px-4 py-3 flex items-center justify-between text-xs text-[#8a8a93]">
-          <span className="font-medium text-white/80">Generating with GPT-4o</span>
-
-          {/* Scroll Pill Indicator */}
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">
-              SCROLL
-            </span>
-            <div className="h-5 w-3 rounded-full border border-white/20 flex items-start justify-center pt-0.5">
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ duration: 1.2, repeat: Infinity }}
-                className="h-1.5 w-1 rounded-full bg-orange-400"
-              />
-            </div>
-          </div>
+          <span className="flex items-center gap-2 font-medium text-white/80">
+            <Activity className="h-3.5 w-3.5 text-emerald-400" />
+            Generating with gemini-3.6-flash
+          </span>
 
           <div className="flex gap-1.5 items-center">
             {[...Array(3)].map((_, i) => (
@@ -505,7 +535,7 @@ export default function Hero() {
       {/* ── Main content ── */}
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
-        className="mx-auto w-full max-w-6xl px-4 md:px-6 text-center"
+        className="mx-auto w-full max-w-6xl px-4 sm:px-6 text-center relative z-10"
       >
         {/* Badge */}
         <motion.div
@@ -513,16 +543,16 @@ export default function Hero() {
           initial="hidden"
           animate="visible"
           custom={0}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-4 py-1.5 text-sm text-[#8a8a93] backdrop-blur-sm"
+          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-4 py-1.5 text-xs sm:text-sm text-[#8a8a93] backdrop-blur-sm shadow-inner"
         >
           <motion.span
             animate={{ rotate: [0, 15, 0, -15, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+            <Zap className="h-3.5 w-3.5 text-orange-400 shrink-0" />
           </motion.span>
           <TypewriterBadge />
-          <span className="ml-1 flex items-center gap-1 text-orange-400 hover:text-orange-300 transition-colors cursor-pointer font-medium">
+          <span className="ml-1 flex items-center gap-1 text-orange-400 hover:text-orange-300 transition-colors cursor-pointer font-medium shrink-0">
             Learn more
             <ArrowRight className="h-3 w-3" />
           </span>
@@ -532,34 +562,32 @@ export default function Hero() {
         <motion.h1
           initial="hidden"
           animate="visible"
-          className="mx-auto max-w-4xl text-[52px] font-bold leading-[1.05] tracking-[-0.04em] text-white sm:text-[72px] md:text-[84px] lg:text-[92px]"
+          className="mx-auto max-w-5xl text-[44px] sm:text-[68px] md:text-[80px] lg:text-[88px] font-bold leading-[1.05] tracking-[-0.04em] text-white"
           style={{ fontFamily: "var(--font-sora)" }}
         >
-          <AnimatedHeadline line="Your shortcut" delay={0.1} />
+          <AnimatedHeadline line="Everything you need" delay={0.1} />
           <span className="block">
-            <AnimatedHeadline line="to" delay={0.25} />
-            {" "}
             <motion.span
               initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ delay: 0.38, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="inline-block bg-gradient-to-r from-orange-400 via-red-400 to-rose-400 bg-clip-text text-transparent"
             >
-              building.
+              to build
             </motion.span>
           </span>
         </motion.h1>
 
-        {/* Sub text */}
+        {/* Upgraded Subtext (Version 2) */}
         <motion.p
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={3}
-          className="mx-auto mt-6 max-w-xl text-[16px] sm:text-[18px] leading-relaxed text-[#8a8a93]"
+          className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[18px] leading-relaxed text-[#9a9a9f]"
         >
-          A collection of powerful product tools all within an intelligent workspace. 
-          Research, plan, architect, and ship — without wasting time.
+          Stop context-switching between 5 disconnected tools. BuilderOS unifies deep market research,
+          automated PRDs, visual roadmaps, and system architecture into one intelligent workspace.
         </motion.p>
 
         {/* CTAs */}
@@ -568,15 +596,15 @@ export default function Hero() {
           initial="hidden"
           animate="visible"
           custom={4}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md sm:max-w-none mx-auto"
         >
-          <Link href="/signup">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+          <Link href="/signup" className="w-full sm:w-auto">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="btn-shimmer group relative rounded-xl bg-white px-7 text-[15px] font-semibold text-black hover:bg-zinc-100 transition-all duration-300 shadow-lg shadow-white/10"
+                className="btn-shimmer group relative w-full sm:w-auto rounded-xl bg-white px-7 text-[15px] font-semibold text-black hover:bg-zinc-100 transition-all duration-300 shadow-lg shadow-white/10"
               >
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   Start Building Free
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </span>
@@ -584,12 +612,12 @@ export default function Hero() {
             </motion.div>
           </Link>
 
-          <Link href="#features">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+          <Link href="#features" className="w-full sm:w-auto">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="rounded-xl border-white/[0.1] bg-white/[0.04] px-7 text-[15px] text-white backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300"
+                className="w-full sm:w-auto rounded-xl border-white/[0.1] bg-white/[0.04] px-7 text-[15px] text-white backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300"
               >
                 Explore Features
               </Button>
@@ -605,11 +633,11 @@ export default function Hero() {
           custom={5}
           className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-[#8a8a93]"
         >
-          <span>Free to start</span>
+          <span>Free tier forever</span>
           <span className="h-1 w-1 rounded-full bg-[#8a8a93]/40" />
           <span>No credit card required</span>
           <span className="h-1 w-1 rounded-full bg-[#8a8a93]/40" />
-          <span>Cancel anytime</span>
+          <span>Instant export</span>
         </motion.div>
 
         {/* ── Wide Workspace Section Showcase ── */}

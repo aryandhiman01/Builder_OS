@@ -185,12 +185,12 @@ export default function CTA() {
           <div className="glow-teal absolute left-0 bottom-0 h-[400px] w-[400px] opacity-30" />
         </div>
 
-        <div className="mx-auto max-w-4xl px-6 text-center" ref={ctaRef}>
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center" ref={ctaRef}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-sm text-orange-300"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs sm:text-sm text-orange-300 backdrop-blur-sm"
           >
             <Sparkles className="h-3.5 w-3.5" />
             Start building today — it's free
@@ -200,11 +200,11 @@ export default function CTA() {
             initial={{ opacity: 0, y: 40 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-6xl font-bold text-white md:text-8xl"
-            style={{ fontFamily: "var(--font-sora)", letterSpacing: "-0.04em", lineHeight: 1.02 }}
+            className="text-3xl sm:text-6xl md:text-8xl font-extrabold text-white leading-[1.05] tracking-[-0.035em]"
+            style={{ fontFamily: "var(--font-sora)" }}
           >
             Your next product{" "}
-            <span className="bg-gradient-to-r from-orange-400 via-red-400 to-rose-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-rose-500 bg-clip-text text-transparent">
               starts here.
             </span>
           </motion.h2>
@@ -213,34 +213,34 @@ export default function CTA() {
             initial={{ opacity: 0, y: 30 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto mt-8 max-w-lg text-lg text-[#8a8a93]"
+            className="mx-auto mt-6 sm:mt-8 max-w-lg text-base sm:text-lg text-[#8a8a93]"
           >
-            Join thousands of builders who use BuilderOS to go from idea to shipped product — faster than ever before.
+            Join thousands of builders who use BuilderOS to go from raw idea to shipped product — 10x faster.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-10 flex flex-wrap justify-center gap-4"
+            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-sm sm:max-w-none mx-auto"
           >
-            <Link href="/signup">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <Link href="/signup" className="w-full sm:w-auto">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="btn-shimmer group rounded-xl bg-white px-10 py-6 text-[16px] font-semibold text-black hover:bg-zinc-100 transition-all duration-300 shadow-xl shadow-white/10"
+                  className="btn-shimmer group w-full sm:w-auto rounded-xl bg-white px-9 py-6 text-[16px] font-bold text-black hover:bg-zinc-100 transition-all duration-300 shadow-xl shadow-white/10"
                 >
                   Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Button>
               </motion.div>
             </Link>
-            <Link href="/login">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <Link href="/login" className="w-full sm:w-auto">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="rounded-xl border-white/[0.12] bg-white/[0.04] px-10 py-6 text-[16px] text-white backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/25 transition-all duration-300"
+                  className="w-full sm:w-auto rounded-xl border-white/[0.12] bg-white/[0.04] px-9 py-6 text-[16px] text-white backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/25 transition-all duration-300 font-semibold"
                 >
                   Sign In
                 </Button>
@@ -252,13 +252,13 @@ export default function CTA() {
             initial={{ opacity: 0 }}
             animate={ctaInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-6 flex items-center justify-center gap-2 text-sm text-[#8a8a93]/60"
+            className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-[#8a8a93]"
           >
-            <span>Free to start</span>
-            <span className="h-1 w-1 rounded-full bg-current" />
+            <span>Free tier forever</span>
+            <span className="h-1 w-1 rounded-full bg-current opacity-60" />
             <span>No credit card required</span>
-            <span className="h-1 w-1 rounded-full bg-current" />
-            <span>Cancel anytime</span>
+            <span className="h-1 w-1 rounded-full bg-current opacity-60" />
+            <span>Instant access</span>
           </motion.p>
         </div>
       </section>

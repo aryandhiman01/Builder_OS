@@ -29,15 +29,15 @@ export default function Navbar() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="fixed top-3 inset-x-0 z-50 px-4 md:px-6"
+        className="fixed top-2 sm:top-3 inset-x-0 z-50 px-3 sm:px-6 w-full max-w-full box-border"
       >
         <div
-          className={`mx-auto max-w-6xl rounded-full transition-all duration-500 border border-white/[0.1] bg-[#0a0a0c]/85 backdrop-blur-xl px-4 md:px-6 py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between ${
+          className={`mx-auto max-w-6xl rounded-full transition-all duration-300 border border-white/[0.1] bg-[#0a0a0c]/90 backdrop-blur-xl px-3.5 sm:px-6 py-2 sm:py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between ${
             scrolled ? "border-white/20 bg-[#09090b]/95 shadow-black" : ""
           }`}
         >
           {/* Left: Logo */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 min-w-0">
             <Logo />
 
             {/* Center links */}
@@ -58,26 +58,26 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: Auth Profile Card */}
+          {/* Right: Auth Profile Card + Mobile menu toggle */}
           <motion.div
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.3 }}
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 sm:gap-3 shrink-0"
           >
             <div>
               <AuthButtons />
             </div>
 
-            {/* Mobile toggle */}
+            {/* Mobile toggle button */}
             <button
-              className="flex flex-col gap-1 md:hidden p-2 text-zinc-400 hover:text-white"
+              className="flex flex-col justify-center items-center h-8 w-8 rounded-lg border border-white/10 bg-white/[0.04] md:hidden p-1.5 text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "rotate-45 translate-y-1.5" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "-rotate-45 -translate-y-1.5" : ""}`} />
+              <span className={`block h-0.5 w-4 bg-current transition-all duration-300 ${mobileOpen ? "rotate-45 translate-y-1" : ""}`} />
+              <span className={`block h-0.5 w-4 bg-current transition-all duration-300 my-0.5 ${mobileOpen ? "opacity-0 my-0" : ""}`} />
+              <span className={`block h-0.5 w-4 bg-current transition-all duration-300 ${mobileOpen ? "-rotate-45 -translate-y-1" : ""}`} />
             </button>
           </motion.div>
         </div>
@@ -92,15 +92,16 @@ export default function Navbar() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="mx-auto mt-2 max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/95 backdrop-blur-2xl shadow-2xl"
             >
-              <div className="flex flex-col gap-1 px-6 py-4">
+              <div className="flex flex-col gap-1 px-5 py-4">
                 {navLinks.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="py-2.5 text-sm text-[#9a9a9f] hover:text-white transition-colors border-b border-white/[0.04] last:border-0 font-medium"
+                    className="py-2.5 text-sm text-[#9a9a9f] hover:text-white transition-colors border-b border-white/[0.04] last:border-0 font-medium flex items-center justify-between"
                   >
-                    {link.label}
+                    <span>{link.label}</span>
+                    <span className="text-xs text-zinc-600">→</span>
                   </a>
                 ))}
               </div>
