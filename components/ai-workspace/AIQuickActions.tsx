@@ -109,7 +109,7 @@ export default function AIQuickActions({
   onSelectPrompt,
 }: AIQuickActionsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-2.5">
 
       {actions.map((action) => {
 
@@ -119,24 +119,11 @@ export default function AIQuickActions({
           <button
             key={action.title}
             onClick={() => onSelectPrompt(action.prompt)}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-6 text-left backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/30 hover:bg-white/[0.04] hover:shadow-2xl"
+            title={action.description}
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0c]/80 px-4 py-2 text-sm text-zinc-300 backdrop-blur-md transition-all duration-200 hover:border-cyan-500/30 hover:bg-white/[0.04] hover:text-cyan-300"
           >
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/25 bg-cyan-500/10 shadow-[0_0_25px_rgba(34,211,238,0.12)]">
-
-              <Icon className="h-6 w-6 text-cyan-400" />
-
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold tracking-tight text-white transition-colors group-hover:text-cyan-400">
-                {action.title}
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-zinc-400">
-                {action.description}
-              </p>
-            </div>
-
+            <Icon className="h-4 w-4 text-cyan-400" />
+            {action.title}
           </button>
         );
       })}

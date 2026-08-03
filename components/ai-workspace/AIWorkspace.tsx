@@ -90,71 +90,23 @@ export default function AIWorkspace() {
   }
 
     return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background">
+    <div className="flex h-screen flex-col overflow-x-hidden bg-background">
 
-      <div className="border-b border-white/10 bg-background/80 backdrop-blur-xl">
+      <div className="shrink-0 border-b border-white/10 bg-background/80 px-8 py-4 backdrop-blur-xl">
 
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-8 py-5">
-
-          <div>
-
-            <h1 className="text-3xl font-bold tracking-tight text-white">
-              AI Workspace
-            </h1>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Your intelligent software engineering assistant powered by
-              BuilderOS AI.
-            </p>
-
-          </div>
-
-        </div>
+        <p className="text-sm font-medium text-zinc-300">
+          AI Workspace
+        </p>
 
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-8 py-6">
+      {messages.length === 0 ? (
 
-        {messages.length === 0 ? (
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-10 px-8">
 
-          <div className="flex flex-1 flex-col gap-6">
+          <AIWelcome />
 
-            <AIWelcome />
-
-            <div className="mt-2">
-
-              <AIQuickActions
-                onSelectPrompt={handleSend}
-              />
-
-            </div>
-
-            <div className="sticky bottom-0 z-10 mt-2">
-
-              <AIInput
-                loading={loading}
-                onSend={handleSend}
-              />
-
-            </div>
-
-          </div>
-
-        ) : (
-
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-
-            <AIChat
-              messages={messages}
-              loading={loading}
-            />
-
-          </div>
-
-        )}
-
-        {messages.length > 0 && (
-          <div className="mt-6">
+          <div className="w-full">
 
             <AIInput
               loading={loading}
@@ -162,9 +114,34 @@ export default function AIWorkspace() {
             />
 
           </div>
-        )}
 
-      </div>
+          <AIQuickActions
+            onSelectPrompt={handleSend}
+          />
+
+        </div>
+
+      ) : (
+
+        <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-8 py-6">
+
+          <AIChat
+            messages={messages}
+            loading={loading}
+          />
+
+          <div className="mt-6 shrink-0">
+
+            <AIInput
+              loading={loading}
+              onSend={handleSend}
+            />
+
+          </div>
+
+        </div>
+
+      )}
 
     </div>
   );
