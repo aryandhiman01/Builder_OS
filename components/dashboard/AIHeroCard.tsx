@@ -173,7 +173,7 @@ export default function AIHeroCard() {
         <div className="mt-10">
 
           <Link
-            href="/ai"
+            href="/ai-workspace"
             className="
             inline-flex
             items-center
