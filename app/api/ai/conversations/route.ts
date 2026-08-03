@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const aiConversationClient = (prisma as any).aIConversation;
+
 // GET — list the current user's AI Workspace conversation history
 export async function GET() {
   try {
@@ -20,7 +22,7 @@ export async function GET() {
       );
     }
 
-    const conversations = await prisma.aIConversation.findMany({
+    const conversations = await aiConversationClient.findMany({
       where: {
         user: {
           email: session.user.email,

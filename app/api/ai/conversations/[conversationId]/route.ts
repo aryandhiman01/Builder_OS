@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const aiConversationClient = (prisma as any).aIConversation;
+
 interface RouteParams {
   params: Promise<{
     conversationId: string;
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { conversationId } = await params;
 
-    const conversation = await prisma.aIConversation.findFirst({
+    const conversation = await aiConversationClient.findFirst({
       where: {
         id: conversationId,
         user: {
@@ -104,7 +106,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const { conversationId } = await params;
 
-    const conversation = await prisma.aIConversation.findFirst({
+    const conversation = await aiConversationClient.findFirst({
       where: {
         id: conversationId,
         user: {
@@ -124,7 +126,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    await prisma.aIConversation.delete({
+    await aiConversationClient.delete({
       where: {
         id: conversationId,
       },

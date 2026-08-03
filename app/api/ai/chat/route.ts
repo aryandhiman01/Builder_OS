@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 
 import { generateChat } from "@/lib/ai/services/chat";
 
+const aiConversationClient = (prisma as any).aIConversation;
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
     let existingConversation = null;
 
     if (conversationId) {
-      existingConversation = await prisma.aIConversation.findFirst({
+      existingConversation = await aiConversationClient.findFirst({
         where: {
           id: conversationId,
           user: {
@@ -131,7 +133,7 @@ export async function POST(request: NextRequest) {
     let savedTitle = existingConversation?.title;
 
     if (existingConversation) {
-      await prisma.aIConversation.update({
+      await aiConversationClient.update({
         where: {
           id: existingConversation.id,
         },
@@ -148,7 +150,7 @@ export async function POST(request: NextRequest) {
       if (user) {
         const title = buildTitle(message);
 
-        const created = await prisma.aIConversation.create({
+        const created = await aiConversationClient.create({
           data: {
             title,
             messages: JSON.stringify(updatedMessages),
