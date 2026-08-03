@@ -56,9 +56,9 @@ export default function AIChat({
 
               {!isUser && (
 
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-violet-500/25 bg-violet-500/10">
 
-                  <Bot className="h-5 w-5 text-cyan-400" />
+                  <Bot className="h-5 w-5 text-violet-300" />
 
                 </div>
 
@@ -67,12 +67,12 @@ export default function AIChat({
               <div
                 className={`max-w-[85%] rounded-3xl border px-6 py-5 ${
                   isUser
-                    ? "border-cyan-500/20 bg-cyan-500/10"
+                    ? "border-violet-500/25 bg-violet-500/10"
                     : "border-white/10 bg-white/[0.03]"
                 }`}
               >
 
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-zinc-300 prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none">
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-zinc-300 prose-code:text-violet-200 prose-code:before:content-none prose-code:after:content-none">
 
                   <MarkdownRenderer
                     content={message.content}
@@ -102,15 +102,15 @@ export default function AIChat({
 
           <div className="flex gap-4">
 
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-violet-500/25 bg-violet-500/10">
 
-              <Bot className="h-5 w-5 text-cyan-400" />
+              <Bot className="h-5 w-5 text-violet-300" />
 
             </div>
 
             <div className="flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-5">
 
-              <Loader2 className="h-5 w-5 animate-spin text-cyan-400" />
+              <Loader2 className="h-5 w-5 animate-spin text-violet-300" />
 
               <span className="text-sm text-zinc-400">
 

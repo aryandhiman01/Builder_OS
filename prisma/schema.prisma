@@ -22,6 +22,8 @@ model User {
   // Team collaboration
   projectMemberships ProjectMember[]
   sentInvitations    ProjectInvitation[] @relation("InvitedBy")
+
+  aiConversations AIConversation[]
 }
 
 model Account {
@@ -273,4 +275,22 @@ model ProjectInvitation {
   @@index([projectId])
   @@index([token])
   @@index([email])
-}
+}
+
+model AIConversation {
+  id String @id @default(cuid())
+
+  title String
+
+  // JSON-stringified array of { role: "user" | "assistant", content: string }
+  messages String @db.Text
+
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

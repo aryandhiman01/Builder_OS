@@ -120,9 +120,9 @@ export default function AIQuickActions({
             key={action.title}
             onClick={() => onSelectPrompt(action.prompt)}
             title={action.description}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0c]/80 px-4 py-2 text-sm text-zinc-300 backdrop-blur-md transition-all duration-200 hover:border-cyan-500/30 hover:bg-white/[0.04] hover:text-cyan-300"
+            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0c]/80 px-4 py-2 text-sm text-zinc-300 backdrop-blur-md transition-all duration-200 hover:border-violet-500/30 hover:bg-white/[0.04] hover:text-violet-200"
           >
-            <Icon className="h-4 w-4 text-cyan-400" />
+            <Icon className="h-4 w-4 text-violet-300" />
             {action.title}
           </button>
         );

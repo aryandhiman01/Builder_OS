@@ -4,13 +4,13 @@ export default function AIWelcome() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-center text-center">
 
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl border border-cyan-500/20 bg-cyan-500/10 shadow-[0_0_50px_rgba(34,211,238,0.15)]">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl border border-violet-500/25 bg-violet-500/10 shadow-[0_0_55px_rgba(147,51,234,0.18)]">
 
-        <Bot className="h-8 w-8 text-cyan-400" />
+        <Bot className="h-8 w-8 text-violet-300" />
 
       </div>
 
-      <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-1.5 text-xs font-medium text-cyan-300">
+      <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-4 py-1.5 text-xs font-medium text-violet-200">
 
         <Sparkles className="h-3.5 w-3.5" />
 
