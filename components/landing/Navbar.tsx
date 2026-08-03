@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../shared/Logo";
 import AuthButtons from "./AuthButtons";
+import Link from "next/link";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -14,6 +15,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -22,36 +24,90 @@ export default function Navbar() {
   }, []);
 
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-6 left-1/2 z-50 w-[92%] max-w-7xl -translate-x-1/2"
-    >
-      <div
-        className={`flex items-center justify-between rounded-full border px-8 py-4 backdrop-blur-xl transition-all duration-500 ${
-          scrolled
-            ? "border-white/10 bg-black/60 shadow-2xl shadow-black/40"
-            : "border-white/[0.06] bg-white/[0.03]"
-        }`}
+    <>
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="fixed top-3 inset-x-0 z-50 px-4 md:px-6"
       >
-        <Logo />
+        <div
+          className={`mx-auto max-w-6xl rounded-full transition-all duration-500 border border-white/[0.1] bg-[#0a0a0c]/85 backdrop-blur-xl px-4 md:px-6 py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between ${
+            scrolled ? "border-white/20 bg-[#09090b]/95 shadow-black" : ""
+          }`}
+        >
+          {/* Left: Logo */}
+          <div className="flex items-center gap-6">
+            <Logo />
 
-        <div className="hidden items-center gap-10 text-sm text-zinc-400 md:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="relative transition-colors duration-200 hover:text-white group"
+            {/* Center links */}
+            <div className="hidden items-center gap-6 md:flex pl-4 border-l border-white/10">
+              {navLinks.map((link, i) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.05, duration: 0.3 }}
+                  className="relative text-xs md:text-sm text-[#9a9a9f] transition-colors duration-200 hover:text-white group font-medium"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-orange-400 transition-all duration-300 group-hover:w-full rounded-full" />
+                </motion.a>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Auth Profile Card */}
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+            className="flex items-center gap-3"
+          >
+            <div>
+              <AuthButtons />
+            </div>
+
+            {/* Mobile toggle */}
+            <button
+              className="flex flex-col gap-1 md:hidden p-2 text-zinc-400 hover:text-white"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
             >
-              {link.label}
-              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
-            </a>
-          ))}
+              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "rotate-45 translate-y-1.5" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-current transition-all duration-300 ${mobileOpen ? "-rotate-45 -translate-y-1.5" : ""}`} />
+            </button>
+          </motion.div>
         </div>
 
-        <AuthButtons />
-      </div>
-    </motion.nav>
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="mx-auto mt-2 max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/95 backdrop-blur-2xl shadow-2xl"
+            >
+              <div className="flex flex-col gap-1 px-6 py-4">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="py-2.5 text-sm text-[#9a9a9f] hover:text-white transition-colors border-b border-white/[0.04] last:border-0 font-medium"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
+    </>
   );
 }

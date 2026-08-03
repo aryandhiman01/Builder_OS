@@ -1,99 +1,447 @@
 "use client";
 
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
-import { useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+  type Variants,
+} from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Zap, Shield, BarChart3 } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Zap,
+  FileText,
+  Map,
+  GitBranch,
+  CheckSquare,
+  Brain,
+} from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
+/* ------------------------------------------------------------------ */
+/* Animation Variants                                                   */
+/* ------------------------------------------------------------------ */
 const fadeUp: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 40,
-  },
+  hidden: { opacity: 0, y: 32, filter: "blur(6px)" },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
+    filter: "blur(0px)",
     transition: {
-      delay: i * 0.12,
+      delay: i * 0.11,
       duration: 0.7,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
+      ease: [0.25, 0.46, 0.45, 0.94],
     },
   }),
 };
 
-// Word-by-word reveal for the headline
-const headlineContainer: Variants = {
+const wordContainer: Variants = {
   hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
-    },
-  },
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.12 } },
 };
 
-const headlineWord: Variants = {
-  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+const wordVariant: Variants = {
+  hidden: { opacity: 0, y: 28, filter: "blur(8px)" },
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    transition: { duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
-const cards = [
-  {
-    label: "AI Agent",
-    title: "Smart",
-    desc: "Product intelligence powered by AI.",
-    icon: Sparkles,
-    gradient: "from-violet-500/20 to-purple-500/10",
-    border: "border-violet-500/20",
-    glow: "group-hover:shadow-violet-500/10",
+/* ------------------------------------------------------------------ */
+/* Typewriter badge text                                                */
+/* ------------------------------------------------------------------ */
+const BADGE_TEXTS = [
+  "AI Workspace 2.0 is here",
+  "Generate PRDs in seconds",
+  "Ship faster with AI",
+];
+
+function TypewriterBadge() {
+  const [textIndex, setTextIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = BADGE_TEXTS[textIndex];
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (!isDeleting && displayed.length < current.length) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 55);
+    } else if (!isDeleting && displayed.length === current.length) {
+      timeout = setTimeout(() => setIsDeleting(true), 2200);
+    } else if (isDeleting && displayed.length > 0) {
+      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 28);
+    } else if (isDeleting && displayed.length === 0) {
+      setIsDeleting(false);
+      setTextIndex((i) => (i + 1) % BADGE_TEXTS.length);
+    }
+    return () => clearTimeout(timeout);
+  }, [displayed, isDeleting, textIndex]);
+
+  return (
+    <span className="inline-block min-w-[180px] text-left">
+      {displayed}
+      <span
+        className="ml-0.5 inline-block h-3.5 w-px bg-orange-400 align-middle"
+        style={{ animation: "blink 1s step-end infinite" }}
+      />
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Mock UI — shows inside the floating card                             */
+/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
+/* Mock UI — shows inside the floating card                             */
+/* ------------------------------------------------------------------ */
+const mockItems = [
+  { 
+    icon: Brain, 
+    label: "AI Research Engine", 
+    color: "text-violet-400", 
+    bg: "bg-violet-500/10", 
+    status: "Complete",
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    preview: {
+      title: "Market Analysis & Competitor Insight",
+      tag: "AI Generated • 1.2s",
+      content: [
+        { label: "TAM / SAM", val: "$14.2B Global Market" },
+        { label: "Top Competitors", val: "Linear, Jira, Notion AI" },
+        { label: "Target Audience", val: "Tech Founders & Product Lead" }
+      ]
+    }
   },
-  {
-    label: "Speed",
-    title: "Fast",
-    desc: "Generate PRDs in seconds.",
-    icon: Zap,
-    gradient: "from-amber-500/20 to-orange-500/10",
-    border: "border-amber-500/20",
-    glow: "group-hover:shadow-amber-500/10",
+  { 
+    icon: FileText, 
+    label: "PRD Generator", 
+    color: "text-blue-400", 
+    bg: "bg-blue-500/10", 
+    status: "Generating...",
+    badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    preview: {
+      title: "Product Requirements Document (v1.0)",
+      tag: "Generating PRD...",
+      content: [
+        { label: "Core Scope", val: "AI-assisted sprint planning & auto-PRD drafting" },
+        { label: "Tech Stack", val: "Next.js 15, TypeScript, Tailwind, Prisma, Postgres" },
+        { label: "API Endpoints", val: "POST /api/prd/generate, GET /api/roadmap" }
+      ]
+    }
   },
-  {
-    label: "Architecture",
-    title: "Reliable",
-    desc: "Production-ready system design.",
-    icon: Shield,
-    gradient: "from-cyan-500/20 to-blue-500/10",
-    border: "border-cyan-500/20",
-    glow: "group-hover:shadow-cyan-500/10",
+  { 
+    icon: Map, 
+    label: "Roadmap Builder", 
+    color: "text-emerald-400", 
+    bg: "bg-emerald-500/10", 
+    status: "Pending",
+    badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    preview: {
+      title: "Q3 - Q4 Release Timeline & Milestones",
+      tag: "Planned Sprint",
+      content: [
+        { label: "Phase 1 (Week 1-2)", val: "MVP Core Engine & Auth Integration" },
+        { label: "Phase 2 (Week 3-4)", val: "Real-time AI Chat & Diagrams" },
+        { label: "Phase 3 (Week 5-6)", val: "Public Beta & Analytics Launch" }
+      ]
+    }
   },
-  {
-    label: "Planning",
-    title: "Organized",
-    desc: "Tasks, sprints and roadmaps.",
-    icon: BarChart3,
-    gradient: "from-emerald-500/20 to-teal-500/10",
-    border: "border-emerald-500/20",
-    glow: "group-hover:shadow-emerald-500/10",
+  { 
+    icon: GitBranch, 
+    label: "Architecture Diagrams", 
+    color: "text-amber-400", 
+    bg: "bg-amber-500/10", 
+    status: "Pending",
+    badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    preview: {
+      title: "System Topology & Microservice Schema",
+      tag: "Automated Diagram",
+      content: [
+        { label: "Frontend Layer", val: "React 19 / Next App Router" },
+        { label: "AI Gateway", val: "GPT-4o Stream Pipeline via Edge Router" },
+        { label: "Database Layer", val: "PostgreSQL DB + Redis Cache Node" }
+      ]
+    }
+  },
+  { 
+    icon: CheckSquare, 
+    label: "Task Board", 
+    color: "text-rose-400", 
+    bg: "bg-rose-500/10", 
+    status: "Pending",
+    badgeColor: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    preview: {
+      title: "Sprint Kanban & Prioritized Backlog",
+      tag: "18 Auto Tasks Created",
+      content: [
+        { label: "High Priority", val: "Configure OAuth & Session Handler" },
+        { label: "In Progress", val: "Build Dynamic Interactive Node Graph" },
+        { label: "Backlog", val: "Setup Stripe Webhooks & Billing" }
+      ]
+    }
   },
 ];
 
-function Headline({ text, className, style }: { text: string; className?: string; style?: React.CSSProperties }) {
-  const words = text.split(" ");
+function MockUI() {
+  const [activeIdx, setActiveIdx] = useState(1); // "PRD Generator" active by default
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActiveIdx((i) => (i + 1) % mockItems.length);
+    }, 2800);
+    return () => clearInterval(id);
+  }, []);
+
+  const activeItem = mockItems[activeIdx];
+
+  return (
+    <div className="w-full max-w-5xl mx-auto">
+      {/* ── Social Proof Header above/integrated into card (Image 1 style) ── */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4 px-2">
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-2">
+            {["A", "B", "C", "D", "E"].map((l, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.6, x: -8 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ delay: 0.8 + i * 0.05, duration: 0.3 }}
+                whileHover={{ y: -2, zIndex: 10 }}
+                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#060606] bg-gradient-to-br from-zinc-700 to-zinc-900 text-[10px] font-bold text-white shadow-sm"
+              >
+                {l}
+              </motion.div>
+            ))}
+          </div>
+          <span className="text-xs md:text-sm font-semibold text-white/90">
+            1,000+ builders
+          </span>
+        </div>
+
+        <div className="hidden sm:block h-3.5 w-px bg-white/10" />
+
+        <div className="flex items-center gap-2">
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <svg
+                key={i}
+                className="h-3.5 w-3.5 fill-amber-400"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+          </div>
+          <span className="text-xs md:text-sm font-semibold text-white/90">
+            4.9 / 5 rating
+          </span>
+        </div>
+      </div>
+
+      {/* ── Main Workspace Card (Wide, responsive, zero wasted side margin) ── */}
+      <div className="mockup-card w-full overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 backdrop-blur-2xl shadow-2xl">
+        {/* Title bar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.07] bg-white/[0.02]">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-3 w-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
+            <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+            <span className="text-xs font-semibold text-white/90">
+              BuilderOS — Workspace
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-xs text-[#8a8a93]">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Live Workspace</span>
+          </div>
+        </div>
+
+        {/* Workspace Body: 2 Columns on Desktop, Single Column on Mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 lg:p-6">
+          {/* Left Column: Interactive Module Selector List */}
+          <div className="lg:col-span-5 space-y-2.5">
+            {mockItems.map((item, i) => {
+              const Icon = item.icon;
+              const isActive = i === activeIdx;
+              return (
+                <motion.div
+                  key={item.label}
+                  onClick={() => setActiveIdx(i)}
+                  animate={{
+                    backgroundColor: isActive
+                      ? "rgba(255, 107, 53, 0.08)"
+                      : "rgba(255, 255, 255, 0.02)",
+                    borderColor: isActive
+                      ? "rgba(255, 107, 53, 0.3)"
+                      : "rgba(255, 255, 255, 0.05)",
+                  }}
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex items-center gap-3 rounded-xl border px-3.5 py-3 cursor-pointer select-none transition-all"
+                >
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.bg}`}
+                  >
+                    <Icon className={`h-4.5 w-4.5 ${item.color}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white/90 truncate">
+                      {item.label}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full border ${
+                        item.status === "Complete"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          : isActive
+                          ? "bg-orange-500/10 text-orange-400 border-orange-500/20"
+                          : "bg-zinc-500/10 text-zinc-400 border-zinc-500/20"
+                      }`}
+                    >
+                      {isActive && item.status === "Pending"
+                        ? "Generating..."
+                        : item.status}
+                    </span>
+                    {item.status === "Complete" && (
+                      <div className="h-2 w-2 rounded-full bg-emerald-400" />
+                    )}
+                    {isActive && item.status !== "Complete" && (
+                      <motion.div
+                        className="h-2 w-2 rounded-full bg-orange-400"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 0.9, repeat: Infinity }}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Right Column: Live Output Preview for Desktop / Widescreen */}
+          <div className="lg:col-span-7 flex flex-col rounded-xl border border-white/10 bg-black/40 p-4 lg:p-5 relative min-h-[260px] overflow-hidden justify-between">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeItem.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <activeItem.icon className={`h-5 w-5 ${activeItem.color}`} />
+                    <h4 className="text-sm font-bold text-white">
+                      {activeItem.preview.title}
+                    </h4>
+                  </div>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded border border-white/10 bg-white/[0.04] text-orange-400">
+                    {activeItem.preview.tag}
+                  </span>
+                </div>
+
+                {/* Content Cards */}
+                <div className="space-y-2.5">
+                  {activeItem.preview.content.map((row, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1"
+                    >
+                      <span className="text-xs text-[#8a8a93] font-medium">
+                        {row.label}
+                      </span>
+                      <span className="text-xs text-white font-mono font-medium">
+                        {row.val}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Bottom status badge inside preview */}
+            <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-[#8a8a93]">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-orange-400" />
+                AI Copilot Active
+              </span>
+              <span className="font-mono text-[11px] text-zinc-500">
+                Ready to Export
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar matching Image 1 & 2 */}
+        <div className="border-t border-white/[0.07] bg-white/[0.02] px-4 py-3 flex items-center justify-between text-xs text-[#8a8a93]">
+          <span className="font-medium text-white/80">Generating with GPT-4o</span>
+
+          {/* Scroll Pill Indicator */}
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">
+              SCROLL
+            </span>
+            <div className="h-5 w-3 rounded-full border border-white/20 flex items-start justify-center pt-0.5">
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+                className="h-1.5 w-1 rounded-full bg-orange-400"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-1.5 items-center">
+            {[...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="h-1.5 w-4 rounded-full bg-orange-400/80"
+                animate={{ scaleX: [1, 0.4, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Headline with per-word reveal                                        */
+/* ------------------------------------------------------------------ */
+function AnimatedHeadline({ line, delay = 0 }: { line: string; delay?: number }) {
+  const words = line.split(" ");
   return (
     <motion.span
-      variants={headlineContainer}
+      variants={wordContainer}
       initial="hidden"
       animate="visible"
-      className={className}
-      style={style}
+      style={{ transition: `all 0s ${delay}s` }}
+      className="block"
     >
       {words.map((word, i) => (
-        <motion.span key={i} variants={headlineWord} className="inline-block">
+        <motion.span
+          key={i}
+          variants={wordVariant}
+          className="inline-block"
+          style={{ transitionDelay: `${delay + i * 0.07}s` }}
+        >
           {word}
           {i < words.length - 1 ? "\u00A0" : ""}
         </motion.span>
@@ -102,6 +450,9 @@ function Headline({ text, className, style }: { text: string; className?: string
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Main Hero Component                                                  */
+/* ------------------------------------------------------------------ */
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -109,232 +460,177 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  // Parallax: background orbs drift at different speeds as user scrolls
-  const orbY1 = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const orbY2 = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const orbY3 = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  // Content fades and lifts slightly as the section scrolls out of view
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6, 1], [1, 1, 0]);
+  // Parallax transforms
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
+  const orbY1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const orbY2 = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   return (
-    <section ref={sectionRef} className="relative min-h-screen overflow-hidden pt-40">
-      {/* Background orbs — floating + parallax on scroll */}
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen overflow-hidden flex flex-col items-center justify-center pt-24 pb-16"
+    >
+      {/* ── Radial background glows (Raycast signature) ── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
+        {/* Central warm glow — the hero orange/red like Raycast */}
         <motion.div
           style={{ y: orbY1 }}
-          animate={{ scale: [1, 1.08, 1], opacity: [0.02, 0.035, 0.02] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-white/[0.02] blur-3xl"
+          className="glow-orange absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2"
         />
+        {/* Violet side glow */}
         <motion.div
           style={{ y: orbY2 }}
-          animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute right-0 top-1/3 h-[400px] w-[400px] rounded-full bg-violet-600/5 blur-3xl"
+          className="glow-violet absolute right-[5%] top-1/4 h-[450px] w-[450px]"
         />
-        <motion.div
-          style={{ y: orbY3 }}
-          animate={{ x: [0, -20, 0], y: [0, 15, 0] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute left-0 bottom-0 h-[400px] w-[400px] rounded-full bg-cyan-600/5 blur-3xl"
+        {/* Teal bottom glow */}
+        <div className="glow-teal absolute left-[5%] bottom-0 h-[350px] w-[350px]" />
+
+        {/* Grid noise overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
         />
+
+        {/* Top vignette */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#060606] to-transparent" />
       </div>
 
-      <motion.div style={{ opacity: contentOpacity, y: contentY }} className="mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-16 lg:grid-cols-2">
-          {/* Left: Text */}
-          <div>
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              whileHover={{ scale: 1.03, borderColor: "rgba(139,92,246,0.4)" }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-sm text-zinc-400 backdrop-blur-sm transition-colors"
-            >
-              <motion.span
-                animate={{ rotate: [0, 15, 0, -15, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-violet-400" />
-              </motion.span>
-              AI-Powered Product Builder
-            </motion.div>
-
-            <motion.h1
-              initial="hidden"
-              animate="visible"
-              className="max-w-2xl text-6xl font-bold leading-[1.08] tracking-tight text-white md:text-7xl"
-              style={{ fontFamily: "var(--font-sora)" }}
-            >
-              <Headline text="Build products" />
-              <br />
-              <motion.span
-                initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ delay: 0.5, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-gradient-to-r from-zinc-400 to-zinc-600 bg-clip-text text-transparent bg-[length:200%_auto]"
-                style={{ animation: "heroShimmer 6s ease-in-out infinite" }}
-              >
-                without wasting time.
-              </motion.span>
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              className="mt-7 max-w-lg text-lg leading-relaxed text-zinc-400"
-            >
-              Research. Plan. Build. Ship.
-              <br />
-              <br />
-              Everything you need to transform an idea into a successful
-              product — in one intelligent workspace.
-            </motion.p>
-
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={3}
-              className="mt-10 flex flex-wrap gap-4"
-            >
-              <Link href="/signup">
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                  <Button
-                    size="lg"
-                    className="group relative overflow-hidden rounded-xl bg-white text-black hover:bg-zinc-100 transition-all duration-300"
-                  >
-                    {/* shimmer sweep on hover */}
-                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    <span className="relative z-10 flex items-center gap-2">
-                      Start Building
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </span>
-                  </Button>
-                </motion.div>
-              </Link>
-
-              <Link href="#features">
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="rounded-xl border-white/10 bg-white/[0.03] text-white backdrop-blur-xl hover:bg-white/[0.06] transition-all duration-300"
-                  >
-                    Explore Features
-                  </Button>
-                </motion.div>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={4}
-              className="mt-12 flex items-center gap-8 text-sm text-zinc-500"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {["A", "B", "C", "D"].map((l, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0.6, x: -8 }}
-                      animate={{ opacity: 1, scale: 1, x: 0 }}
-                      transition={{ delay: 0.9 + i * 0.08, duration: 0.4, ease: "easeOut" }}
-                      whileHover={{ y: -3, zIndex: 10 }}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 text-xs font-semibold text-white"
-                    >
-                      {l}
-                    </motion.div>
-                  ))}
-                </div>
-                <span>1,000+ builders</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <motion.svg
-                      key={i}
-                      initial={{ opacity: 0, scale: 0, rotate: -30 }}
-                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                      transition={{ delay: 1.1 + i * 0.06, duration: 0.4, ease: "easeOut" }}
-                      className="h-3.5 w-3.5 fill-amber-400"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </motion.svg>
-                  ))}
-                </div>
-                <span>4.9/5 rating</span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right: Cards */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={2}
-            className="grid grid-cols-2 gap-4"
+      {/* ── Main content ── */}
+      <motion.div
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="mx-auto w-full max-w-6xl px-4 md:px-6 text-center"
+      >
+        {/* Badge */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0}
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-4 py-1.5 text-sm text-[#8a8a93] backdrop-blur-sm"
+        >
+          <motion.span
+            animate={{ rotate: [0, 15, 0, -15, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            {cards.map((card, i) => {
-              const Icon = card.icon;
-              return (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + i * 0.1, duration: 0.6 }}
-                  whileHover={{ y: -8, scale: 1.03 }}
-                  className={`group relative overflow-hidden rounded-3xl border ${card.border} bg-gradient-to-br ${card.gradient} p-7 backdrop-blur-xl transition-all duration-300 hover:shadow-2xl ${card.glow}`}
-                >
-                  {/* gentle ambient float */}
-                  <motion.div
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 4 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <motion.div
-                      whileHover={{ rotate: 12, scale: 1.1 }}
-                      transition={{ duration: 0.3 }}
-                      className="mb-4 inline-flex rounded-xl bg-white/5 p-2.5"
-                    >
-                      <Icon className="h-5 w-5 text-white/70" />
-                    </motion.div>
-                    <p className="mb-1 text-xs uppercase tracking-widest text-zinc-500">
-                      {card.label}
-                    </p>
-                    <h3 className="text-xl font-semibold text-white">{card.title}</h3>
-                    <p className="mt-2 text-sm text-zinc-500">{card.desc}</p>
-                  </motion.div>
+            <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+          </motion.span>
+          <TypewriterBadge />
+          <span className="ml-1 flex items-center gap-1 text-orange-400 hover:text-orange-300 transition-colors cursor-pointer font-medium">
+            Learn more
+            <ArrowRight className="h-3 w-3" />
+          </span>
+        </motion.div>
 
-                  {/* Subtle shine on hover */}
-                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-white/5 to-transparent" />
-                  </div>
+        {/* Headline */}
+        <motion.h1
+          initial="hidden"
+          animate="visible"
+          className="mx-auto max-w-4xl text-[52px] font-bold leading-[1.05] tracking-[-0.04em] text-white sm:text-[72px] md:text-[84px] lg:text-[92px]"
+          style={{ fontFamily: "var(--font-sora)" }}
+        >
+          <AnimatedHeadline line="Your shortcut" delay={0.1} />
+          <span className="block">
+            <AnimatedHeadline line="to" delay={0.25} />
+            {" "}
+            <motion.span
+              initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ delay: 0.38, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="inline-block bg-gradient-to-r from-orange-400 via-red-400 to-rose-400 bg-clip-text text-transparent"
+            >
+              building.
+            </motion.span>
+          </span>
+        </motion.h1>
 
-                  {/* Sweep shine on hover */}
-                  <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </div>
+        {/* Sub text */}
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={3}
+          className="mx-auto mt-6 max-w-xl text-[16px] sm:text-[18px] leading-relaxed text-[#8a8a93]"
+        >
+          A collection of powerful product tools all within an intelligent workspace. 
+          Research, plan, architect, and ship — without wasting time.
+        </motion.p>
 
+        {/* CTAs */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={4}
+          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+        >
+          <Link href="/signup">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Button
+                size="lg"
+                className="btn-shimmer group relative rounded-xl bg-white px-7 text-[15px] font-semibold text-black hover:bg-zinc-100 transition-all duration-300 shadow-lg shadow-white/10"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Building Free
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                </span>
+              </Button>
+            </motion.div>
+          </Link>
+
+          <Link href="#features">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="rounded-xl border-white/[0.1] bg-white/[0.04] px-7 text-[15px] text-white backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300"
+              >
+                Explore Features
+              </Button>
+            </motion.div>
+          </Link>
+        </motion.div>
+
+        {/* Below CTAs */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={5}
+          className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-[#8a8a93]"
+        >
+          <span>Free to start</span>
+          <span className="h-1 w-1 rounded-full bg-[#8a8a93]/40" />
+          <span>No credit card required</span>
+          <span className="h-1 w-1 rounded-full bg-[#8a8a93]/40" />
+          <span>Cancel anytime</span>
+        </motion.div>
+
+        {/* ── Wide Workspace Section Showcase ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 40, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.6, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="mt-12 w-full"
+        >
+          <MockUI />
+        </motion.div>
       </motion.div>
 
-      {/* Keyframes for headline shimmer */}
+      {/* Keyframes */}
       <style>{`
-        @keyframes heroShimmer {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
         }
       `}</style>
     </section>
   );
 }
+

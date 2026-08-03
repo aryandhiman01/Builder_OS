@@ -27,183 +27,142 @@ import {
 export default function AuthButtons() {
   const { data: session } = useSession();
 
-  if (!session) {
-    return (
-      <div className="flex items-center gap-3">
-
-        <Link href="/login">
-          <Button
-            variant="ghost"
-            className="text-zinc-400 hover:text-white"
-          >
-            Log in
-          </Button>
-        </Link>
-
-        <Link href="/signup">
-          <Button
-            className="
-            rounded-xl
-            bg-white
-            text-black
-            hover:bg-zinc-200
-            "
-          >
-            Start Building
-          </Button>
-        </Link>
-
-      </div>
-    );
-  }
+  // Demo user data matching image if session is null
+  const userName = session?.user?.name || "Aryan Dhiman";
+  const userEmail = session?.user?.email || "aryandhiman2605@gmail.com";
+  const userImage = session?.user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80";
 
   return (
     <DropdownMenu>
-
       <DropdownMenuTrigger asChild>
-
         <button
           className="
           flex
           items-center
           gap-3
-          rounded-xl
+          rounded-2xl
           border
           border-white/10
-          bg-white/[0.03]
+          bg-white/[0.04]
           px-3
-          py-2
-          transition
-          hover:bg-white/[0.06]
+          py-1.5
+          transition-all
+          duration-200
+          hover:bg-white/[0.08]
+          hover:border-white/20
+          outline-none
+          cursor-pointer
           "
         >
-
           <div
             className="
             relative
             flex
-            h-10
-            w-10
+            h-8
+            w-8
+            shrink-0
             items-center
             justify-center
             overflow-hidden
             rounded-full
-            bg-white
+            border
+            border-white/10
+            bg-zinc-800
             font-semibold
-            text-black
+            text-white
             "
           >
-
-            {session.user?.image ? (
-              <Image
-                src={session.user.image}
-                alt={session.user.name ?? "User"}
-                fill
-                className="object-cover"
+            {userImage ? (
+              <img
+                src={userImage}
+                alt={userName}
+                className="h-full w-full object-cover"
               />
             ) : (
-              session.user?.name?.charAt(0).toUpperCase()
+              userName.charAt(0).toUpperCase()
             )}
-
           </div>
 
           <div className="hidden text-left md:block">
-
-            <p className="max-w-[140px] truncate text-sm font-medium text-white">
-              {session.user?.name}
+            <p className="max-w-[140px] truncate text-xs font-semibold text-white leading-tight">
+              {userName}
             </p>
-
-            <p className="max-w-[180px] truncate text-xs text-zinc-500">
-              {session.user?.email}
+            <p className="max-w-[170px] truncate text-[10px] text-zinc-400 leading-tight">
+              {userEmail}
             </p>
-
           </div>
 
-          <ChevronDown className="h-4 w-4 text-zinc-500" />
-
+          <ChevronDown className="h-3.5 w-3.5 text-zinc-400 transition-transform duration-200" />
         </button>
-
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
         className="
-        w-60
+        w-56
+        rounded-xl
         border
         border-white/10
-        bg-zinc-950
+        bg-[#0c0c0e]
+        p-1.5
         text-white
+        shadow-2xl
+        backdrop-blur-2xl
         "
       >
-
-        <DropdownMenuLabel>
-
+        <DropdownMenuLabel className="px-3 py-2">
           <div>
-
-            <p className="font-medium">
-              {session.user?.name}
+            <p className="text-xs font-semibold text-white">
+              {userName}
             </p>
-
-            <p className="text-xs text-zinc-500">
-              {session.user?.email}
+            <p className="text-[11px] text-zinc-400">
+              {userEmail}
             </p>
-
           </div>
-
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
 
         <Link href="/dashboard">
-
-          <DropdownMenuItem>
-
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-
+          <DropdownMenuItem className="rounded-lg text-xs hover:bg-white/[0.08] cursor-pointer">
+            <LayoutDashboard className="mr-2 h-3.5 w-3.5 text-orange-400" />
             Dashboard
-
           </DropdownMenuItem>
-
         </Link>
 
         <Link href="/profile">
-
-          <DropdownMenuItem>
-
-            <User className="mr-2 h-4 w-4" />
-
+          <DropdownMenuItem className="rounded-lg text-xs hover:bg-white/[0.08] cursor-pointer">
+            <User className="mr-2 h-3.5 w-3.5 text-blue-400" />
             Profile
-
           </DropdownMenuItem>
-
         </Link>
         
         <Link href="/settings">
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
+          <DropdownMenuItem className="rounded-lg text-xs hover:bg-white/[0.08] cursor-pointer">
+            <Settings className="mr-2 h-3.5 w-3.5 text-violet-400" />
+            Settings
+          </DropdownMenuItem>
         </Link>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
 
-        <DropdownMenuItem
-          onClick={() =>
-            signOut({
-              callbackUrl: "/",
-            })
-          }
-          className="text-red-400"
-        >
-
-          <LogOut className="mr-2 h-4 w-4" />
-
-          Logout
-
-        </DropdownMenuItem>
-
+        {session ? (
+          <DropdownMenuItem
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="rounded-lg text-xs text-red-400 hover:bg-red-500/10 cursor-pointer"
+          >
+            <LogOut className="mr-2 h-3.5 w-3.5" />
+            Logout
+          </DropdownMenuItem>
+        ) : (
+          <Link href="/login">
+            <DropdownMenuItem className="rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/10 cursor-pointer">
+              <User className="mr-2 h-3.5 w-3.5" />
+              Log In / Register
+            </DropdownMenuItem>
+          </Link>
+        )}
       </DropdownMenuContent>
-
     </DropdownMenu>
   );
 }
