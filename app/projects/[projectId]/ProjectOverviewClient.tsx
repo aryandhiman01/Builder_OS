@@ -135,18 +135,6 @@ export default function ProjectOverviewClient({
 
   useEffect(() => {
     fetchOverview(false);
-
-    const interval = setInterval(() => {
-      fetchOverview(true);
-    }, 3000);
-
-    const handleFocus = () => fetchOverview(true);
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("focus", handleFocus);
-    };
   }, [fetchOverview]);
 
   if (loading && !data) {
@@ -231,12 +219,6 @@ export default function ProjectOverviewClient({
         {/* Hero Body Container */}
         <div className="relative p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-xs text-[#8a8a93] backdrop-blur-sm shadow-inner">
-              <Zap className="h-3.5 w-3.5 text-orange-400" />
-              <span className="font-semibold text-white/90">Realtime Project OS</span>
-              <span className={`h-1.5 w-1.5 rounded-full bg-orange-400 ${isSyncing ? "animate-ping" : "animate-pulse"}`} />
-              <span className="text-orange-400 font-mono">Synchronized</span>
-            </div>
 
             <h1
               className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight"

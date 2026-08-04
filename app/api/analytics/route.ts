@@ -3,7 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+// Server-side in-memory RAM cache per user (30s TTL)
+const analyticsCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 30_000;
+
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
@@ -12,9 +16,18 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true },
     });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Check server RAM cache (served in 0ms without hitting DB)
+    const url = new URL(req.url);
+    const forceRefresh = url.searchParams.get("refresh") === "true";
+    const cached = analyticsCache.get(user.id);
+    if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json(cached.data);
     }
 
     const projects = await prisma.project.findMany({
@@ -59,21 +72,35 @@ export async function GET() {
       ? Math.round(allAIItems.reduce((s, a) => s + (a.generationTime || 0), 0) / allAIItems.length)
       : 0;
 
-    // Monthly growth - last 12 months
+    // Monthly calculations - last 12 months (Both Cumulative & Specific Monthly Additions)
     const now = new Date();
-    const monthlyProjectData = [];
+    const cumulativeGrowth = [];
+    const monthlyAdditions = [];
+
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
       const label = d.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
-      const monthProjects = projects.filter((p) => { const c = new Date(p.createdAt); return c >= d && c <= monthEnd; }).length;
-      const monthTasks = allTasks.filter((t) => { const c = new Date(t.createdAt); return c >= d && c <= monthEnd; }).length;
-      let monthAI = 0;
+
+      // 1. Cumulative totals up to monthEnd
+      const cumProjects = projects.filter((p) => new Date(p.createdAt) <= monthEnd).length;
+      const cumTasks = allTasks.filter((t) => new Date(t.createdAt) <= monthEnd).length;
+      let cumAI = 0;
       projects.forEach((p) => {
         const allAI = [...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents];
-        monthAI += allAI.filter((a) => { const ac = new Date(a.createdAt); return ac >= d && ac <= monthEnd; }).length;
+        cumAI += allAI.filter((a) => new Date(a.createdAt) <= monthEnd).length;
       });
-      monthlyProjectData.push({ month: label, projects: monthProjects, tasks: monthTasks, aiRequests: monthAI });
+      cumulativeGrowth.push({ month: label, projects: cumProjects, tasks: cumTasks, aiRequests: cumAI });
+
+      // 2. Specific new additions created in this exact month
+      const newProjects = projects.filter((p) => { const c = new Date(p.createdAt); return c >= d && c <= monthEnd; }).length;
+      const newTasks = allTasks.filter((t) => { const c = new Date(t.createdAt); return c >= d && c <= monthEnd; }).length;
+      let newAI = 0;
+      projects.forEach((p) => {
+        const allAI = [...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents];
+        newAI += allAI.filter((a) => { const ac = new Date(a.createdAt); return ac >= d && ac <= monthEnd; }).length;
+      });
+      monthlyAdditions.push({ month: label, projects: newProjects, tasks: newTasks, aiRequests: newAI });
     }
 
     // Task distributions
@@ -160,7 +187,7 @@ export async function GET() {
     // Suppress unused variable warning
     void projectIds;
 
-    return NextResponse.json({
+    const payload = {
       fetchedAt: new Date().toISOString(),
       kpis: {
         totalProjects, totalTasks, completedTasks,
@@ -170,7 +197,8 @@ export async function GET() {
         totalRoadmaps, totalArchitectures, totalDocuments,
       },
       charts: {
-        monthlyGrowth: monthlyProjectData,
+        monthlyGrowth: cumulativeGrowth,
+        monthlyAdditions: monthlyAdditions,
         taskStatusDistribution: taskStatusData,
         taskPriorityDistribution: taskPriorityData,
         aiBreakdown,
@@ -179,7 +207,11 @@ export async function GET() {
         dailyActivity,
         weeklyTaskCompletion: weeklyTaskData,
       },
-    });
+    };
+
+    analyticsCache.set(user.id, { data: payload, timestamp: Date.now() });
+
+    return NextResponse.json(payload);
   } catch (error) {
     console.error("Analytics error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

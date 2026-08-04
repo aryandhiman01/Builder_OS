@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, startTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -36,6 +36,7 @@ interface AnalyticsData {
   kpis: KPIs;
   charts: {
     monthlyGrowth: { month: string; projects: number; tasks: number; aiRequests: number }[];
+    monthlyAdditions?: { month: string; projects: number; tasks: number; aiRequests: number }[];
     taskStatusDistribution: { status: string; count: number }[];
     taskPriorityDistribution: { priority: string; count: number }[];
     aiBreakdown: { type: string; count: number; color: string }[];
@@ -105,10 +106,10 @@ function StatsCard({
 }) {
   const themes = {
     orange: { border: "hover:border-orange-500/40", iconBg: "border-orange-500/20 bg-orange-500/10 text-orange-400", badge: "bg-orange-500/10 text-orange-400 border-orange-500/20" },
-    amber:  { border: "hover:border-amber-500/40",  iconBg: "border-amber-500/20 bg-amber-500/10 text-amber-400",   badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-    emerald:{ border: "hover:border-emerald-500/40",iconBg: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",badge:"bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-    blue:   { border: "hover:border-sky-500/40",    iconBg: "border-sky-500/20 bg-sky-500/10 text-sky-400",         badge: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
-    violet: { border: "hover:border-violet-500/40", iconBg: "border-violet-500/20 bg-violet-500/10 text-violet-400",badge: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
+    amber: { border: "hover:border-amber-500/40", iconBg: "border-amber-500/20 bg-amber-500/10 text-amber-400", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
+    emerald: { border: "hover:border-emerald-500/40", iconBg: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+    blue: { border: "hover:border-sky-500/40", iconBg: "border-sky-500/20 bg-sky-500/10 text-sky-400", badge: "bg-sky-500/10 text-sky-400 border-sky-500/20" },
+    violet: { border: "hover:border-violet-500/40", iconBg: "border-violet-500/20 bg-violet-500/10 text-violet-400", badge: "bg-violet-500/10 text-violet-400 border-violet-500/20" },
   };
   const t = themes[trendColor];
   return (
@@ -218,17 +219,30 @@ export default function AnalyticsClient() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [timeAgoText, setTimeAgoText] = useState<string>("just now");
 
-  const fetchAnalytics = useCallback(async (silent = false) => {
+  const fetchAnalytics = useCallback(async (silent = false, forceRefresh = false) => {
     try {
       if (!silent) setLoading(true);
       else setIsRefreshing(true);
       setError(null);
-      const res = await fetch("/api/analytics", { cache: "no-store" });
+      const url = forceRefresh ? "/api/analytics?refresh=true" : "/api/analytics";
+      const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) throw new Error();
       const json: AnalyticsData = await res.json();
-      setData(json);
-      setLastRefreshed(new Date());
+      
+      startTransition(() => {
+        setData(json);
+        const now = new Date();
+        setLastRefreshed(now);
+        setTimeAgoText("just now");
+      });
+
+      try {
+        sessionStorage.setItem("builderos_analytics_cache", JSON.stringify(json));
+      } catch {
+        // ignore quota errors
+      }
     } catch {
       setError("Could not load analytics data.");
     } finally {
@@ -237,13 +251,44 @@ export default function AnalyticsClient() {
     }
   }, []);
 
+  // Initial load: SWR instant render from sessionStorage + 1-time fetch on mount
   useEffect(() => {
-    fetchAnalytics(false);
-    const iv = setInterval(() => fetchAnalytics(true), 30_000);
-    const onFocus = () => fetchAnalytics(true);
-    window.addEventListener("focus", onFocus);
-    return () => { clearInterval(iv); window.removeEventListener("focus", onFocus); };
+    try {
+      const cached = sessionStorage.getItem("builderos_analytics_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.kpis) {
+          setData(parsed);
+          setLoading(false);
+          if (parsed.fetchedAt) {
+            setLastRefreshed(new Date(parsed.fetchedAt));
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // Fetch once on page mount (silent if SWR cached data exists)
+    const hasCache = !!sessionStorage.getItem("builderos_analytics_cache");
+    fetchAnalytics(hasCache);
   }, [fetchAnalytics]);
+
+  // Relative time ago updater (Pure UI, zero DB calls)
+  useEffect(() => {
+    if (!lastRefreshed) return;
+    const interval = setInterval(() => {
+      const diffSec = Math.floor((new Date().getTime() - lastRefreshed.getTime()) / 1000);
+      if (diffSec < 15) setTimeAgoText("just now");
+      else if (diffSec < 60) setTimeAgoText(`${diffSec}s ago`);
+      else {
+        const diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) setTimeAgoText(`${diffMin}m ago`);
+        else setTimeAgoText(lastRefreshed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      }
+    }, 10_000);
+    return () => clearInterval(interval);
+  }, [lastRefreshed]);
 
 
   /* ── Error ── */
@@ -305,16 +350,19 @@ export default function AnalyticsClient() {
 
         <div className="flex items-center gap-3">
           {lastRefreshed && (
-            <span className="text-[11px] text-[#8a8a93]">
-              Updated {lastRefreshed.toLocaleTimeString()}
+            <span className="text-[11px] font-mono text-[#8a8a93]">
+              Updated {timeAgoText}
             </span>
           )}
           <button
-            onClick={() => fetchAnalytics(true)}
+            onClick={() => {
+              setIsRefreshing(true);
+              fetchAnalytics(true, true);
+            }}
             disabled={isRefreshing}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 disabled:opacity-50 shadow-sm"
           >
-            <RefreshCw size={12} className={isRefreshing ? "animate-spin" : ""} />
+            <RefreshCw size={12} className={isRefreshing ? "animate-spin text-orange-400" : ""} />
             {isRefreshing ? "Syncing…" : "Refresh"}
           </button>
         </div>
@@ -401,31 +449,63 @@ export default function AnalyticsClient() {
         </div>
       </motion.section>
 
-      {/* ── Monthly Growth (full-width area chart) ── */}
-      <motion.section {...sectionAnim} className="space-y-4">
-        <SectionHeader icon={TrendingUp} title="Monthly Growth" sub="Projects, tasks, and AI requests created over the last 12 months." />
-        <ChartCard title="12-Month Activity Timeline" sub="Projects · Tasks · AI Requests" icon={TrendingUp}>
-          <ResponsiveContainer width="100%" height={280} debounce={150}>
-            <AreaChart data={charts.monthlyGrowth} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
-              <defs>
-                {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
-                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={col} stopOpacity={0.28} />
-                    <stop offset="100%" stopColor={col} stopOpacity={0} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<DarkTooltip />} />
-              <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-              <Area type="monotone" dataKey="projects" name="Projects" stroke={COLORS.orange} fill="url(#gradP)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="tasks" name="Tasks" stroke={COLORS.blue} fill="url(#gradT)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="aiRequests" name="AI Requests" stroke={COLORS.violet} fill="url(#gradA)" strokeWidth={2} dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </ChartCard>
+      {/* ── Cumulative Growth & New Monthly Additions ── */}
+      <motion.section {...sectionAnim} className="space-y-6">
+        <SectionHeader
+          icon={TrendingUp}
+          title="Growth & Monthly Velocity"
+          sub="Cumulative workspace totals and month-by-month new build additions."
+        />
+
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          {/* 1. Cumulative Workspace Growth Chart */}
+          <ChartCard
+            title="Cumulative Workspace Growth"
+            sub="Total accumulated Projects · Tasks · AI Assets"
+            icon={TrendingUp}
+          >
+            <ResponsiveContainer width="100%" height={260} debounce={150}>
+              <AreaChart data={charts.monthlyGrowth} margin={{ top: 5, right: 15, left: -15, bottom: 0 }}>
+                <defs>
+                  {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
+                    <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={col} stopOpacity={0.25} />
+                      <stop offset="100%" stopColor={col} stopOpacity={0} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<DarkTooltip />} />
+                <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                <Area type="monotone" dataKey="projects" name="Projects" stroke={COLORS.orange} fill="url(#gradP)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="tasks" name="Tasks" stroke={COLORS.blue} fill="url(#gradT)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="aiRequests" name="AI Requests" stroke={COLORS.violet} fill="url(#gradA)" strokeWidth={2} dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          {/* 2. New Monthly Additions Chart */}
+          <ChartCard
+            title="New Monthly Additions"
+            sub="Specific new builds created per month"
+            icon={BarChart2}
+          >
+            <ResponsiveContainer width="100%" height={260} debounce={150}>
+              <BarChart data={charts.monthlyAdditions || charts.monthlyGrowth} margin={{ top: 5, right: 15, left: -15, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<DarkTooltip />} />
+                <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                <Bar dataKey="projects" name="New Projects" fill={COLORS.orange} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="tasks" name="New Tasks" fill={COLORS.blue} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="aiRequests" name="New AI Assets" fill={COLORS.violet} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
       </motion.section>
 
       {/* ── Task Distribution + Priority ── */}

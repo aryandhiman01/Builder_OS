@@ -6,8 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 
 export default function SocialAuthButtons() {
   return (
-    <div className="grid grid-cols-2 gap-4">
-
+    <div className="grid grid-cols-2 gap-3">
       <button
         type="button"
         onClick={() =>
@@ -16,22 +15,29 @@ export default function SocialAuthButtons() {
           })
         }
         className="
-        flex
-        h-14
-        items-center
-        justify-center
-        rounded-2xl
-        border
-        border-white/10
-        bg-white/[0.03]
-        transition
-        hover:bg-white/[0.06]
+          flex
+          h-11
+          items-center
+          justify-center
+          gap-2.5
+          rounded-xl
+          border
+          border-white/10
+          bg-white/[0.04]
+          px-4
+          text-xs
+          font-semibold
+          text-white
+          transition-all
+          duration-200
+          hover:bg-white/10
+          hover:border-white/20
+          active:scale-95
+          shadow-sm
         "
       >
-        <FaGithub
-          size={24}
-          className="text-white"
-        />
+        <FaGithub size={18} className="text-white shrink-0" />
+        <span>GitHub</span>
       </button>
 
       <button
@@ -42,21 +48,30 @@ export default function SocialAuthButtons() {
           })
         }
         className="
-        flex
-        h-14
-        items-center
-        justify-center
-        rounded-2xl
-        border
-        border-white/10
-        bg-white/[0.03]
-        transition
-        hover:bg-white/[0.06]
+          flex
+          h-11
+          items-center
+          justify-center
+          gap-2.5
+          rounded-xl
+          border
+          border-white/10
+          bg-white/[0.04]
+          px-4
+          text-xs
+          font-semibold
+          text-white
+          transition-all
+          duration-200
+          hover:bg-white/10
+          hover:border-white/20
+          active:scale-95
+          shadow-sm
         "
       >
-        <FcGoogle size={28} />
+        <FcGoogle size={18} className="shrink-0" />
+        <span>Google</span>
       </button>
-
     </div>
   );
-}
+}
