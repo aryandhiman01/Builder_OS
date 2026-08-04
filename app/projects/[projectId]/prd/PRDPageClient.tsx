@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 
 import {
   DropdownMenu,
@@ -10,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 
 import { PRDCard } from "@/components/prd/PRDCard";
 import { GeneratePRDModal } from "@/components/prd/GeneratePRDModal";
@@ -30,7 +30,7 @@ import {
   ArrowRight,
   Clock3,
   Wand2,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 
 interface ResearchItem {
@@ -103,81 +103,131 @@ export default function PRDPageClient({
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] via-white/[0.02] to-transparent p-8 backdrop-blur-2xl">
-        <div className="absolute right-0 top-0 -mr-20 -mt-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute left-1/3 bottom-0 h-56 w-56 rounded-full bg-purple-500/10 blur-3xl" />
+      {/* Landing Page & Dashboard Mockup Card Hero Banner */}
+      <motion.section
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" as const }}
+        className="
+        mockup-card
+        relative
+        overflow-hidden
+        rounded-3xl
+        border
+        border-white/10
+        bg-[#09090c]/95
+        backdrop-blur-2xl
+        shadow-2xl
+        "
+      >
+        {/* Top Window Header (Landing Page Mockup UI Style) */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-3 w-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
+            </div>
+          </div>
 
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
+            <Layers className="h-3.5 w-3.5 text-orange-400" />
+            <span className="text-xs font-semibold text-white/90">
+              BuilderOS — Product Requirement Specification Engine
+            </span>
+          </div>
+
+          <div className="hidden sm:block w-16" />
+        </div>
+
+        {/* Hero Banner Content */}
+        <div className="relative p-6 sm:p-8 lg:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-medium text-blue-400">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>AI Product Specification Engine</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-xs text-[#8a8a93] backdrop-blur-sm shadow-inner">
+              <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+              <span className="font-semibold text-white/90">AI Specification Suite</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-orange-400 font-mono">{initialPrds.length} PRD Specs</span>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Product Requirements & Research
+            <h1
+              className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight"
+              style={{ fontFamily: "var(--font-sora)", letterSpacing: "-0.02em" }}
+            >
+              Product Requirements &{" "}
+              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400 bg-clip-text text-transparent">
+                AI Specifications
+              </span>
+              .
             </h1>
 
-            <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
-              Generate, manage, and review detailed PRDs derived from your project research for{" "}
-              <span className="font-semibold text-white">{projectTitle}</span>.
+            <p className="text-xs sm:text-sm text-[#9a9a9f] max-w-xl leading-relaxed">
+              Generate, manage, and review detailed product requirement specifications (PRDs) derived from research for{" "}
+              <span className="font-bold text-white">{projectTitle}</span>.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Action Trigger Buttons */}
+          <div className="shrink-0 flex items-center gap-3">
             {researches.length > 0 ? (
               <DropdownMenu>
-
-                  <DropdownMenuTrigger asChild>
-
-                      <Button className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl">
-
-                          <Sparkles className="mr-2 h-4 w-4"/>
-
-                          New PRD
-
-                          <ChevronDown className="ml-2 h-4 w-4"/>
-
-                      </Button>
-
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent
-                      align="end"
-                      className="w-64 rounded-xl border-white/10 bg-[#0a0a0c] text-white"
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="
+                    btn-shimmer
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-full
+                    bg-white
+                    px-6
+                    py-3
+                    text-xs
+                    font-bold
+                    text-black
+                    shadow-xl
+                    shadow-white/10
+                    transition-all
+                    hover:bg-zinc-100
+                    active:scale-95
+                    cursor-pointer
+                    "
                   >
+                    <Sparkles size={16} className="text-orange-500" />
+                    <span>Create New PRD</span>
+                    <ChevronDown size={14} />
+                  </button>
+                </DropdownMenuTrigger>
 
-                      <DropdownMenuItem
-                          onClick={() => handleOpenGenerateModal()}
-                          className="cursor-pointer"
-                      >
-                          <Brain className="mr-2 h-4 w-4 text-blue-400"/>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 rounded-2xl border-white/15 bg-[#09090c] p-2 text-white shadow-2xl backdrop-blur-2xl"
+                >
+                  <DropdownMenuItem
+                    onClick={() => handleOpenGenerateModal()}
+                    className="cursor-pointer rounded-xl p-3 text-xs font-semibold hover:bg-white/10"
+                  >
+                    <Brain className="mr-2 h-4 w-4 text-sky-400" />
+                    Generate from Research
+                  </DropdownMenuItem>
 
-                          Generate from Research
-
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                          onClick={() => setIsCustomModalOpen(true)}
-                          className="cursor-pointer"
-                      >
-                          <Wand2 className="mr-2 h-4 w-4 text-purple-400"/>
-
-                          Generate from Custom Prompt
-
-                      </DropdownMenuItem>
-
-                  </DropdownMenuContent>
-
+                  <DropdownMenuItem
+                    onClick={() => setIsCustomModalOpen(true)}
+                    className="cursor-pointer rounded-xl p-3 text-xs font-semibold hover:bg-white/10"
+                  >
+                    <Wand2 className="mr-2 h-4 w-4 text-orange-400" />
+                    Generate from Custom Prompt
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button
                 asChild
-                className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                className="btn-shimmer rounded-full bg-white px-6 py-3 text-xs font-bold text-black hover:bg-zinc-200"
               >
                 <Link href={`/projects/${projectId}/research`}>
-                  <Brain className="mr-2 h-4 w-4" />
+                  <Brain className="mr-2 h-4 w-4 text-orange-500" />
                   Create Research First
                 </Link>
               </Button>
@@ -185,62 +235,62 @@ export default function PRDPageClient({
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 sm:grid-cols-3">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        {/* Quick Stats Grid inside Hero */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-t border-white/[0.07] bg-white/[0.02] p-6 text-xs text-[#8a8a93]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-500/20 bg-sky-500/10 text-sky-400">
               <FileText className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
                 {initialPrds.length}
               </p>
-              <p className="text-xs text-zinc-400">PRD Documents</p>
+              <p className="text-[11px] text-[#8a8a93]">PRD Documents</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10 text-orange-400">
               <Brain className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
                 {researches.length}
               </p>
-              <p className="text-xs text-zinc-400">Research Modules</p>
+              <p className="text-[11px] text-[#8a8a93]">Source Research Modules</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 col-span-2 sm:col-span-1">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="flex items-center gap-3 col-span-2 sm:col-span-1">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-lg font-bold text-white font-mono" style={{ fontFamily: "var(--font-sora)" }}>
                 {totalTokens > 0 ? totalTokens.toLocaleString() : "—"}
               </p>
-              <p className="text-xs text-zinc-400">AI Tokens Processed</p>
+              <p className="text-[11px] text-[#8a8a93]">AI Tokens Processed</p>
             </div>
           </div>
         </div>
-      </div>
+      </motion.section>
 
-      {/* Tabs & Search Header */}
-      <div className="flex flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Tabs & Search Navigation */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/10 pb-4">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur-md">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#09090c]/90 p-1.5 backdrop-blur-xl">
           <button
             onClick={() => setActiveTab("prds")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
               activeTab === "prds"
                 ? "bg-white text-black shadow-md"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
+                : "text-[#8a8a93] hover:text-white hover:bg-white/[0.05]"
             }`}
           >
-            <FileText className="h-4 w-4" />
+            <FileText className="h-3.5 w-3.5" />
             <span>Generated PRDs</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] ${
-              activeTab === "prds" ? "bg-black/10 text-black" : "bg-white/10 text-zinc-300"
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
+              activeTab === "prds" ? "bg-black/10 text-black font-bold" : "bg-white/10 text-zinc-300"
             }`}>
               {initialPrds.length}
             </span>
@@ -248,16 +298,16 @@ export default function PRDPageClient({
 
           <button
             onClick={() => setActiveTab("research")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
               activeTab === "research"
                 ? "bg-white text-black shadow-md"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
+                : "text-[#8a8a93] hover:text-white hover:bg-white/[0.05]"
             }`}
           >
-            <Brain className="h-4 w-4" />
+            <Brain className="h-3.5 w-3.5" />
             <span>Source Research Modules</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] ${
-              activeTab === "research" ? "bg-black/10 text-black" : "bg-white/10 text-zinc-300"
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
+              activeTab === "research" ? "bg-black/10 text-black font-bold" : "bg-white/10 text-zinc-300"
             }`}>
               {researches.length}
             </span>
@@ -266,7 +316,7 @@ export default function PRDPageClient({
 
         {/* Search Bar */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-orange-400" />
           <Input
             type="text"
             placeholder={
@@ -276,7 +326,7 @@ export default function PRDPageClient({
             }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/[0.03] border-white/10 text-white placeholder:text-zinc-500 focus:border-white/30 focus:ring-0 rounded-xl"
+            className="pl-10 bg-[#09090c]/90 border-white/10 text-xs sm:text-sm text-white placeholder:text-[#8a8a93] focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 rounded-xl"
           />
         </div>
       </div>
@@ -285,45 +335,51 @@ export default function PRDPageClient({
       {activeTab === "prds" && (
         <>
           {initialPrds.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.01] py-16 px-4 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.05] text-zinc-400 border border-white/10 mb-4">
-                <FileText className="h-8 w-8 text-blue-400" />
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/15 bg-[#09090c]/60 py-20 px-6 text-center backdrop-blur-xl"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-orange-400 mb-5 shadow-inner">
+                <FileText className="h-8 w-8" />
               </div>
 
-              <h3 className="text-xl font-semibold text-white">No PRDs Generated Yet</h3>
-              <p className="mt-2 max-w-md text-sm text-zinc-400">
+              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
+                No PRDs Generated Yet
+              </h3>
+              <p className="mt-2 max-w-md text-xs sm:text-sm text-[#8a8a93] leading-relaxed">
                 Create detailed product requirement specifications from your project research with a single click.
               </p>
 
               {researches.length > 0 ? (
-                <Button
-                    variant="outline"
-                    onClick={() => setIsCustomModalOpen(true)}
-                    className="mt-3 rounded-xl"
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="btn-shimmer mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-zinc-100 transition active:scale-95"
                 >
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Generate Custom PRD
-                </Button>
+                  <Wand2 className="h-4 w-4 text-orange-500" />
+                  <span>Generate Custom PRD</span>
+                </button>
               ) : (
                 <div className="mt-6 flex flex-col items-center gap-3">
-                  <p className="text-xs text-amber-400/90 bg-amber-400/10 px-3 py-1.5 rounded-lg border border-amber-400/20">
-                    Notice: Market research is required before generating a PRD.
+                  <p className="text-xs text-amber-400/90 bg-amber-400/10 px-3.5 py-1.5 rounded-full border border-amber-400/20 font-mono">
+                    Notice: Market research is recommended before generating a PRD.
                   </p>
                   <Button
                     asChild
-                    className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                    className="btn-shimmer rounded-full bg-white px-6 py-2.5 text-xs font-bold text-black hover:bg-zinc-200"
                   >
                     <Link href={`/projects/${projectId}/research`}>
-                      <Brain className="mr-2 h-4 w-4" />
+                      <Brain className="mr-2 h-4 w-4 text-orange-500" />
                       Start Research First
                     </Link>
                   </Button>
                 </div>
               )}
-            </div>
+            </motion.div>
           ) : filteredPrds.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
-              <p className="text-zinc-400">No PRDs matching &quot;{searchQuery}&quot;</p>
+            <div className="rounded-3xl border border-white/10 bg-[#09090c]/90 p-12 text-center">
+              <p className="text-xs text-[#8a8a93]">No PRDs matching &quot;{searchQuery}&quot;</p>
               <Button
                 variant="ghost"
                 onClick={() => setSearchQuery("")}
@@ -346,29 +402,35 @@ export default function PRDPageClient({
       {activeTab === "research" && (
         <>
           {researches.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.01] py-16 px-4 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.05] text-purple-400 border border-white/10 mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/15 bg-[#09090c]/60 py-20 px-6 text-center backdrop-blur-xl"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-orange-400 mb-5 shadow-inner">
                 <Brain className="h-8 w-8" />
               </div>
 
-              <h3 className="text-xl font-semibold text-white">No Research Data Available</h3>
-              <p className="mt-2 max-w-md text-sm text-zinc-400">
+              <h3 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
+                No Research Data Available
+              </h3>
+              <p className="mt-2 max-w-md text-xs sm:text-sm text-[#8a8a93] leading-relaxed">
                 Conduct AI market and competitor research to form the foundation for PRDs.
               </p>
 
               <Button
                 asChild
-                className="mt-6 bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                className="btn-shimmer mt-6 rounded-full bg-white px-6 py-2.5 text-xs font-bold text-black hover:bg-zinc-200"
               >
                 <Link href={`/projects/${projectId}/research`}>
-                  <Brain className="mr-2 h-4 w-4" />
+                  <Brain className="mr-2 h-4 w-4 text-orange-500" />
                   Generate Market Research
                 </Link>
               </Button>
-            </div>
+            </motion.div>
           ) : filteredResearches.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
-              <p className="text-zinc-400">No research items matching &quot;{searchQuery}&quot;</p>
+            <div className="rounded-3xl border border-white/10 bg-[#09090c]/90 p-12 text-center">
+              <p className="text-xs text-[#8a8a93]">No research items matching &quot;{searchQuery}&quot;</p>
               <Button
                 variant="ghost"
                 onClick={() => setSearchQuery("")}
@@ -386,16 +448,17 @@ export default function PRDPageClient({
                   : "";
 
                 return (
-                  <div
+                  <motion.div
                     key={res.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-6 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/[0.04] hover:shadow-2xl"
+                    whileHover={{ y: -3 }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#09090c]/90 p-6 backdrop-blur-2xl transition-all duration-300 hover:border-orange-500/30 hover:shadow-xl"
                   >
                     <div className="space-y-4">
                       {/* Header Badge */}
                       <div className="flex items-center justify-between">
-                        <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-mono font-semibold text-sky-400">
                           <Brain className="h-3.5 w-3.5" />
-                          <span>{res.model || "Research"}</span>
+                          <span>{res.model || "Gemini 3.6 Flash"}</span>
                         </div>
 
                         {linkedPrd ? (
@@ -412,19 +475,19 @@ export default function PRDPageClient({
 
                       {/* Title & Prompt */}
                       <div>
-                        <h3 className="text-lg font-semibold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                        <h3 className="text-base font-bold text-white tracking-tight group-hover:text-orange-400 transition-colors" style={{ fontFamily: "var(--font-sora)" }}>
                           {res.title}
                         </h3>
-                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-zinc-400">
+                        <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[#8a8a93]">
                           {res.prompt}
                         </p>
                       </div>
 
                       {/* Meta Info */}
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 border-t border-white/5 pt-3">
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-[#8a8a93] border-t border-white/5 pt-3">
                         {createdTimeAgo && <span>Created {createdTimeAgo}</span>}
                         {res.tokens && (
-                          <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[10px] text-zinc-300">
+                          <span className="rounded-full bg-white/5 px-2.5 py-0.5 font-mono text-[10px] text-zinc-300">
                             {res.tokens.toLocaleString()} tokens
                           </span>
                         )}
@@ -437,25 +500,25 @@ export default function PRDPageClient({
                         <Button
                           asChild
                           variant="outline"
-                          className="w-full border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 font-medium rounded-xl"
+                          className="w-full border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 font-bold text-xs rounded-xl"
                         >
                           <Link href={`/projects/${projectId}/prd/${linkedPrd.id}`}>
                             <FileText className="mr-2 h-4 w-4 text-emerald-400" />
-                            View Linked PRD
-                            <ArrowRight className="ml-auto h-4 w-4" />
+                            <span>View Linked PRD</span>
+                            <ArrowRight className="ml-auto h-4 w-4 text-emerald-400" />
                           </Link>
                         </Button>
                       ) : (
                         <Button
                           onClick={() => handleOpenGenerateModal(res.id)}
-                          className="w-full bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                          className="btn-shimmer w-full bg-white text-black hover:bg-zinc-200 font-bold text-xs rounded-xl"
                         >
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Generate PRD for this Research
+                          <Sparkles className="mr-2 h-4 w-4 text-orange-500" />
+                          <span>Generate PRD for this Research</span>
                         </Button>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -465,17 +528,17 @@ export default function PRDPageClient({
 
       {/* Modal for PRD Generation */}
       <GeneratePRDModal
-          open={isResearchModalOpen}
-          onOpenChange={setIsResearchModalOpen}
-          projectId={projectId}
-          researchId={targetResearchId}
-          researches={researches}
+        open={isResearchModalOpen}
+        onOpenChange={setIsResearchModalOpen}
+        projectId={projectId}
+        researchId={targetResearchId}
+        researches={researches}
       />
 
       <GenerateCustomPRDModal
-          open={isCustomModalOpen}
-          onOpenChange={setIsCustomModalOpen}
-          projectId={projectId}
+        open={isCustomModalOpen}
+        onOpenChange={setIsCustomModalOpen}
+        projectId={projectId}
       />
     </div>
   );

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { Loader2, Sparkles, Brain, FileText } from "lucide-react";
+import { Loader2, Sparkles, Brain, FileText, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export interface ResearchOption {
@@ -116,37 +116,37 @@ export function GeneratePRDModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg border-white/10 bg-[#0a0a0c] text-white backdrop-blur-2xl">
+      <DialogContent className="sm:max-w-lg border-white/15 bg-[#09090c] text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
         <DialogHeader>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mb-3">
-            <Sparkles className="h-6 w-6" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10 text-orange-400 mb-2">
+            <Sparkles className="h-5 w-5" />
           </div>
-          <DialogTitle className="text-2xl font-bold tracking-tight text-white">
+          <DialogTitle className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "var(--font-sora)" }}>
             Generate AI PRD
           </DialogTitle>
-          <DialogDescription className="text-zinc-400 text-sm">
+          <DialogDescription className="text-[#8a8a93] text-xs leading-relaxed">
             Transform market research into a comprehensive, developer-ready Product Requirements Document using AI.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
+        <div className="space-y-5 py-1">
           {/* Research Selector */}
           {researches.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                <Brain className="h-3.5 w-3.5 text-purple-400" />
+              <Label className="text-xs font-semibold uppercase tracking-wider text-[#8a8a93] flex items-center gap-2">
+                <Brain className="h-3.5 w-3.5 text-sky-400" />
                 Select Source Research
               </Label>
               <select
                 value={selectedResearchId}
                 onChange={(e) => setSelectedResearchId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-xs sm:text-sm text-white outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
               >
                 {researches.map((res) => (
                   <option
                     key={res.id}
                     value={res.id}
-                    className="bg-[#0a0a0c] text-white"
+                    className="bg-[#09090c] text-white"
                   >
                     {res.title}
                   </option>
@@ -155,45 +155,46 @@ export function GeneratePRDModal({
             </div>
           )}
 
-          {/* PRD Title Input */}
+          {/* Title Input */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-              <FileText className="h-3.5 w-3.5 text-blue-400" />
-              Document Title
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8a8a93] flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5 text-orange-400" />
+              PRD Document Title
             </Label>
             <Input
-              placeholder="e.g. BuilderOS PRD"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-white/[0.05] border-white/10 text-white placeholder:text-zinc-500 focus:border-blue-500 focus:ring-0 rounded-xl"
+              placeholder="e.g. AI CRM - Full PRD Specification"
+              className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3.5 text-xs sm:text-sm text-white placeholder-[#8a8a93] outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
             />
           </div>
         </div>
 
-        <DialogFooter className="gap-3 pt-2">
+        <DialogFooter className="gap-2 sm:gap-3">
           <Button
+            type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={loading}
-            className="border-white/10 bg-white/5 text-white hover:bg-white/10 rounded-xl"
+            className="rounded-xl border border-white/15 px-5 py-2.5 text-xs font-semibold text-[#8a8a93] hover:bg-white/10 hover:text-white"
           >
             Cancel
           </Button>
 
           <Button
             onClick={handleGenerate}
-            disabled={loading || !selectedResearchId}
-            className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-lg shadow-white/10 rounded-xl"
+            disabled={loading}
+            className="btn-shimmer inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-zinc-100 disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin text-black" />
-                Generating PRD...
+                <Loader2 className="h-4 w-4 animate-spin text-black" />
+                <span>Generating PRD...</span>
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4 text-black" />
-                Generate PRD Now
+                <Sparkles className="h-4 w-4 text-orange-500" />
+                <span>Generate PRD Spec</span>
               </>
             )}
           </Button>

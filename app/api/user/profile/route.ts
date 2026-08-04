@@ -37,7 +37,7 @@ export async function GET() {
       projectsCount,
       tasksCount,
       completedTasksCount,
-      aiConversationsCount,
+      aiConversationCountRaw,
       researchesCount,
       prdsCount,
       roadmapsCount,
@@ -50,12 +50,15 @@ export async function GET() {
           status: { in: ["completed", "done"] },
         },
       }),
-      prisma.aIConversation.count({ where: { userId: user.id } }),
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
+        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
+      `,
       prisma.research.count({ where: { project: { userId: user.id } } }),
       prisma.pRD.count({ where: { project: { userId: user.id } } }),
       prisma.roadmap.count({ where: { project: { userId: user.id } } }),
     ]);
 
+    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
     const hasPassword = Boolean(user.password);
     const authProviders = user.accounts.map((a) => a.provider);
 
@@ -99,32 +102,21 @@ export async function PATCH(req: Request) {
 
     const { name, image } = await req.json();
 
-    if (typeof name !== "string" || name.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Name is required and cannot be empty" },
-        { status: 400 }
-      );
-    }
-
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email },
       data: {
-        name: name.trim(),
-        image: typeof image === "string" ? image.trim() : null,
+        name: name !== undefined ? name : undefined,
+        image: image !== undefined ? image : undefined,
       },
       select: {
         id: true,
         name: true,
         email: true,
         image: true,
-        createdAt: true,
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      user: updatedUser,
-    });
+    return NextResponse.json({ user: updatedUser });
   } catch (error) {
     console.error("PATCH /api/user/profile error:", error);
     return NextResponse.json(
