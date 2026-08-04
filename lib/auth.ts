@@ -16,10 +16,12 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.AUTH_GOOGLE_ID!,
             clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+            allowDangerousEmailAccountLinking: true,
         }),
         GithubProvider({
             clientId: process.env.GITHUB_ID!,
             clientSecret: process.env.GITHUB_SECRET!,
+            allowDangerousEmailAccountLinking: true,
         }),
 
         CredentialsProvider({
@@ -65,6 +67,11 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     ],
+
+    pages: {
+        signIn: "/login",
+        error: "/login",
+    },
 
     session: {
         strategy: "jwt",

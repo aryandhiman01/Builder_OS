@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-
 import { useSession, signOut } from "next-auth/react";
 
 import {
@@ -14,8 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Button } from "@/components/ui/button";
-
 import {
   LayoutDashboard,
   User,
@@ -25,12 +21,68 @@ import {
 } from "lucide-react";
 
 export default function AuthButtons() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  // Demo user data matching image if session is null
-  const userName = session?.user?.name || "Aryan Dhiman";
-  const userEmail = session?.user?.email || "aryandhiman2605@gmail.com";
-  const userImage = session?.user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80";
+  // Show loading placeholder while checking session status
+  if (status === "loading") {
+    return (
+      <div className="h-8 w-20 rounded-full bg-white/[0.04] animate-pulse border border-white/10" />
+    );
+  }
+
+  // If not logged in, show Log In and Get Started buttons
+  if (!session) {
+    return (
+      <div className="flex items-center gap-2.5">
+        <Link
+          href="/login"
+          className="
+          rounded-full
+          border
+          border-white/10
+          bg-white/[0.04]
+          px-4
+          py-1.5
+          text-xs
+          font-medium
+          text-white
+          transition-all
+          duration-200
+          hover:bg-white/[0.08]
+          hover:border-white/20
+          "
+        >
+          Log In
+        </Link>
+        <Link
+          href="/signup"
+          className="
+          rounded-full
+          bg-gradient-to-r
+          from-orange-500
+          to-amber-500
+          px-4
+          py-1.5
+          text-xs
+          font-semibold
+          text-black
+          transition-all
+          duration-200
+          hover:brightness-110
+          shadow-lg
+          shadow-orange-500/20
+          "
+        >
+          Get Started
+        </Link>
+      </div>
+    );
+  }
+
+  // If logged in, show user dropdown with real session data
+  const userName = session.user?.name || "User";
+  const userEmail = session.user?.email || "";
+  const userImage = session.user?.image;
 
   return (
     <DropdownMenu>
@@ -70,6 +122,7 @@ export default function AuthButtons() {
             bg-zinc-800
             font-semibold
             text-white
+            text-xs
             "
           >
             {userImage ? (
@@ -115,7 +168,7 @@ export default function AuthButtons() {
             <p className="text-xs font-semibold text-white">
               {userName}
             </p>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-zinc-400 truncate">
               {userEmail}
             </p>
           </div>
@@ -136,7 +189,7 @@ export default function AuthButtons() {
             Profile
           </DropdownMenuItem>
         </Link>
-        
+
         <Link href="/settings">
           <DropdownMenuItem className="rounded-lg text-xs hover:bg-white/[0.08] cursor-pointer">
             <Settings className="mr-2 h-3.5 w-3.5 text-violet-400" />
@@ -146,22 +199,13 @@ export default function AuthButtons() {
 
         <DropdownMenuSeparator className="bg-white/10" />
 
-        {session ? (
-          <DropdownMenuItem
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="rounded-lg text-xs text-red-400 hover:bg-red-500/10 cursor-pointer"
-          >
-            <LogOut className="mr-2 h-3.5 w-3.5" />
-            Logout
-          </DropdownMenuItem>
-        ) : (
-          <Link href="/login">
-            <DropdownMenuItem className="rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/10 cursor-pointer">
-              <User className="mr-2 h-3.5 w-3.5" />
-              Log In / Register
-            </DropdownMenuItem>
-          </Link>
-        )}
+        <DropdownMenuItem
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="rounded-lg text-xs text-red-400 hover:bg-red-500/10 cursor-pointer"
+        >
+          <LogOut className="mr-2 h-3.5 w-3.5" />
+          Logout
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
