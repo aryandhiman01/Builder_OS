@@ -25,13 +25,27 @@ export async function GET() {
             documents: true,
           },
         },
-        aiConversations: true,
       },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    const aiConversations = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        messages: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }>
+    >`
+      SELECT c.id, c.title, c.messages, c."createdAt", c."updatedAt"
+      FROM "AIConversation" c
+      WHERE c."userId" = ${user.id}
+      ORDER BY c."updatedAt" DESC
+    `;
 
     const exportData = {
       exportedAt: new Date().toISOString(),
@@ -42,9 +56,9 @@ export async function GET() {
         createdAt: user.createdAt,
       },
       projectsCount: user.projects.length,
-      conversationsCount: user.aiConversations.length,
+      conversationsCount: aiConversations.length,
       projects: user.projects,
-      aiConversations: user.aiConversations,
+      aiConversations,
     };
 
     return new NextResponse(JSON.stringify(exportData, null, 2), {
