@@ -123,22 +123,6 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
             </button>
           </div>
 
-          <Link
-            href="/projects"
-            className="
-            flex
-            items-center
-            gap-1
-            text-xs
-            font-semibold
-            text-[#8a8a93]
-            transition-colors
-            hover:text-white
-            "
-          >
-            <span>View All</span>
-            <ArrowRight size={13} />
-          </Link>
         </div>
       </div>
 

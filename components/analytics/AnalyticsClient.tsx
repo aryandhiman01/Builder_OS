@@ -405,7 +405,7 @@ export default function AnalyticsClient() {
       <motion.section {...sectionAnim} className="space-y-4">
         <SectionHeader icon={TrendingUp} title="Monthly Growth" sub="Projects, tasks, and AI requests created over the last 12 months." />
         <ChartCard title="12-Month Activity Timeline" sub="Projects · Tasks · AI Requests" icon={TrendingUp}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={280} debounce={150}>
             <AreaChart data={charts.monthlyGrowth} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
               <defs>
                 {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
@@ -436,7 +436,7 @@ export default function AnalyticsClient() {
             {charts.taskStatusDistribution.length === 0 ? (
               <EmptyChart label="No tasks created yet" />
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={240} debounce={150}>
                 <PieChart>
                   <Pie data={charts.taskStatusDistribution} cx="50%" cy="50%" innerRadius="52%" outerRadius="75%" paddingAngle={4} dataKey="count" nameKey="status">
                     {charts.taskStatusDistribution.map((e, i) => (
@@ -454,7 +454,7 @@ export default function AnalyticsClient() {
             {charts.taskPriorityDistribution.length === 0 ? (
               <EmptyChart label="No tasks created yet" />
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={240} debounce={150}>
                 <PieChart>
                   <Pie data={charts.taskPriorityDistribution} cx="50%" cy="50%" innerRadius="52%" outerRadius="75%" paddingAngle={4} dataKey="count" nameKey="priority">
                     {charts.taskPriorityDistribution.map((e, i) => (
@@ -475,7 +475,7 @@ export default function AnalyticsClient() {
         <SectionHeader icon={Activity} title="Activity Patterns" sub="Daily actions and weekly task completion over recent periods." />
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           <ChartCard title="Daily Activity — Last 14 Days" sub="All workspace actions per day" icon={Activity}>
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={220} debounce={150}>
               <BarChart data={charts.dailyActivity} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={14}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                 <XAxis dataKey="day" tick={{ fill: "#8a8a93", fontSize: 9 }} axisLine={false} tickLine={false}
@@ -492,7 +492,7 @@ export default function AnalyticsClient() {
           </ChartCard>
 
           <ChartCard title="Weekly Task Completion" sub="Created vs completed tasks per week" icon={CheckCircle2}>
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={220} debounce={150}>
               <LineChart data={charts.weeklyTaskCompletion} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="week" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -516,7 +516,7 @@ export default function AnalyticsClient() {
               <EmptyChart label="No AI generations yet" />
             ) : (
               <>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={200} debounce={150}>
                   <BarChart data={charts.aiBreakdown} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }} barSize={12}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
                     <XAxis type="number" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -545,7 +545,7 @@ export default function AnalyticsClient() {
             {charts.projectCategoryData.length === 0 ? (
               <EmptyChart label="No projects yet" />
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={240} debounce={150}>
                 <PieChart>
                   <Pie data={charts.projectCategoryData} dataKey="count" nameKey="category" cx="50%" cy="50%" outerRadius="72%" paddingAngle={4}>
                     {charts.projectCategoryData.map((_, i) => (

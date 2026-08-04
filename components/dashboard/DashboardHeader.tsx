@@ -41,7 +41,7 @@ export default function DashboardHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-[73px] shrink-0 items-center border-b border-white/[0.08] bg-[#09090c]/90 backdrop-blur-2xl shadow-lg shadow-black/40">
+      <header className="sticky top-0 z-30 flex h-[70px] shrink-0 items-center border-b border-white/10 bg-[#09090c]/90 backdrop-blur-2xl shadow-lg shadow-black/40">
         <div className="flex w-full items-center justify-between gap-4 px-4 sm:px-8">
           {/* Left — Mobile Hamburger & Greeting */}
           <div className="flex items-center gap-3">

@@ -9,7 +9,6 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
@@ -32,10 +31,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         />
       </div>
 
-      {/* Fixed Sidebar Component (Desktop + Mobile Drawer) */}
+      {/* Fixed Sidebar Component (Self-contained State) */}
       <Sidebar
-        isCollapsed={isCollapsed}
-        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         isMobileOpen={isMobileOpen}
         onCloseMobile={() => setIsMobileOpen(false)}
       />

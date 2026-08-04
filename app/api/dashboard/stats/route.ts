@@ -259,6 +259,55 @@ export async function GET() {
     activities.sort((a, b) => b.timestamp - a.timestamp);
     const recentActivities = activities.slice(0, 6);
 
+    // 6. Urgent Active Tasks
+    const urgentTasks = recentTasks
+      .filter((t) => t.status !== "completed" && t.status !== "done")
+      .map((t) => ({
+        id: t.id,
+        title: t.title,
+        status: t.status,
+        projectTitle: t.project.title,
+        updatedAt: getRelativeTimeString(t.updatedAt),
+      }));
+
+    // 7. Recent AI Artifacts Combined
+    const aiArtifactsCombined = [
+      ...recentResearches.map((r) => ({
+        id: r.id,
+        title: r.title,
+        type: "Research",
+        projectTitle: r.project.title,
+        time: getRelativeTimeString(r.createdAt),
+        timestamp: new Date(r.createdAt).getTime(),
+      })),
+      ...recentPrds.map((p) => ({
+        id: p.id,
+        title: p.title,
+        type: "PRD",
+        projectTitle: p.project.title,
+        time: getRelativeTimeString(p.createdAt),
+        timestamp: new Date(p.createdAt).getTime(),
+      })),
+      ...recentRoadmaps.map((rm) => ({
+        id: rm.id,
+        title: rm.title,
+        type: "Roadmap",
+        projectTitle: rm.project.title,
+        time: getRelativeTimeString(rm.createdAt),
+        timestamp: new Date(rm.createdAt).getTime(),
+      })),
+      ...recentArchitectures.map((arch) => ({
+        id: arch.id,
+        title: arch.title,
+        type: "Architecture",
+        projectTitle: arch.project.title,
+        time: getRelativeTimeString(arch.createdAt),
+        timestamp: new Date(arch.createdAt).getTime(),
+      })),
+    ]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 5);
+
     return NextResponse.json({
       user: {
         name: user.name,
@@ -273,6 +322,8 @@ export async function GET() {
       },
       recentProjects,
       recentActivities,
+      urgentTasks,
+      recentAiArtifacts: aiArtifactsCombined,
     });
   } catch (error) {
     console.error("Dashboard stats error:", error);

@@ -1,24 +1,20 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FolderKanban,
   CheckCircle2,
   Brain,
   Target,
-  FolderPlus,
-  Map,
-  CheckSquare,
   Plus,
-  RefreshCw,
-  Calendar,
   Layers,
-  Zap,
+  Filter,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 
 import StatsCard from "@/components/dashboard/StatsCard";
-import QuickActionCard from "@/components/dashboard/QuickActionCard";
 import ProjectCard from "@/components/dashboard/ProjectCard";
 import RecentActivity, { ActivityItemData } from "@/components/dashboard/RecentActivity";
 import AIHeroCard from "@/components/dashboard/AIHeroCard";
@@ -56,6 +52,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [projectFilter, setProjectFilter] = useState<"all" | "Building" | "Planning" | "Completed">("all");
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
   const fetchStats = useCallback(async (isSilent = false) => {
     try {
@@ -168,64 +165,6 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
         </div>
       </motion.section>
 
-      {/* Quick Actions */}
-      <motion.section {...sectionAnimation} className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-orange-400" />
-              <h2
-                className="text-xl sm:text-2xl font-bold tracking-tight text-white"
-                style={{ fontFamily: "var(--font-sora)" }}
-              >
-                Quick Actions
-              </h2>
-            </div>
-            <p className="mt-1 text-xs text-[#8a8a93]">
-              Direct access to key BuilderOS product engineering tools.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <QuickActionCard
-            title="New Project"
-            description="Initialize a new product workspace with PRDs, tasks & roadmaps."
-            icon={FolderPlus}
-            onClick={() => setIsCreateProjectOpen(true)}
-            shortcut="⌘ N"
-            color="orange"
-          />
-
-          <QuickActionCard
-            title="AI Workspace"
-            description="Deep market research, PRD generation, and strategy prompts."
-            href="/ai-workspace"
-            icon={Brain}
-            shortcut="⌘ A"
-            color="amber"
-          />
-
-          <QuickActionCard
-            title="Tasks Board"
-            description="Track, assign, and execute product tasks effortlessly."
-            href="/projects"
-            icon={CheckSquare}
-            shortcut="⌘ T"
-            color="emerald"
-          />
-
-          <QuickActionCard
-            title="Product Roadmaps"
-            description="Visualize milestones, timelines, and feature rollouts."
-            href="/projects"
-            icon={Map}
-            shortcut="⌘ R"
-            color="orange"
-          />
-        </div>
-      </motion.section>
-
       {/* Recent Projects Section */}
       <motion.section {...sectionAnimation} className="space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -241,24 +180,67 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             </p>
           </div>
 
-          {/* Filter Tabs */}
+          {/* Filter Dropdown */}
           {recentProjects.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex rounded-lg border border-white/10 bg-black/40 p-0.5">
-                {(["all", "Building", "Planning", "Completed"] as const).map((filterVal) => (
-                  <button
-                    key={filterVal}
-                    onClick={() => setProjectFilter(filterVal)}
-                    className={`rounded-md px-3 py-1 text-xs font-semibold capitalize transition-all ${
-                      projectFilter === filterVal
-                        ? "bg-white/10 text-white shadow-sm"
-                        : "text-[#8a8a93] hover:text-white"
-                    }`}
-                  >
-                    {filterVal === "all" ? "All" : filterVal}
-                  </button>
-                ))}
-              </div>
+            <div className="relative">
+              <button
+                onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#09090c] px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-white/[0.06] hover:border-white/20 active:scale-95 shadow-md"
+              >
+                <Filter size={13} className="text-orange-400" />
+                <span>
+                  {projectFilter === "all" ? "All Projects" : projectFilter}
+                </span>
+                <ChevronDown
+                  size={13}
+                  className={`text-[#8a8a93] transition-transform duration-200 ${
+                    isFilterDropdownOpen ? "rotate-180 text-white" : ""
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {isFilterDropdownOpen && (
+                  <>
+                    {/* Backdrop to close when clicking outside */}
+                    <div
+                      className="fixed inset-0 z-20"
+                      onClick={() => setIsFilterDropdownOpen(false)}
+                    />
+
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="absolute right-0 top-full z-30 mt-2 w-44 rounded-xl border border-white/10 bg-[#09090c]/98 p-1.5 backdrop-blur-2xl shadow-2xl"
+                    >
+                      {(["all", "Building", "Planning", "Completed"] as const).map((filterVal) => {
+                        const isSelected = projectFilter === filterVal;
+                        return (
+                          <button
+                            key={filterVal}
+                            onClick={() => {
+                              setProjectFilter(filterVal);
+                              setIsFilterDropdownOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                              isSelected
+                                ? "bg-white/10 text-white font-semibold"
+                                : "text-[#8a8a93] hover:bg-white/[0.06] hover:text-white"
+                            }`}
+                          >
+                            <span className="capitalize">
+                              {filterVal === "all" ? "All Projects" : filterVal}
+                            </span>
+                            {isSelected && <Check size={13} className="text-orange-400" />}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
