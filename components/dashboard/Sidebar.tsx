@@ -10,6 +10,7 @@ import {
   CheckSquare,
   Map,
   Settings,
+  BarChart2,
   PanelLeftClose,
   PanelLeftOpen,
   X,
@@ -50,6 +51,11 @@ const sidebarItems = [
     title: "Roadmaps",
     href: "/roadmaps",
     icon: Map,
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",
+    icon: BarChart2,
   },
   {
     title: "Settings",
