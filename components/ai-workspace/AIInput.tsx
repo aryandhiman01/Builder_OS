@@ -308,12 +308,12 @@ export default function AIInput({
               const Meta = modeMeta[mode];
               const Icon = Meta.icon;
               return (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-300">
                   <Icon className="h-3.5 w-3.5" />
                   {Meta.label}
                   <button
                     onClick={() => setMode(null)}
-                    className="ml-1 rounded-full p-0.5 hover:bg-violet-500/20"
+                    className="ml-1 rounded-full p-0.5 hover:bg-orange-500/20"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -364,7 +364,7 @@ export default function AIInput({
               <Button
                 size="icon"
                 variant="ghost"
-                className="rounded-xl text-zinc-400 hover:bg-white/5 hover:text-violet-300 aria-expanded:bg-white/5 aria-expanded:text-violet-300"
+                className="rounded-xl text-zinc-400 hover:bg-white/5 hover:text-orange-400 aria-expanded:bg-white/5 aria-expanded:text-orange-400"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -383,7 +383,7 @@ export default function AIInput({
                 }}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 focus:bg-white/[0.06]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-500/25 bg-orange-500/10 text-orange-400">
                   <ImagePlus className="h-4 w-4" />
                 </span>
                 <span className="flex flex-1 items-center justify-between gap-2">
@@ -403,7 +403,7 @@ export default function AIInput({
                 }}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 focus:bg-white/[0.06]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-500/25 bg-orange-500/10 text-orange-400">
                   <FolderOpen className="h-4 w-4" />
                 </span>
                 <span className="flex flex-1 items-center justify-between gap-2">
@@ -420,7 +420,7 @@ export default function AIInput({
                 onSelect={() => toggleMode("diagram")}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 focus:bg-white/[0.06]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-500/25 bg-orange-500/10 text-orange-400">
                   <Workflow className="h-4 w-4" />
                 </span>
                 <span className="flex flex-1 items-center justify-between gap-2">
@@ -437,7 +437,7 @@ export default function AIInput({
                 onSelect={() => toggleMode("web-search")}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 focus:bg-white/[0.06]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-500/25 bg-orange-500/10 text-orange-400">
                   <Globe className="h-4 w-4" />
                 </span>
                 <span className="flex flex-1 items-center justify-between gap-2">
@@ -507,19 +507,13 @@ export default function AIInput({
               (message.trim().length === 0 && attachments.length === 0)
             }
             onClick={handleSubmit}
-            className="h-11 w-11 rounded-2xl bg-violet-500 text-black hover:bg-violet-400"
+            className="btn-shimmer h-11 w-11 rounded-2xl bg-white text-black hover:bg-zinc-100 shadow-md transition-all active:scale-95 cursor-pointer"
           >
-
             {loading ? (
-
-              <Loader2 className="h-5 w-5 animate-spin" />
-
+              <Loader2 className="h-5 w-5 animate-spin text-black" />
             ) : (
-
-              <ArrowUp className="h-5 w-5" />
-
+              <ArrowUp className="h-5 w-5 text-black" strokeWidth={2.5} />
             )}
-
           </Button>
 
         </div>

@@ -93,7 +93,7 @@ export default function Sidebar({
                 duration-200
                 ${
                   isActive
-                    ? "bg-white text-black shadow-lg shadow-white/10"
+                    ? "bg-white/10 text-white border border-white/15 shadow-md"
                     : "text-[#8a8a93] hover:bg-white/[0.06] hover:text-white"
                 }
               `}
@@ -101,7 +101,7 @@ export default function Sidebar({
               <Icon
                 size={20}
                 className={`transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? "text-black" : "text-[#8a8a93] group-hover:text-white"
+                  isActive ? "text-orange-400" : "text-[#8a8a93] group-hover:text-white"
                 }`}
               />
             </Link>
@@ -127,7 +127,7 @@ export default function Sidebar({
               duration-200
               ${
                 isActive
-                  ? "bg-white text-black shadow-lg shadow-white/10"
+                  ? "bg-white/10 text-white border border-white/15 shadow-md"
                   : "text-[#8a8a93] hover:bg-white/[0.06] hover:text-white"
               }
             `}
@@ -135,7 +135,7 @@ export default function Sidebar({
             <Icon
               size={18}
               className={`shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                isActive ? "text-black" : "text-[#8a8a93] group-hover:text-white"
+                isActive ? "text-orange-400" : "text-[#8a8a93] group-hover:text-white"
               }`}
             />
 
@@ -226,9 +226,9 @@ export default function Sidebar({
               bg-white/[0.04]
               text-white
               transition-all
-              hover:border-violet-500/40
-              hover:bg-violet-500/10
-              hover:text-violet-300
+              hover:border-orange-500/40
+              hover:bg-orange-500/10
+              hover:text-orange-300
               "
               title="Expand Sidebar"
             >
@@ -248,7 +248,7 @@ export default function Sidebar({
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
                   BuilderOS Plan
                 </span>
-                <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-violet-300">
+                <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-orange-400">
                   Pro Free
                 </span>
               </div>
@@ -261,7 +261,7 @@ export default function Sidebar({
               className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl border border-white/10 bg-white/[0.03]"
               title="BuilderOS Pro Free Plan"
             >
-              <Zap size={16} className="text-violet-400" />
+              <Zap size={16} className="text-orange-400" />
             </div>
           )}
         </div>
@@ -326,7 +326,7 @@ export default function Sidebar({
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
                       BuilderOS Plan
                     </span>
-                    <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-violet-300">
+                    <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-orange-400">
                       Pro Free
                     </span>
                   </div>

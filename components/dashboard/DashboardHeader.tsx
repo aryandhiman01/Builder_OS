@@ -84,8 +84,22 @@ export default function DashboardHeader({
             </div>
           </div>
 
-          {/* Right — Landing Page Style Controls */}
+          {/* Center / Right Controls */}
           <div className="flex items-center gap-3">
+            {onSearchChange && (
+              <div className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 shadow-inner focus-within:border-orange-500/50 transition-all">
+                <Search size={14} className="text-[#8a8a93]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  placeholder="Search workspace..."
+                  className="w-36 bg-transparent text-xs text-white placeholder:text-[#8a8a93] outline-none"
+                />
+                <kbd className="rounded border border-white/10 bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-mono text-[#8a8a93]">⌘K</kbd>
+              </div>
+            )}
+
             {/* New Project Button (Landing Page Shimmer Button) */}
             <button
               onClick={handleNewProjectClick}

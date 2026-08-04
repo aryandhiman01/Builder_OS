@@ -9,7 +9,7 @@ interface StatsCardProps {
   description: string;
   icon: LucideIcon;
   trend?: string;
-  trendColor?: "green" | "emerald" | "blue" | "yellow" | "red" | "violet";
+  trendColor?: "orange" | "amber" | "emerald" | "blue" | "green" | "yellow" | "red" | "violet";
 }
 
 export default function StatsCard({
@@ -18,10 +18,22 @@ export default function StatsCard({
   description,
   icon: Icon,
   trend,
-  trendColor = "green",
+  trendColor = "orange",
 }: StatsCardProps) {
   // Theme styling mapping matching Landing Page badge system
   const themeConfig = {
+    orange: {
+      borderHover: "hover:border-orange-500/40",
+      glowBg: "bg-orange-500/10",
+      iconBg: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+      badge: "bg-orange-500/10 text-orange-400 border border-orange-500/20",
+    },
+    amber: {
+      borderHover: "hover:border-amber-500/40",
+      glowBg: "bg-amber-500/10",
+      iconBg: "border-amber-500/20 bg-amber-500/10 text-amber-400",
+      badge: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+    },
     green: {
       borderHover: "hover:border-emerald-500/40",
       glowBg: "bg-emerald-500/10",
@@ -35,16 +47,16 @@ export default function StatsCard({
       badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
     },
     blue: {
-      borderHover: "hover:border-blue-500/40",
-      glowBg: "bg-blue-500/10",
-      iconBg: "border-blue-500/20 bg-blue-500/10 text-blue-400",
-      badge: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+      borderHover: "hover:border-sky-500/40",
+      glowBg: "bg-sky-500/10",
+      iconBg: "border-sky-500/20 bg-sky-500/10 text-sky-400",
+      badge: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
     },
     violet: {
-      borderHover: "hover:border-violet-500/40",
-      glowBg: "bg-violet-500/10",
-      iconBg: "border-violet-500/20 bg-violet-500/10 text-violet-400",
-      badge: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+      borderHover: "hover:border-orange-500/40",
+      glowBg: "bg-orange-500/10",
+      iconBg: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+      badge: "bg-orange-500/10 text-orange-400 border border-orange-500/20",
     },
     yellow: {
       borderHover: "hover:border-amber-500/40",
@@ -83,24 +95,6 @@ export default function StatsCard({
       hover:bg-[#0c0c10]
       `}
     >
-      {/* Background Glow */}
-      <div
-        className={`
-        pointer-events-none
-        absolute
-        -right-12
-        -top-12
-        h-36
-        w-36
-        rounded-full
-        blur-3xl
-        transition-all
-        duration-500
-        group-hover:scale-125
-        ${theme.glowBg}
-        `}
-      />
-
       {/* Top Header & Value */}
       <div className="flex items-start justify-between">
         <div>

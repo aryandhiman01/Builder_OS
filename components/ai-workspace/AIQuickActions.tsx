@@ -109,10 +109,8 @@ export default function AIQuickActions({
   onSelectPrompt,
 }: AIQuickActionsProps) {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-2.5">
-
+    <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-2">
       {actions.map((action) => {
-
         const Icon = action.icon;
 
         return (
@@ -120,14 +118,13 @@ export default function AIQuickActions({
             key={action.title}
             onClick={() => onSelectPrompt(action.prompt)}
             title={action.description}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0c]/80 px-4 py-2 text-sm text-zinc-300 backdrop-blur-md transition-all duration-200 hover:border-violet-500/30 hover:bg-white/[0.04] hover:text-violet-200"
+            className="group inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2 text-xs font-semibold text-[#8a8a93] backdrop-blur-md transition-all duration-200 hover:border-orange-500/30 hover:bg-white/[0.07] hover:text-white active:scale-95 cursor-pointer"
           >
-            <Icon className="h-4 w-4 text-violet-300" />
-            {action.title}
+            <Icon className="h-3.5 w-3.5 text-orange-400 group-hover:scale-110 transition-transform" />
+            <span>{action.title}</span>
           </button>
         );
       })}
-
     </div>
   );
 }

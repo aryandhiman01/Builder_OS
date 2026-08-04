@@ -54,10 +54,6 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
   return (
     <>
       <div className="relative min-h-full space-y-5 max-w-full">
-        {/* Background Ambient Radial Glows (Raycast signature violet & teal) */}
-        <div className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" />
-        <div className="pointer-events-none absolute top-1/3 right-10 h-80 w-80 rounded-full bg-teal-500/10 blur-[100px]" />
-
         {/* Top Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -67,7 +63,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
         >
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400">
                 <FolderKanban size={18} />
               </div>
               <h1
@@ -119,7 +115,7 @@ export default function ProjectsClient({ projects }: ProjectsClientProps) {
           className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-2xl border border-white/[0.08] bg-[#09090c]/80 backdrop-blur-xl p-4 shadow-xl shadow-black/40"
         >
           {/* Search Input */}
-          <div className="flex w-full lg:max-w-md items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 shadow-inner transition-all focus-within:border-violet-500/50 focus-within:bg-black/60">
+          <div className="flex w-full lg:max-w-md items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 shadow-inner transition-all focus-within:border-orange-500/50 focus-within:bg-black/60">
             <Search size={15} className="shrink-0 text-[#8a8a93]" />
             <input
               value={search}

@@ -136,7 +136,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             description="Active product workspaces"
             icon={FolderKanban}
             trend={stats && stats.projectsCount > 0 ? `+${stats.projectsCount} total` : "0"}
-            trendColor="blue"
+            trendColor="orange"
           />
 
           <StatsCard
@@ -154,7 +154,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             description="Generations & PRDs"
             icon={Brain}
             trend={stats && stats.aiRequestsCount > 0 ? `+${stats.aiRequestsCount} runs` : "0"}
-            trendColor="violet"
+            trendColor="amber"
           />
 
           <StatsCard
@@ -163,7 +163,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             description="Overall completion rate"
             icon={Target}
             trend={stats && stats.completionPercentage > 0 ? `${stats.completionPercentage}%` : "0%"}
-            trendColor="green"
+            trendColor="orange"
           />
         </div>
       </motion.section>
@@ -173,7 +173,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-violet-400" />
+              <Zap className="h-4 w-4 text-orange-400" />
               <h2
                 className="text-xl sm:text-2xl font-bold tracking-tight text-white"
                 style={{ fontFamily: "var(--font-sora)" }}
@@ -194,7 +194,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             icon={FolderPlus}
             onClick={() => setIsCreateProjectOpen(true)}
             shortcut="⌘ N"
-            color="indigo"
+            color="orange"
           />
 
           <QuickActionCard
@@ -203,7 +203,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             href="/ai-workspace"
             icon={Brain}
             shortcut="⌘ A"
-            color="violet"
+            color="amber"
           />
 
           <QuickActionCard
@@ -221,7 +221,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             href="/projects"
             icon={Map}
             shortcut="⌘ R"
-            color="amber"
+            color="orange"
           />
         </div>
       </motion.section>

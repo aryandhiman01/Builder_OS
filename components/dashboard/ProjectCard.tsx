@@ -29,9 +29,11 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const statusStyles = {
     Planning: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-    Building: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+    Building: "bg-orange-500/10 text-orange-400 border border-orange-500/20",
     Completed: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   };
+
+  const activeColor = color && color !== "#8B5CF6" ? color : "#FF6B35";
 
   return (
     <motion.div
@@ -57,32 +59,11 @@ export default function ProjectCard({
         backdrop-blur-2xl
         transition-all
         duration-300
-        hover:border-white/20
+        hover:border-orange-500/30
         hover:bg-[#0c0c10]
         hover:shadow-2xl
         "
       >
-        {/* Glow Overlay using custom project color */}
-        <div
-          className="
-          pointer-events-none
-          absolute
-          -right-12
-          -top-12
-          h-36
-          w-36
-          rounded-full
-          blur-3xl
-          transition-all
-          duration-500
-          group-hover:scale-125
-          "
-          style={{
-            backgroundColor: color || "#8B5CF6",
-            opacity: 0.12,
-          }}
-        />
-
         <div>
           {/* Top Status & Menu Bar */}
           <div className="flex items-center justify-between gap-3">
@@ -103,13 +84,13 @@ export default function ProjectCard({
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full animate-pulse"
-                  style={{ backgroundColor: color || "#8B5CF6" }}
+                  style={{ backgroundColor: activeColor }}
                 />
                 {status}
               </span>
 
               {isShared && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[11px] font-mono font-medium text-indigo-300">
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[11px] font-mono font-medium text-amber-300">
                   <Users size={10} />
                   Shared
                 </span>
@@ -138,7 +119,7 @@ export default function ProjectCard({
           {/* Title & Description */}
           <div className="mt-4">
             <div className="flex items-center gap-2">
-              <Layers size={16} style={{ color: color || "#8B5CF6" }} className="shrink-0" />
+              <Layers size={16} style={{ color: activeColor }} className="shrink-0" />
               <h3
                 className="text-lg font-bold tracking-tight text-white group-hover:text-white transition-colors"
                 style={{ fontFamily: "var(--font-sora)" }}
@@ -163,11 +144,9 @@ export default function ProjectCard({
 
             <div className="h-2 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/[0.04]">
               <div
-                className="h-full rounded-full transition-all duration-700 ease-out shadow-sm"
+                className="h-full rounded-full bg-gradient-to-r from-orange-500 to-rose-400 transition-all duration-700 ease-out shadow-sm"
                 style={{
                   width: `${Math.max(progress, 4)}%`,
-                  backgroundColor: color || "#8B5CF6",
-                  boxShadow: `0 0 10px ${color || "#8B5CF6"}60`,
                 }}
               />
             </div>
@@ -187,7 +166,7 @@ export default function ProjectCard({
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-xs font-semibold text-white group-hover:text-violet-300 transition-colors">
+            <div className="flex items-center gap-1 text-xs font-semibold text-white group-hover:text-orange-400 transition-colors">
               <span>Open</span>
               <ArrowRight
                 size={13}

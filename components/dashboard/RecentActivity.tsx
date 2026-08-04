@@ -38,12 +38,12 @@ const ICON_MAP = {
 };
 
 const ICON_COLOR_MAP = {
-  FolderKanban: "border-blue-500/20 bg-blue-500/10 text-blue-400",
-  Brain: "border-violet-500/20 bg-violet-500/10 text-violet-400",
+  FolderKanban: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+  Brain: "border-amber-500/20 bg-amber-500/10 text-amber-400",
   CheckCircle2: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-  Sparkles: "border-purple-500/20 bg-purple-500/10 text-purple-400",
-  FileText: "border-indigo-500/20 bg-indigo-500/10 text-indigo-400",
-  LayoutTemplate: "border-sky-500/20 bg-sky-500/10 text-sky-400",
+  Sparkles: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+  FileText: "border-sky-500/20 bg-sky-500/10 text-sky-400",
+  LayoutTemplate: "border-amber-500/20 bg-amber-500/10 text-amber-400",
 };
 
 export default function RecentActivity({ activities = [], loading = false }: RecentActivityProps) {
@@ -78,8 +78,8 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
             >
               Recent Activity
             </h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-emerald-400">
-              <Radio size={11} className="animate-pulse text-emerald-400" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-orange-400">
+              <Radio size={11} className="animate-pulse text-orange-400" />
               Live Feed
             </span>
           </div>
@@ -105,7 +105,7 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
               onClick={() => setFilter("ai")}
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
                 filter === "ai"
-                  ? "bg-violet-500/20 text-violet-300 shadow-sm"
+                  ? "bg-orange-500/20 text-orange-300 shadow-sm"
                   : "text-[#8a8a93] hover:text-white"
               }`}
             >
@@ -115,7 +115,7 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
               onClick={() => setFilter("projects")}
               className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
                 filter === "projects"
-                  ? "bg-blue-500/20 text-blue-300 shadow-sm"
+                  ? "bg-amber-500/20 text-amber-300 shadow-sm"
                   : "text-[#8a8a93] hover:text-white"
               }`}
             >
@@ -225,7 +225,7 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
                     {/* Content */}
                     <div className="flex-1 min-w-0 pt-0.5">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-violet-300 transition-colors">
+                        <h3 className="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-orange-400 transition-colors">
                           {activity.title}
                         </h3>
                         <span className="text-[11px] font-mono text-[#8a8a93] shrink-0">

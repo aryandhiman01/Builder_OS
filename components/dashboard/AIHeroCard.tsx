@@ -68,7 +68,7 @@ export default function AIHeroCard() {
         </div>
 
         <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
-          <Layers className="h-3.5 w-3.5 text-violet-400" />
+          <Layers className="h-3.5 w-3.5 text-orange-400" />
           <span className="text-xs font-semibold text-white/90">
             BuilderOS — AI Copilot Workspace
           </span>
@@ -79,17 +79,13 @@ export default function AIHeroCard() {
 
       {/* Main Container Body */}
       <div className="relative p-6 sm:p-8 lg:p-10">
-        {/* Background Radial Glow Orbs (Raycast signature violet & teal) */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-80 w-80 rounded-full bg-violet-600/15 blur-3xl opacity-80" />
-        <div className="pointer-events-none absolute -left-16 -bottom-16 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl opacity-70" />
-
         <div className="relative z-10">
           {/* Top Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-xs text-[#8a8a93] backdrop-blur-sm shadow-inner">
-            <Zap className="h-3.5 w-3.5 text-violet-400" />
+            <Zap className="h-3.5 w-3.5 text-orange-400" />
             <span className="font-semibold text-white/90">Autonomous Copilot</span>
-            <span className="h-1 w-1 rounded-full bg-white/20" />
-            <span className="text-violet-400 font-mono">1.2s Response</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
+            <span className="text-orange-400 font-mono">1.2s Response</span>
           </div>
 
           {/* Headline */}
@@ -99,7 +95,7 @@ export default function AIHeroCard() {
               style={{ fontFamily: "var(--font-sora)", letterSpacing: "-0.03em" }}
             >
               Turn raw ideas into{" "}
-              <span className="bg-gradient-to-r from-violet-300 via-indigo-200 to-sky-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400 bg-clip-text text-transparent">
                 shipped software
               </span>
               .
@@ -113,7 +109,7 @@ export default function AIHeroCard() {
           {/* Interactive AI Prompt Form */}
           <form onSubmit={handleSubmit} className="mt-8 max-w-2xl">
             <div className="relative flex items-center">
-              <div className="pointer-events-none absolute left-4 flex items-center text-violet-400">
+              <div className="pointer-events-none absolute left-4 flex items-center text-orange-400">
                 <Cpu size={18} />
               </div>
               <input
@@ -136,11 +132,11 @@ export default function AIHeroCard() {
                 backdrop-blur-md
                 transition-all
                 duration-300
-                focus:border-violet-500/60
+                focus:border-orange-500/60
                 focus:bg-black/80
                 focus:outline-none
                 focus:ring-2
-                focus:ring-violet-500/20
+                focus:ring-orange-500/20
                 "
               />
               <button
@@ -201,7 +197,7 @@ export default function AIHeroCard() {
                   text-[#8a8a93]
                   transition-all
                   duration-200
-                  hover:border-white/20
+                  hover:border-orange-500/30
                   hover:bg-white/[0.07]
                   hover:text-white
                   active:scale-95
@@ -219,7 +215,7 @@ export default function AIHeroCard() {
       {/* Bottom Status Bar */}
       <div className="border-t border-white/[0.07] bg-white/[0.02] px-6 py-3 flex items-center justify-between text-xs text-[#8a8a93]">
         <span className="flex items-center gap-2 font-medium text-white/80">
-          <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+          <Sparkles className="h-3.5 w-3.5 text-orange-400" />
           Unified Product OS Engine
         </span>
 
@@ -227,7 +223,7 @@ export default function AIHeroCard() {
           {[...Array(3)].map((_, i) => (
             <motion.div
               key={i}
-              className="h-1.5 w-3.5 rounded-full bg-violet-400/80"
+              className="h-1.5 w-3.5 rounded-full bg-orange-400/80"
               animate={{ scaleX: [1, 0.4, 1], opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
             />

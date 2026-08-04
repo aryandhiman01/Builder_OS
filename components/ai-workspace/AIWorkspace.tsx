@@ -10,6 +10,9 @@ import AIHistorySidebar, {
   ConversationSummary,
 } from "./AIHistorySidebar";
 
+import Link from "next/link";
+import { ArrowLeft, History, Plus, Sparkles, X } from "lucide-react";
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -22,17 +25,12 @@ interface SendOptions {
 }
 
 export default function AIWorkspace() {
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-
   const [loading, setLoading] = useState(false);
-
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-
   const [historyLoading, setHistoryLoading] = useState(true);
-
-  const [activeConversationId, setActiveConversationId] =
-    useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -43,7 +41,7 @@ export default function AIWorkspace() {
         setConversations(data.conversations ?? []);
       }
     } catch {
-      // Silently ignore — history is a nice-to-have, not blocking.
+      // Silently ignore — history is optional.
     } finally {
       setHistoryLoading(false);
     }
@@ -77,6 +75,7 @@ export default function AIWorkspace() {
 
       setMessages(loadedMessages);
       setActiveConversationId(id);
+      setIsHistoryOpen(false);
     } catch {
       // If loading fails, keep the current view untouched.
     }
@@ -97,7 +96,6 @@ export default function AIWorkspace() {
   }
 
   async function handleSend(message: string, options?: SendOptions) {
-
     if (!message.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -107,30 +105,22 @@ export default function AIWorkspace() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
     setLoading(true);
 
     try {
-
       const response = await fetch("/api/ai/chat", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           message,
-
           history: messages.map((item) => ({
             role: item.role,
             content: item.content,
           })),
-
           conversationId: activeConversationId,
-
           context: options?.context,
-
           mode: options?.mode,
         }),
       });
@@ -138,9 +128,7 @@ export default function AIWorkspace() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message ?? "Failed to generate response."
-        );
+        throw new Error(data.message ?? "Failed to generate response.");
       }
 
       const aiMessage: ChatMessage = {
@@ -184,9 +172,7 @@ export default function AIWorkspace() {
             );
         });
       }
-
     } catch (error) {
-
       const aiMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -197,99 +183,145 @@ export default function AIWorkspace() {
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
-    return (
-    <div className="flex h-screen overflow-hidden bg-background">
+  return (
+    <div className="relative flex h-screen w-screen overflow-hidden bg-[#060606] text-white">
+      {/* Optional History Overlay Drawer (Toggled from Header) */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-md"
+            onClick={() => setIsHistoryOpen(false)}
+          />
+          <div className="relative z-10 w-80 h-full border-r border-white/10 bg-[#09090c] shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
+              <span className="text-xs font-bold uppercase tracking-wider text-white">Chat History</span>
+              <button
+                onClick={() => setIsHistoryOpen(false)}
+                className="rounded-lg p-1 text-[#8a8a93] hover:text-white hover:bg-white/10"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <AIHistorySidebar
+              conversations={conversations}
+              activeConversationId={activeConversationId}
+              loading={historyLoading}
+              onNewChat={() => {
+                handleNewChat();
+                setIsHistoryOpen(false);
+              }}
+              onSelectConversation={handleSelectConversation}
+              onDeleteConversation={handleDeleteConversation}
+            />
+          </div>
+        </div>
+      )}
 
-      <AIHistorySidebar
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        loading={historyLoading}
-        onNewChat={handleNewChat}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={handleDeleteConversation}
-      />
-
-      <div className="flex h-screen flex-1 flex-col overflow-x-hidden bg-[linear-gradient(180deg,rgba(10,10,10,0.98),rgba(6,6,6,1))]">
-
-        <div className="flex h-[74px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-black/35 px-8 backdrop-blur-xl">
-
+      {/* Main Full-Width AI Workspace Canvas (No Left Sidebar by default) */}
+      <div className="flex h-screen flex-1 flex-col overflow-x-hidden min-w-0 bg-[#060606]">
+        {/* Top Header Bar with Back to Dashboard button */}
+        <header className="flex h-[73px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#09090c]/90 px-4 sm:px-8 backdrop-blur-2xl shadow-lg">
+          {/* Left: Back to Dashboard Button & Title */}
           <div className="flex items-center gap-3">
-            <p className="text-[15px] font-medium tracking-[0.02em] text-zinc-100">
-              AI Workspace
-            </p>
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-400">
-              Project AI
-            </span>
+            <Link
+              href="/dashboard"
+              className="
+              btn-shimmer
+              flex
+              cursor-pointer
+              items-center
+              gap-2
+              rounded-full
+              border
+              border-white/15
+              bg-white/[0.05]
+              px-4
+              py-2
+              text-xs
+              font-semibold
+              text-white
+              shadow-md
+              transition-all
+              hover:bg-white/10
+              hover:border-white/25
+              active:scale-95
+              "
+            >
+              <ArrowLeft size={14} className="text-orange-400 shrink-0" />
+              <span>Back to Dashboard</span>
+            </Link>
+
+            <div className="hidden md:flex items-center gap-2 border-l border-white/10 pl-3">
+              <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-mono font-medium uppercase tracking-wider text-orange-400">
+                Copilot Engine
+              </span>
+            </div>
           </div>
 
+          {/* Right Header Actions */}
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium text-zinc-300">
-              Context ready
-            </span>
+            <button
+              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-[#8a8a93] transition-all hover:bg-white/[0.08] hover:text-white"
+              title="Toggle Chat History"
+            >
+              <History size={14} className="text-amber-400" />
+              <span className="hidden sm:inline">History</span>
+            </button>
+
             <button
               onClick={handleNewChat}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12px] font-medium text-zinc-200 transition-colors hover:border-white/20 hover:bg-white/[0.05]"
+              className="
+              btn-shimmer
+              flex
+              items-center
+              gap-1.5
+              rounded-full
+              bg-white
+              px-4
+              py-1.5
+              text-xs
+              font-semibold
+              text-black
+              shadow-lg
+              shadow-white/10
+              transition-all
+              hover:bg-zinc-100
+              active:scale-95
+              "
             >
-              New chat
+              <Plus size={14} strokeWidth={2.5} />
+              <span>New Chat</span>
             </button>
           </div>
+        </header>
 
-        </div>
-
+        {/* Content Body */}
         {messages.length === 0 ? (
-
-          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-10 px-8">
-
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-8 px-4 sm:px-8 py-8 overflow-y-auto">
             <AIWelcome />
 
             <div className="w-full">
-
-              <AIInput
-                loading={loading}
-                onSend={handleSend}
-              />
-
+              <AIInput loading={loading} onSend={handleSend} />
             </div>
 
-            <AIQuickActions
-              onSelectPrompt={handleSend}
-            />
-
+            <AIQuickActions onSelectPrompt={handleSend} />
           </div>
-
         ) : (
-
-          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-8 py-6">
-
-            <AIChat
-              messages={messages}
-              loading={loading}
-            />
+          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-4 sm:px-8 py-6">
+            <AIChat messages={messages} loading={loading} />
 
             <div className="mt-6 shrink-0">
-
-              <AIInput
-                loading={loading}
-                onSend={handleSend}
-              />
-
+              <AIInput loading={loading} onSend={handleSend} />
             </div>
-
           </div>
-
         )}
-
       </div>
-
     </div>
   );
 }

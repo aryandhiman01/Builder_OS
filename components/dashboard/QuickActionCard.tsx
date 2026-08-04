@@ -11,7 +11,7 @@ interface QuickActionCardProps {
   icon: LucideIcon;
   onClick?: () => void;
   shortcut?: string;
-  color?: "indigo" | "violet" | "emerald" | "amber" | "blue";
+  color?: "orange" | "indigo" | "violet" | "emerald" | "amber" | "blue";
 }
 
 export default function QuickActionCard({
@@ -21,26 +21,32 @@ export default function QuickActionCard({
   icon: Icon,
   onClick,
   shortcut,
-  color = "indigo",
+  color = "orange",
 }: QuickActionCardProps) {
   const colorStyles = {
+    orange: {
+      glow: "bg-orange-500/10 group-hover:bg-orange-500/20",
+      borderHover: "group-hover:border-orange-500/40",
+      iconBg: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+      arrowText: "group-hover:text-orange-400",
+    },
     indigo: {
-      glow: "bg-indigo-500/10 group-hover:bg-indigo-500/20",
-      borderHover: "group-hover:border-indigo-500/40",
-      iconBg: "border-indigo-500/20 bg-indigo-500/10 text-indigo-400",
-      arrowText: "group-hover:text-indigo-400",
+      glow: "bg-orange-500/10 group-hover:bg-orange-500/20",
+      borderHover: "group-hover:border-orange-500/40",
+      iconBg: "border-orange-500/20 bg-orange-500/10 text-orange-400",
+      arrowText: "group-hover:text-orange-400",
     },
     violet: {
-      glow: "bg-violet-500/10 group-hover:bg-violet-500/20",
-      borderHover: "group-hover:border-violet-500/40",
-      iconBg: "border-violet-500/20 bg-violet-500/10 text-violet-400",
-      arrowText: "group-hover:text-violet-400",
+      glow: "bg-amber-500/10 group-hover:bg-amber-500/20",
+      borderHover: "group-hover:border-amber-500/40",
+      iconBg: "border-amber-500/20 bg-amber-500/10 text-amber-400",
+      arrowText: "group-hover:text-amber-400",
     },
     blue: {
-      glow: "bg-blue-500/10 group-hover:bg-blue-500/20",
-      borderHover: "group-hover:border-blue-500/40",
-      iconBg: "border-blue-500/20 bg-blue-500/10 text-blue-400",
-      arrowText: "group-hover:text-blue-400",
+      glow: "bg-sky-500/10 group-hover:bg-sky-500/20",
+      borderHover: "group-hover:border-sky-500/40",
+      iconBg: "border-sky-500/20 bg-sky-500/10 text-sky-400",
+      arrowText: "group-hover:text-sky-400",
     },
     emerald: {
       glow: "bg-emerald-500/10 group-hover:bg-emerald-500/20",
@@ -84,24 +90,6 @@ export default function QuickActionCard({
       cursor-pointer
       `}
     >
-      {/* Background Glow */}
-      <div
-        className={`
-        pointer-events-none
-        absolute
-        -right-10
-        -top-10
-        h-32
-        w-32
-        rounded-full
-        blur-3xl
-        transition-all
-        duration-500
-        group-hover:scale-125
-        ${style.glow}
-        `}
-      />
-
       <div>
         {/* Top Icon & Shortcut */}
         <div className="flex items-center justify-between mb-5">

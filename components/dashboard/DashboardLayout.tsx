@@ -14,11 +14,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="relative flex h-screen w-screen overflow-hidden bg-[#060606] text-white">
-      {/* Landing Page Ambient Radial Glows (Raycast signature) */}
+      {/* Background Grid & Separators */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="glow-violet absolute -right-[10%] top-[10%] h-[550px] w-[550px] opacity-45" />
-        <div className="glow-teal absolute -left-[10%] bottom-[10%] h-[450px] w-[450px] opacity-35" />
-
         {/* Hairline top separator */}
         <div className="hairline-x absolute inset-x-0 top-0 opacity-50" />
 
