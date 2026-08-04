@@ -24,7 +24,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = (await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
         id: true,
@@ -39,8 +39,8 @@ export async function GET() {
             provider: true,
           },
         },
-      },
-    });
+      } as any,
+    })) as any;
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -63,7 +63,7 @@ export async function GET() {
         image: user.image ?? "",
         createdAt: user.createdAt,
         hasPassword: Boolean(user.password),
-        authProviders: user.accounts.map((a) => a.provider),
+        authProviders: user.accounts?.map((a: any) => a.provider) ?? [],
       },
       settings: parsedSettings,
     });
@@ -84,33 +84,39 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const existingUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { settings: true },
-    });
+    const { settings } = await req.json();
 
-    let currentSettings = DEFAULT_SETTINGS;
-    if (existingUser?.settings) {
+    if (!settings || typeof settings !== "object") {
+      return NextResponse.json(
+        { error: "Invalid settings payload" },
+        { status: 400 }
+      );
+    }
+
+    const serializedSettings = JSON.stringify(settings);
+
+    const updatedUser = (await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        settings: serializedSettings,
+      } as any,
+    })) as any;
+
+    let parsedSettings = DEFAULT_SETTINGS;
+    if (updatedUser.settings) {
       try {
-        currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(existingUser.settings) };
+        parsedSettings = {
+          ...DEFAULT_SETTINGS,
+          ...JSON.parse(updatedUser.settings),
+        };
       } catch {
         // Fallback
       }
     }
 
-    const updatedSettings = { ...currentSettings, ...body };
-
-    await prisma.user.update({
-      where: { email: session.user.email },
-      data: {
-        settings: JSON.stringify(updatedSettings),
-      },
-    });
-
     return NextResponse.json({
       success: true,
-      settings: updatedSettings,
+      settings: parsedSettings,
     });
   } catch (error) {
     console.error("PATCH /api/settings error:", error);
