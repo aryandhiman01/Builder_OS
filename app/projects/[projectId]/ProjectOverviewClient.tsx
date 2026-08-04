@@ -369,74 +369,79 @@ export default function ProjectOverviewClient({
           </div>
         </motion.div>
 
-        <div className="grid gap-3 sm:gap-5 grid-cols-2 lg:grid-cols-4">
-          {/* Project Card */}
+        <div className="grid gap-3 sm:gap-5 grid-cols-2 lg:grid-cols-4 w-full">
+          {/* Workspace Card */}
           <motion.div
             variants={cardVariants}
             whileHover={{ y: -3 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-3.5 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-orange-500/40 hover:bg-[#0c0c10]"
+            className="group relative flex aspect-[1.15/1] sm:aspect-auto sm:min-h-[145px] w-full flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-4 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-orange-500/40 hover:bg-[#0c0c10]"
           >
-            <div className="flex items-start justify-between gap-1.5">
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93] truncate block">
-                  Workspace
-                </span>
-                <h3 className="mt-0.5 sm:mt-2 text-base sm:text-xl font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
-                  {project.title}
-                </h3>
-              </div>
-              <div className="flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-400 shadow-inner group-hover:scale-110 transition-transform">
-                <FolderKanban size={18} className="sm:hidden" />
-                <FolderKanban size={20} className="hidden sm:block" />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93]">
+                Workspace
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-400 shadow-inner group-hover:scale-110 transition-transform">
+                <FolderKanban size={17} />
               </div>
             </div>
-            <div className="mt-3 sm:mt-4 flex items-center justify-between border-t border-white/[0.06] pt-2 sm:pt-2.5">
+
+            <div className="my-auto py-1">
+              <h3 className="text-sm sm:text-lg font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
+                {project.title}
+              </h3>
+              {project.description && (
+                <p className="mt-1 text-[11px] sm:text-xs text-zinc-400 line-clamp-2 leading-relaxed" title={project.description}>
+                  {project.description}
+                </p>
+              )}
+            </div>
+
+            <div className="border-t border-white/[0.06] pt-2">
               <p className="text-[10px] sm:text-xs text-[#8a8a93] truncate">{project.category} Category</p>
             </div>
           </motion.div>
 
-          {/* Progress Card */}
+          {/* Completion Card */}
           <motion.div
             variants={cardVariants}
             whileHover={{ y: -3 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-3.5 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-emerald-500/40 hover:bg-[#0c0c10]"
+            className="group relative flex aspect-[1.15/1] sm:aspect-auto sm:min-h-[145px] w-full flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-4 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-emerald-500/40 hover:bg-[#0c0c10]"
           >
-            <div className="flex items-start justify-between gap-1.5">
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93] truncate block">
-                  Completion
-                </span>
-                <h3 className="mt-0.5 sm:mt-2 text-xl sm:text-3xl font-extrabold text-white font-mono" style={{ fontFamily: "var(--font-sora)" }}>
-                  {progress}%
-                </h3>
-              </div>
-              <div className="flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
-                <Target size={18} className="sm:hidden" />
-                <Target size={20} className="hidden sm:block" />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93]">
+                Completion
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 shadow-inner group-hover:scale-110 transition-transform">
+                <Target size={17} />
               </div>
             </div>
 
-            {/* Dynamic Animated Progress Bar */}
-            <div className="mt-2.5 h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
-              <motion.div
-                className="h-full rounded-full"
-                initial={{ width: 0 }}
-                whileInView={{ width: `${progress}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
-                style={{
-                  backgroundColor: project.color || "#38BDF8",
-                }}
-              />
+            <div className="my-auto py-1">
+              <h3 className="text-xl sm:text-3xl font-extrabold text-white font-mono" style={{ fontFamily: "var(--font-sora)" }}>
+                {progress}%
+              </h3>
+              {/* Dynamic Animated Progress Bar */}
+              <div className="mt-2 h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <motion.div
+                  className="h-full rounded-full"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${progress}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  style={{
+                    backgroundColor: project.color || "#38BDF8",
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="mt-2 sm:mt-3 flex items-center justify-between border-t border-white/[0.06] pt-2 sm:pt-2.5">
+            <div className="flex items-center justify-between border-t border-white/[0.06] pt-2">
               <p className="text-[10px] sm:text-xs text-[#8a8a93] truncate">
                 {taskStats.total > 0
                   ? `${taskStats.completed}/${taskStats.total} Tasks`
                   : `${aiStatus.milestonesCompleted}/4 Specs`}
               </p>
-              <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] sm:text-[11px] font-mono font-medium text-emerald-400">
+              <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[9px] sm:text-[11px] font-mono font-medium text-emerald-400">
                 {project.status}
               </span>
             </div>
@@ -446,23 +451,24 @@ export default function ProjectOverviewClient({
           <motion.div
             variants={cardVariants}
             whileHover={{ y: -3 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-3.5 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-sky-500/40 hover:bg-[#0c0c10]"
+            className="group relative flex aspect-[1.15/1] sm:aspect-auto sm:min-h-[145px] w-full flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-4 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-sky-500/40 hover:bg-[#0c0c10]"
           >
-            <div className="flex items-start justify-between gap-1.5">
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93] truncate block">
-                  Created
-                </span>
-                <h3 className="mt-0.5 sm:mt-2 text-sm sm:text-base font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
-                  {createdDateFormatted}
-                </h3>
-              </div>
-              <div className="flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400 shadow-inner group-hover:scale-110 transition-transform">
-                <CalendarDays size={18} className="sm:hidden" />
-                <CalendarDays size={20} className="hidden sm:block" />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93]">
+                Created
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400 shadow-inner group-hover:scale-110 transition-transform">
+                <CalendarDays size={17} />
               </div>
             </div>
-            <div className="mt-3 sm:mt-4 flex items-center justify-between border-t border-white/[0.06] pt-2 sm:pt-2.5">
+
+            <div className="my-auto py-1">
+              <h3 className="text-xs sm:text-base font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
+                {createdDateFormatted}
+              </h3>
+            </div>
+
+            <div className="border-t border-white/[0.06] pt-2">
               <p className="text-[10px] sm:text-xs text-[#8a8a93] truncate">Workspace Created</p>
             </div>
           </motion.div>
@@ -471,23 +477,24 @@ export default function ProjectOverviewClient({
           <motion.div
             variants={cardVariants}
             whileHover={{ y: -3 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-3.5 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-amber-500/40 hover:bg-[#0c0c10]"
+            className="group relative flex aspect-[1.15/1] sm:aspect-auto sm:min-h-[145px] w-full flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/90 p-4 sm:p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-amber-500/40 hover:bg-[#0c0c10]"
           >
-            <div className="flex items-start justify-between gap-1.5">
-              <div className="min-w-0 flex-1">
-                <span className="text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93] truncate block">
-                  Updated
-                </span>
-                <h3 className="mt-0.5 sm:mt-2 text-sm sm:text-base font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
-                  {updatedDateFormatted}
-                </h3>
-              </div>
-              <div className="flex h-8 w-8 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner group-hover:scale-110 transition-transform">
-                <Clock3 size={18} className="sm:hidden" />
-                <Clock3 size={20} className="hidden sm:block" />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#8a8a93]">
+                Updated
+              </span>
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400 shadow-inner group-hover:scale-110 transition-transform">
+                <Clock3 size={17} />
               </div>
             </div>
-            <div className="mt-3 sm:mt-4 flex items-center justify-between border-t border-white/[0.06] pt-2 sm:pt-2.5">
+
+            <div className="my-auto py-1">
+              <h3 className="text-xs sm:text-base font-extrabold text-white truncate" style={{ fontFamily: "var(--font-sora)" }}>
+                {updatedDateFormatted}
+              </h3>
+            </div>
+
+            <div className="border-t border-white/[0.06] pt-2">
               <p className="text-[10px] sm:text-xs text-[#8a8a93] truncate">Last Activity</p>
             </div>
           </motion.div>
@@ -705,7 +712,7 @@ export default function ProjectOverviewClient({
           >
             <div className="h-[210px] sm:h-[235px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
                   <BarChart
                     data={analytics.milestoneAnalytics}
                     margin={{ top: 15, right: 15, left: -20, bottom: 0 }}
@@ -776,7 +783,7 @@ export default function ProjectOverviewClient({
           >
             <div className="h-[210px] sm:h-[235px] w-full relative flex items-center justify-center">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
                   {taskStats.total === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <div className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[#8a8a93]">

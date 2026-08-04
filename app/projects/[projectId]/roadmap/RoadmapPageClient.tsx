@@ -127,46 +127,45 @@ export default function RoadmapPageClient({
   return (
     <div className="space-y-8 pb-16">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] via-white/[0.02] to-transparent p-8 backdrop-blur-2xl">
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] via-white/[0.02] to-transparent p-4 sm:p-6 backdrop-blur-2xl">
         <div className="absolute right-0 top-0 -mr-20 -mt-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="absolute left-1/3 bottom-0 h-56 w-56 rounded-full bg-purple-500/10 blur-3xl" />
 
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-medium text-blue-400">
-              <Sparkles className="h-3.5 w-3.5" />
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-[11px] font-medium text-blue-400">
+              <Sparkles className="h-3 w-3" />
               <span>AI Execution Planning Engine</span>
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white" style={{ fontFamily: "var(--font-sora)" }}>
               Product Roadmaps
             </h1>
 
-            <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
-              Generate, manage, and review detailed execution roadmaps derived
-              from your PRDs for{" "}
+            <p className="max-w-xl text-xs leading-relaxed text-zinc-400">
+              Generate, manage, and review detailed execution roadmaps derived from your PRDs for{" "}
               <span className="font-semibold text-white">{projectTitle}</span>.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             {prds.length > 0 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl">
-                    <Sparkles className="mr-2 h-4 w-4" />
+                  <Button className="bg-white text-black hover:bg-zinc-200 font-bold rounded-full px-4.5 py-2.5 text-xs">
+                    <Sparkles className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
                     New Roadmap
-                    <ChevronDown className="ml-2 h-4 w-4" />
+                    <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-64 rounded-xl border-white/10 bg-[#0a0a0c] text-white"
+                  className="w-64 rounded-xl border-white/10 bg-[#0a0a0c] text-white p-2"
                 >
                   <DropdownMenuItem
                     onClick={() => setShowGenerate(true)}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg p-2.5 text-xs font-semibold hover:bg-white/10"
                   >
                     <MapIcon className="mr-2 h-4 w-4 text-blue-400" />
                     Generate from PRD
@@ -174,7 +173,7 @@ export default function RoadmapPageClient({
 
                   <DropdownMenuItem
                     onClick={() => setShowCustomGenerate(true)}
-                    className="cursor-pointer"
+                    className="cursor-pointer rounded-lg p-2.5 text-xs font-semibold hover:bg-white/10"
                   >
                     <Wand2 className="mr-2 h-4 w-4 text-purple-400" />
                     Generate from Custom Prompt
@@ -184,7 +183,7 @@ export default function RoadmapPageClient({
             ) : (
               <Button
                 asChild
-                className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+                className="bg-white text-black hover:bg-zinc-200 font-bold rounded-full px-4.5 py-2.5 text-xs"
               >
                 <Link href={`/projects/${projectId}/prd`}>
                   <FileText className="mr-2 h-4 w-4" />
@@ -196,57 +195,57 @@ export default function RoadmapPageClient({
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 sm:grid-cols-4">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/[0.08] bg-white/[0.02] -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-5 sm:px-7 py-3.5 sm:py-4 text-xs text-[#8a8a93] sm:grid-cols-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-inner">
               <MapIcon className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-base sm:text-xl font-extrabold text-white leading-snug" style={{ fontFamily: "var(--font-sora)" }}>
                 {initialRoadmaps.length}
               </p>
-              <p className="text-xs text-zinc-400">Roadmaps</p>
+              <p className="text-xs font-semibold text-zinc-400">Roadmaps</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 shadow-inner">
               <FileText className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{prds.length}</p>
-              <p className="text-xs text-zinc-400">Source PRDs</p>
+              <p className="text-base sm:text-xl font-extrabold text-white leading-snug" style={{ fontFamily: "var(--font-sora)" }}>{prds.length}</p>
+              <p className="text-xs font-semibold text-zinc-400">Source PRDs</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-inner">
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-base sm:text-xl font-extrabold text-white font-mono leading-snug" style={{ fontFamily: "var(--font-sora)" }}>
                 {totalTokens > 0 ? totalTokens.toLocaleString() : "—"}
               </p>
-              <p className="text-xs text-zinc-400">AI Tokens Processed</p>
+              <p className="text-xs font-semibold text-zinc-400">AI Tokens Processed</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 col-span-2 sm:col-span-1">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-inner">
               <Clock3 className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-base sm:text-xl font-extrabold text-white font-mono leading-snug" style={{ fontFamily: "var(--font-sora)" }}>
                 {initialRoadmaps.length === 0
                   ? "—"
                   : `${Math.round(
-                      initialRoadmaps.reduce(
-                        (sum, r) => sum + (r.generationTime ?? 0),
-                        0
-                      ) / initialRoadmaps.length
-                    )}s`}
+                    initialRoadmaps.reduce(
+                      (sum, r) => sum + (r.generationTime ?? 0),
+                      0
+                    ) / initialRoadmaps.length
+                  )}s`}
               </p>
-              <p className="text-xs text-zinc-400">Avg. Generation Time</p>
+              <p className="text-xs font-semibold text-zinc-400">Avg. Gen Time</p>
             </div>
           </div>
         </div>
@@ -258,20 +257,18 @@ export default function RoadmapPageClient({
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 backdrop-blur-md">
           <button
             onClick={() => setActiveTab("roadmaps")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
-              activeTab === "roadmaps"
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${activeTab === "roadmaps"
                 ? "bg-white text-black shadow-md"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
-            }`}
+              }`}
           >
             <MapIcon className="h-4 w-4" />
             <span>Generated Roadmaps</span>
             <span
-              className={`rounded-full px-2 py-0.5 text-[10px] ${
-                activeTab === "roadmaps"
+              className={`rounded-full px-2 py-0.5 text-[10px] ${activeTab === "roadmaps"
                   ? "bg-black/10 text-black"
                   : "bg-white/10 text-zinc-300"
-              }`}
+                }`}
             >
               {initialRoadmaps.length}
             </span>
@@ -279,20 +276,18 @@ export default function RoadmapPageClient({
 
           <button
             onClick={() => setActiveTab("prds")}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
-              activeTab === "prds"
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${activeTab === "prds"
                 ? "bg-white text-black shadow-md"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
-            }`}
+              }`}
           >
             <FileText className="h-4 w-4" />
             <span>Source PRDs</span>
             <span
-              className={`rounded-full px-2 py-0.5 text-[10px] ${
-                activeTab === "prds"
+              className={`rounded-full px-2 py-0.5 text-[10px] ${activeTab === "prds"
                   ? "bg-black/10 text-black"
                   : "bg-white/10 text-zinc-300"
-              }`}
+                }`}
             >
               {prds.length}
             </span>

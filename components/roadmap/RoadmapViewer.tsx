@@ -283,13 +283,12 @@ export default function RoadmapViewer({
                   <a
                     key={index}
                     href={`#${h.id}`}
-                    className={`block rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/10 hover:text-white ${
-                      h.level === 1
+                    className={`block rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/10 hover:text-white ${h.level === 1
                         ? "font-semibold text-white bg-white/5"
                         : h.level === 2
-                        ? "pl-4 text-zinc-300"
-                        : "pl-6 text-zinc-400"
-                    }`}
+                          ? "pl-4 text-zinc-300"
+                          : "pl-6 text-zinc-400"
+                      }`}
                   >
                     {h.title}
                   </a>
@@ -301,9 +300,8 @@ export default function RoadmapViewer({
 
         {/* Document Printable View Container */}
         <div
-          className={`${
-            metrics.headings.length > 0 ? "lg:col-span-3" : "lg:col-span-4"
-          } space-y-6`}
+          className={`${metrics.headings.length > 0 ? "lg:col-span-3" : "lg:col-span-4"
+            } space-y-6`}
         >
           <Card className="print:border-none print:shadow-none print:bg-white print:text-black p-8 sm:p-14 border-white/10 bg-[#0a0a0c]/90 backdrop-blur-2xl shadow-2xl rounded-3xl">
             {/* Header snippet for PDF export */}

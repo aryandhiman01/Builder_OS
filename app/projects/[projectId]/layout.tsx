@@ -46,9 +46,25 @@ export default async function ProjectLayout({
       createdAt: true,
       updatedAt: true,
       userId: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
       members: {
         select: {
           id: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
         },
       },
     },
@@ -59,11 +75,32 @@ export default async function ProjectLayout({
   }
 
   const isOwner = project.userId === session.user.id;
-  const membersCount = (project.members?.length || 0) + 1;
+
+  // Consolidate owner and team members into a unique list
+  const memberMap = new Map<string, { id: string; name?: string | null; email?: string | null; image?: string | null }>();
+  if (project.user) {
+    memberMap.set(project.user.id, {
+      id: project.user.id,
+      name: project.user.name,
+      email: project.user.email,
+      image: project.user.image,
+    });
+  }
+  project.members?.forEach((m) => {
+    if (m.user && !memberMap.has(m.user.id)) {
+      memberMap.set(m.user.id, {
+        id: m.user.id,
+        name: m.user.name,
+        email: m.user.email,
+        image: m.user.image,
+      });
+    }
+  });
+  const membersList = Array.from(memberMap.values());
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
-      <ProjectWorkspaceHeader project={{ ...project, membersCount }} isOwner={isOwner} />
+      <ProjectWorkspaceHeader project={{ ...project, members: membersList, membersCount: membersList.length }} isOwner={isOwner} />
 
       <ProjectNavigation projectId={project.id} isOwner={isOwner} />
 
@@ -72,4 +109,4 @@ export default async function ProjectLayout({
       </section>
     </main>
   );
-}
+}

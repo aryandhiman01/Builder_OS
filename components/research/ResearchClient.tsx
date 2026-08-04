@@ -87,19 +87,19 @@ export default function ResearchClient({
           "
         >
           {/* Top Window Header (Landing Page Mockup UI Style) */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.07] bg-white/[0.02]">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
-                <div className="h-3 w-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
-                <div className="h-3 w-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
-                <div className="h-3 w-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
+                <div className="h-2.5 w-2.5 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
+                <div className="h-2.5 w-2.5 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
-              <Layers className="h-3.5 w-3.5 text-orange-400" />
-              <span className="text-xs font-semibold text-white/90">
-                BuilderOS — AI Research & Product Intelligence Engine
+            <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-0.5 shadow-inner">
+              <Layers className="h-3 w-3 text-orange-400" />
+              <span className="text-[11px] font-semibold text-white/90">
+                BuilderOS — AI Research &amp; Product Intelligence Engine
               </span>
             </div>
 
@@ -107,27 +107,27 @@ export default function ResearchClient({
           </div>
 
           {/* Hero Banner Body */}
-          <div className="relative p-6 sm:p-8 lg:p-9 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.04] px-3.5 py-1.5 text-xs text-[#8a8a93] backdrop-blur-sm shadow-inner">
-                <Zap className="h-3.5 w-3.5 text-orange-400" />
+          <div className="relative p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1 text-[11px] text-[#8a8a93] backdrop-blur-sm shadow-inner">
+                <Zap className="h-3 w-3 text-orange-400" />
                 <span className="font-semibold text-white/90">Autonomous Copilot</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
                 <span className="text-orange-400 font-mono">{researches.length} Briefs Ready</span>
               </div>
 
               <h1
-                className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight"
+                className="text-lg sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight"
                 style={{ fontFamily: "var(--font-sora)", letterSpacing: "-0.02em" }}
               >
-                Market Research &{" "}
+                Market Research &amp;{" "}
                 <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400 bg-clip-text text-transparent">
                   Product Intelligence
                 </span>
                 .
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#9a9a9f] max-w-xl leading-relaxed">
+              <p className="text-xs text-[#9a9a9f] max-w-xl leading-relaxed">
                 Generate competitor analysis, market sizing, target persona breakdowns, and product insights for{" "}
                 <span className="font-bold text-white">{project.title}</span>.
               </p>
@@ -145,8 +145,8 @@ export default function ResearchClient({
                 gap-2
                 rounded-full
                 bg-white
-                px-6
-                py-3
+                px-4.5
+                py-2.5
                 text-xs
                 font-bold
                 text-black
@@ -157,8 +157,8 @@ export default function ResearchClient({
                 active:scale-95
                 "
               >
-                <Sparkles size={16} className="text-orange-500" />
-                <span>Generate New Research</span>
+                <Sparkles size={14} className="text-orange-500" />
+                <span>New Research</span>
               </button>
             </div>
           </div>

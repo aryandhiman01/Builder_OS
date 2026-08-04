@@ -75,30 +75,8 @@ export default function ProjectNavigation({
   );
 
   return (
-    <nav
-      className="
-      sticky
-      top-[90px]
-      z-30
-      border-b
-      border-white/10
-      bg-[#050505]/90
-      backdrop-blur-2xl
-      "
-    >
-      <div
-        className="
-        mx-auto
-        flex
-        max-w-7xl
-        items-center
-        gap-2
-        overflow-x-auto
-        px-4 sm:px-8
-        py-3.5
-        no-scrollbar
-        "
-      >
+    <nav className="sticky top-[86px] sm:top-[90px] z-30 flex justify-center px-4 py-2 mt-3 sm:mt-4 pointer-events-none">
+      <div className="pointer-events-auto mx-auto flex max-w-full items-center gap-1 sm:gap-2 overflow-x-auto rounded-full bg-[#121219]/90 p-1.5 backdrop-blur-2xl border border-white/10 shadow-xl shadow-black/80 no-scrollbar">
         {visibleNav.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
@@ -108,27 +86,24 @@ export default function ProjectNavigation({
               key={item.title}
               href={item.href}
               className={`
-                relative
-                inline-flex
-                shrink-0
-                items-center
-                gap-2
-                rounded-full
-                px-4
-                py-2
-                text-xs
-                font-bold
-                transition-all
-                duration-200
-                ${
-                  active
-                    ? "bg-white text-black shadow-lg shadow-white/10 scale-100"
-                    : "text-[#8a8a93] hover:bg-white/[0.06] hover:text-white"
-                }
+                relative inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-colors duration-200 select-none
+                ${active ? "text-black" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"}
               `}
             >
-              <Icon size={15} className={active ? "text-orange-500" : ""} />
-              <span>{item.title}</span>
+              {active && (
+                <motion.div
+                  layoutId="activeNavTabPill"
+                  className="absolute inset-0 rounded-full bg-white"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Icon
+                size={15}
+                className={`relative z-10 transition-transform duration-200 ${
+                  active ? "text-orange-600 scale-110" : "text-zinc-400"
+                }`}
+              />
+              <span className="relative z-10">{item.title}</span>
             </Link>
           );
         })}
