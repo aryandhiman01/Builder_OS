@@ -114,7 +114,7 @@ export default function UserDropdown() {
             href="/profile"
             className="flex items-center rounded-lg px-3 py-2 text-xs font-medium text-[#8a8a93] hover:bg-white/[0.08] hover:text-white cursor-pointer"
           >
-            <User className="mr-2.5 h-3.5 w-3.5 text-blue-400" />
+            <User className="mr-2.5 h-3.5 w-3.5 text-orange-400" />
             Profile
           </Link>
         </DropdownMenuItem>
