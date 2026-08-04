@@ -259,14 +259,6 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
                   </button>
                 ))}
               </div>
-
-              <button
-                onClick={() => setIsCreateProjectOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
-              >
-                <Plus size={14} />
-                New
-              </button>
             </div>
           )}
         </div>
