@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Menu } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import CreateProjectModal from "@/components/projects/CreateProjectModal";
 import { useRouter } from "next/navigation";
@@ -11,12 +11,14 @@ interface DashboardHeaderProps {
   onNewProject?: () => void;
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
+  onOpenMobileSidebar?: () => void;
 }
 
 export default function DashboardHeader({
   onNewProject,
   searchQuery = "",
   onSearchChange,
+  onOpenMobileSidebar,
 }: DashboardHeaderProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -39,39 +41,76 @@ export default function DashboardHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-[73px] shrink-0 items-center border-b border-white/[0.06] bg-[#050505]/90 backdrop-blur-xl">
-        <div className="flex w-full items-center justify-between gap-6 px-8">
-          {/* Left — Greeting */}
-          <div className="flex flex-col justify-center">
-            <h1 className="text-lg font-semibold tracking-tight text-white leading-none">
-              {greeting}, {firstName} 👋
-            </h1>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              Let&apos;s build something amazing today.
-            </p>
+      <header className="sticky top-0 z-30 flex h-[73px] shrink-0 items-center border-b border-white/[0.08] bg-[#09090c]/90 backdrop-blur-2xl shadow-lg shadow-black/40">
+        <div className="flex w-full items-center justify-between gap-4 px-4 sm:px-8">
+          {/* Left — Mobile Hamburger & Greeting */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={onOpenMobileSidebar}
+              className="
+              flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.04]
+              text-[#8a8a93]
+              transition-colors
+              hover:bg-white/10
+              hover:text-white
+              lg:hidden
+              "
+              aria-label="Open mobile navigation menu"
+            >
+              <Menu size={18} />
+            </button>
+
+            <div className="flex flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <h1
+                  className="text-base sm:text-lg font-bold tracking-tight text-white leading-none"
+                  style={{ fontFamily: "var(--font-sora)" }}
+                >
+                  {greeting}, {firstName} 👋
+                </h1>
+              </div>
+              <p className="mt-1 text-xs text-[#8a8a93] hidden sm:block">
+                Let&apos;s build something amazing today.
+              </p>
+            </div>
           </div>
 
-          {/* Right — Actions */}
+          {/* Right — Landing Page Style Controls */}
           <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="hidden items-center gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.03] px-3.5 py-2.5 lg:flex">
-              <Search size={15} className="shrink-0 text-zinc-600" />
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-                className="w-52 bg-transparent text-sm text-white outline-none placeholder:text-zinc-600"
-              />
-            </div>
-
-            {/* New Project Button */}
+            {/* New Project Button (Landing Page Shimmer Button) */}
             <button
               onClick={handleNewProjectClick}
-              className="flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-[13px] font-semibold text-black transition-colors hover:bg-zinc-100 active:scale-[0.98]"
+              className="
+              btn-shimmer
+              flex
+              cursor-pointer
+              items-center
+              gap-1.5
+              rounded-full
+              bg-white
+              px-4
+              py-2
+              text-xs
+              font-semibold
+              text-black
+              shadow-lg
+              shadow-white/10
+              transition-all
+              hover:bg-zinc-100
+              active:scale-95
+              "
             >
-              <Plus size={16} strokeWidth={2.5} />
-              New Project
+              <Plus size={14} strokeWidth={2.5} />
+              <span className="hidden sm:inline">New Project</span>
             </button>
 
             <UserDropdown />

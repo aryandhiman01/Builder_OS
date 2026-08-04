@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   FolderKanban,
   CheckCircle2,
@@ -10,6 +11,10 @@ import {
   Map,
   CheckSquare,
   Plus,
+  RefreshCw,
+  Calendar,
+  Layers,
+  Zap,
 } from "lucide-react";
 
 import StatsCard from "@/components/dashboard/StatsCard";
@@ -48,11 +53,15 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
   const [recentProjects, setRecentProjects] = useState<ProjectData[]>([]);
   const [recentActivities, setRecentActivities] = useState<ActivityItemData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const [projectFilter, setProjectFilter] = useState<"all" | "Building" | "Planning" | "Completed">("all");
 
   const fetchStats = useCallback(async (isSilent = false) => {
     try {
       if (!isSilent) setLoading(true);
+      else setIsRefreshing(true);
+
       const res = await fetch("/api/dashboard/stats");
       if (!res.ok) return;
 
@@ -67,6 +76,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
       console.error("Failed to fetch dashboard real-time data:", err);
     } finally {
       if (!isSilent) setLoading(false);
+      setIsRefreshing(false);
     }
   }, []);
 
@@ -87,125 +97,186 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
     };
   }, [fetchStats]);
 
-  return (
-    <div className="space-y-8">
-      {/* Greeting */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
-          Welcome back, {userName}
-        </h1>
-        <p className="mt-2 text-sm text-zinc-500">
-          Your workspace is ready. Start building something great.
-        </p>
-      </div>
+  // Current date formatting
+  const formattedDate = useMemo(() => {
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }, []);
 
-      <AIHeroCard />
+  // Filtered projects
+  const filteredProjects = useMemo(() => {
+    if (projectFilter === "all") return recentProjects;
+    return recentProjects.filter((p) => p.status === projectFilter);
+  }, [recentProjects, projectFilter]);
+
+  const sectionAnimation = {
+    initial: { opacity: 0, y: 25 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-40px" },
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  };
+
+  return (
+    <div className="space-y-10 max-w-7xl mx-auto pb-16">
+      {/* AI Hero Banner */}
+      <motion.div {...sectionAnimation}>
+        <AIHeroCard />
+      </motion.div>
 
       {/* Dynamic Stats Cards */}
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatsCard
-          title="Projects"
-          value={loading && !stats ? "-" : (stats?.projectsCount ?? 0)}
-          description="Active projects"
-          icon={FolderKanban}
-          trend={stats && stats.projectsCount > 0 ? `+${stats.projectsCount}` : "0"}
-          trendColor="green"
-        />
+      <motion.section {...sectionAnimation} className="space-y-4">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          <StatsCard
+            title="Projects"
+            value={loading && !stats ? "-" : (stats?.projectsCount ?? 0)}
+            description="Active product workspaces"
+            icon={FolderKanban}
+            trend={stats && stats.projectsCount > 0 ? `+${stats.projectsCount} total` : "0"}
+            trendColor="blue"
+          />
 
-        <StatsCard
-          title="Tasks"
-          value={loading && !stats ? "-" : (stats?.tasksCount ?? 0)}
-          description="Tasks remaining"
-          icon={CheckCircle2}
-          trend={stats && stats.tasksCount > 0 ? `${stats.tasksCount} open` : "0"}
-          trendColor="blue"
-        />
+          <StatsCard
+            title="Tasks"
+            value={loading && !stats ? "-" : (stats?.tasksCount ?? 0)}
+            description="Open tasks pending"
+            icon={CheckCircle2}
+            trend={stats && stats.tasksCount > 0 ? `${stats.tasksCount} active` : "0"}
+            trendColor="emerald"
+          />
 
-        <StatsCard
-          title="AI Requests"
-          value={loading && !stats ? "-" : (stats?.aiRequestsCount ?? 0)}
-          description="Generated AI artifacts"
-          icon={Brain}
-          trend={stats && stats.aiRequestsCount > 0 ? `+${stats.aiRequestsCount}` : "0"}
-          trendColor="yellow"
-        />
+          <StatsCard
+            title="AI Artifacts"
+            value={loading && !stats ? "-" : (stats?.aiRequestsCount ?? 0)}
+            description="Generations & PRDs"
+            icon={Brain}
+            trend={stats && stats.aiRequestsCount > 0 ? `+${stats.aiRequestsCount} runs` : "0"}
+            trendColor="violet"
+          />
 
-        <StatsCard
-          title="Completion"
-          value={loading && !stats ? "-" : `${stats?.completionPercentage ?? 0}%`}
-          description="Overall progress"
-          icon={Target}
-          trend={stats && stats.completionPercentage > 0 ? `${stats.completionPercentage}%` : "0%"}
-          trendColor="green"
-        />
-      </section>
+          <StatsCard
+            title="Progress"
+            value={loading && !stats ? "-" : `${stats?.completionPercentage ?? 0}%`}
+            description="Overall completion rate"
+            icon={Target}
+            trend={stats && stats.completionPercentage > 0 ? `${stats.completionPercentage}%` : "0%"}
+            trendColor="green"
+          />
+        </div>
+      </motion.section>
 
       {/* Quick Actions */}
-      <section className="space-y-5">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
-          <p className="mt-1 text-sm text-zinc-500">
-            Jump into your most-used BuilderOS features.
-          </p>
+      <motion.section {...sectionAnimation} className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-violet-400" />
+              <h2
+                className="text-xl sm:text-2xl font-bold tracking-tight text-white"
+                style={{ fontFamily: "var(--font-sora)" }}
+              >
+                Quick Actions
+              </h2>
+            </div>
+            <p className="mt-1 text-xs text-[#8a8a93]">
+              Direct access to key BuilderOS product engineering tools.
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
           <QuickActionCard
             title="New Project"
-            description="Create and organize a new product."
+            description="Initialize a new product workspace with PRDs, tasks & roadmaps."
             icon={FolderPlus}
             onClick={() => setIsCreateProjectOpen(true)}
+            shortcut="⌘ N"
+            color="indigo"
           />
 
           <QuickActionCard
             title="AI Workspace"
-            description="Research, plan and build with AI."
-            href="/projects"
+            description="Deep market research, PRD generation, and strategy prompts."
+            href="/ai-workspace"
             icon={Brain}
+            shortcut="⌘ A"
+            color="violet"
           />
 
           <QuickActionCard
-            title="Tasks"
-            description="Track your work and deadlines."
+            title="Tasks Board"
+            description="Track, assign, and execute product tasks effortlessly."
             href="/projects"
             icon={CheckSquare}
+            shortcut="⌘ T"
+            color="emerald"
           />
 
           <QuickActionCard
-            title="Roadmaps"
-            description="Generate a complete product roadmap."
+            title="Product Roadmaps"
+            description="Visualize milestones, timelines, and feature rollouts."
             href="/projects"
             icon={Map}
+            shortcut="⌘ R"
+            color="amber"
           />
         </div>
-      </section>
+      </motion.section>
 
-      {/* Dynamic Recent Projects */}
-      <section className="space-y-5">
-        <div className="flex items-center justify-between">
+      {/* Recent Projects Section */}
+      <motion.section {...sectionAnimation} className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-white">Recent Projects</h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Continue working on your latest products.
+            <h2
+              className="text-xl sm:text-2xl font-bold tracking-tight text-white"
+              style={{ fontFamily: "var(--font-sora)" }}
+            >
+              Recent Projects
+            </h2>
+            <p className="mt-1 text-xs text-[#8a8a93]">
+              Continue working on your latest active product builds.
             </p>
           </div>
+
+          {/* Filter Tabs */}
           {recentProjects.length > 0 && (
-            <button
-              onClick={() => setIsCreateProjectOpen(true)}
-              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
-            >
-              <Plus size={14} />
-              New Project
-            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-lg border border-white/10 bg-black/40 p-0.5">
+                {(["all", "Building", "Planning", "Completed"] as const).map((filterVal) => (
+                  <button
+                    key={filterVal}
+                    onClick={() => setProjectFilter(filterVal)}
+                    className={`rounded-md px-3 py-1 text-xs font-semibold capitalize transition-all ${
+                      projectFilter === filterVal
+                        ? "bg-white/10 text-white shadow-sm"
+                        : "text-[#8a8a93] hover:text-white"
+                    }`}
+                  >
+                    {filterVal === "all" ? "All" : filterVal}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setIsCreateProjectOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+              >
+                <Plus size={14} />
+                New
+              </button>
+            </div>
           )}
         </div>
 
         {loading && !stats ? (
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-56 rounded-3xl border border-white/10 bg-white/[0.03] p-6 animate-pulse"
+                className="h-56 rounded-2xl border border-white/10 bg-[#09090c]/90 p-6 animate-pulse"
               >
                 <div className="h-6 w-1/3 rounded bg-white/5 mb-4" />
                 <div className="h-4 w-2/3 rounded bg-white/5 mb-2" />
@@ -213,28 +284,33 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
               </div>
             ))}
           </div>
-        ) : recentProjects.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
-              <FolderPlus size={26} className="text-zinc-400" />
+        ) : filteredProjects.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-[#09090c]/90 p-10 text-center backdrop-blur-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05]">
+              <Layers size={22} className="text-[#8a8a93]" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold text-white">
-              No projects created yet
+            <h3
+              className="mt-4 text-base font-bold text-white"
+              style={{ fontFamily: "var(--font-sora)" }}
+            >
+              {recentProjects.length === 0 ? "No projects created yet" : "No matching projects"}
             </h3>
-            <p className="mt-2 text-sm text-zinc-500 max-w-md mx-auto">
-              Start by creating your first product workspace to unlock research, PRDs, roadmaps, and tasks.
+            <p className="mt-2 text-xs text-[#8a8a93] max-w-md mx-auto leading-relaxed">
+              {recentProjects.length === 0
+                ? "Start by creating your first product workspace to unlock research, PRDs, roadmaps, and tasks."
+                : "No projects found matching the selected status filter."}
             </p>
             <button
               onClick={() => setIsCreateProjectOpen(true)}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
+              className="btn-shimmer mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-semibold text-black transition hover:bg-zinc-100 active:scale-95 shadow-lg shadow-white/10"
             >
-              <Plus size={16} />
+              <Plus size={15} />
               Create Project
             </button>
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            {recentProjects.map((project) => (
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+            {filteredProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 id={project.id}
@@ -249,12 +325,12 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
             ))}
           </div>
         )}
-      </section>
+      </motion.section>
 
       {/* Real-time Activity Feed */}
-      <section className="mt-8">
+      <motion.section {...sectionAnimation} className="mt-8">
         <RecentActivity activities={recentActivities} loading={loading && !stats} />
-      </section>
+      </motion.section>
 
       {/* Create Project Modal */}
       <CreateProjectModal

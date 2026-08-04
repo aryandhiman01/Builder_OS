@@ -1,119 +1,144 @@
+"use client";
+
 import { LucideIcon, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface StatsCardProps {
-    title: string;
-    value: string | number;
-    description: string;
-    icon: LucideIcon;
-
-    trend?: string;
-
-    trendColor?:
-    | "green"
-    | "blue"
-    | "yellow"
-    | "red";
+  title: string;
+  value: string | number;
+  description: string;
+  icon: LucideIcon;
+  trend?: string;
+  trendColor?: "green" | "emerald" | "blue" | "yellow" | "red" | "violet";
 }
 
 export default function StatsCard({
-    title,
-    value,
-    description,
-    icon: Icon,
-    trend,
-    trendColor = "green",
+  title,
+  value,
+  description,
+  icon: Icon,
+  trend,
+  trendColor = "green",
 }: StatsCardProps) {
-    const trendStyles = {
-    green:
-      "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-
-    blue:
-      "bg-sky-500/10 text-sky-400 border border-sky-500/20",
-
-    yellow:
-      "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
-
-    red:
-      "bg-red-500/10 text-red-400 border border-red-500/20",
+  // Theme styling mapping matching Landing Page badge system
+  const themeConfig = {
+    green: {
+      borderHover: "hover:border-emerald-500/40",
+      glowBg: "bg-emerald-500/10",
+      iconBg: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+      badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+    },
+    emerald: {
+      borderHover: "hover:border-emerald-500/40",
+      glowBg: "bg-emerald-500/10",
+      iconBg: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+      badge: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+    },
+    blue: {
+      borderHover: "hover:border-blue-500/40",
+      glowBg: "bg-blue-500/10",
+      iconBg: "border-blue-500/20 bg-blue-500/10 text-blue-400",
+      badge: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+    },
+    violet: {
+      borderHover: "hover:border-violet-500/40",
+      glowBg: "bg-violet-500/10",
+      iconBg: "border-violet-500/20 bg-violet-500/10 text-violet-400",
+      badge: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+    },
+    yellow: {
+      borderHover: "hover:border-amber-500/40",
+      glowBg: "bg-amber-500/10",
+      iconBg: "border-amber-500/20 bg-amber-500/10 text-amber-400",
+      badge: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+    },
+    red: {
+      borderHover: "hover:border-rose-500/40",
+      glowBg: "bg-rose-500/10",
+      iconBg: "border-rose-500/20 bg-rose-500/10 text-rose-400",
+      badge: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+    },
   };
 
+  const theme = themeConfig[trendColor] || themeConfig.green;
+
   return (
-    <div
-      className="
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.25, ease: "easeOut" as const }}
+      className={`
       group
       relative
       overflow-hidden
-      rounded-3xl
+      rounded-2xl
       border
       border-white/10
-      bg-white/[0.03]
+      bg-[#09090c]/90
       p-6
+      backdrop-blur-2xl
+      shadow-xl
       transition-all
       duration-300
-      hover:border-white/20
-      hover:bg-white/[0.05]
-      "
+      ${theme.borderHover}
+      hover:bg-[#0c0c10]
+      `}
     >
-      {/* Glow */}
-
+      {/* Background Glow */}
       <div
-        className="
+        className={`
+        pointer-events-none
         absolute
-        -right-10
-        -top-10
-        h-28
-        w-28
+        -right-12
+        -top-12
+        h-36
+        w-36
         rounded-full
-        bg-white/5
         blur-3xl
-        transition
+        transition-all
         duration-500
-        group-hover:bg-white/10
-        "
+        group-hover:scale-125
+        ${theme.glowBg}
+        `}
       />
 
-      {/* Top */}
-
+      {/* Top Header & Value */}
       <div className="flex items-start justify-between">
-
         <div>
-
-          <p className="text-sm text-zinc-500">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#8a8a93]">
             {title}
-          </p>
-
-          <h2 className="mt-3 text-4xl font-bold tracking-tight text-white">
+          </span>
+          <h2
+            className="mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight text-white"
+            style={{ fontFamily: "var(--font-sora)" }}
+          >
             {value}
           </h2>
-
         </div>
 
+        {/* Icon Badge */}
         <div
-          className="
+          className={`
           flex
-          h-12
-          w-12
+          h-11
+          w-11
           items-center
           justify-center
-          rounded-2xl
+          rounded-xl
           border
-          border-white/10
-          bg-white/[0.05]
-          "
+          shadow-inner
+          transition-transform
+          duration-300
+          group-hover:scale-110
+          ${theme.iconBg}
+          `}
         >
-          <Icon
-            size={22}
-            className="text-white"
-          />
+          <Icon size={20} />
         </div>
-
       </div>
 
-      {/* Bottom */}
-
-      <div className="mt-8 flex items-center justify-between">
-
-        <p className="text-sm text-zinc-500">
+      {/* Bottom Description & Trend */}
+      <div className="mt-6 flex items-center justify-between pt-3 border-t border-white/[0.06]">
+        <p className="text-xs text-[#8a8a93]">
           {description}
         </p>
 
@@ -122,23 +147,21 @@ export default function StatsCard({
             className={`
             flex
             items-center
-            gap-1
+            gap-1.5
             rounded-full
-            px-3
-            py-1
-            text-xs
+            px-2.5
+            py-0.5
+            text-[11px]
+            font-mono
             font-medium
-            ${trendStyles[trendColor]}
+            ${theme.badge}
             `}
           >
-            <TrendingUp size={13} />
-
-            {trend}
+            <TrendingUp size={12} />
+            <span>{trend}</span>
           </div>
         )}
-
       </div>
-
-    </div>
+    </motion.div>
   );
 }

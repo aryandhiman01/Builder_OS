@@ -1,29 +1,58 @@
-import { ReactNode } from "react";
+"use client";
 
+import { ReactNode, useState } from "react";
 import Sidebar from "./Sidebar";
 import DashboardHeader from "./DashboardHeader";
 
 interface DashboardLayoutProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-    return (
-        <div className="flex min-h-screen bg-[#050505] text-white">
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-            <Sidebar />
+  return (
+    <div className="relative flex h-screen w-screen overflow-hidden bg-[#060606] text-white">
+      {/* Landing Page Ambient Radial Glows (Raycast signature) */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="glow-violet absolute -right-[10%] top-[10%] h-[550px] w-[550px] opacity-45" />
+        <div className="glow-teal absolute -left-[10%] bottom-[10%] h-[450px] w-[450px] opacity-35" />
 
-            {/* Right column */}
-            <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
+        {/* Hairline top separator */}
+        <div className="hairline-x absolute inset-x-0 top-0 opacity-50" />
 
-                <DashboardHeader />
+        {/* Grid noise overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+      </div>
 
-                <main className="flex-1 overflow-y-auto px-8 py-8">
-                    {children}
-                </main>
+      {/* Fixed Sidebar Component (Desktop + Mobile Drawer) */}
+      <Sidebar
+        isCollapsed={isCollapsed}
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
+      />
 
-            </div>
+      {/* Right Content Column (Independent Scroll Area) */}
+      <div className="flex h-screen flex-1 flex-col overflow-hidden min-w-0">
+        {/* Header */}
+        <DashboardHeader onOpenMobileSidebar={() => setIsMobileOpen(true)} />
 
-        </div>
-    );
+        {/* Main Independently Scrollable Page Content */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 scroll-smooth">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 }
