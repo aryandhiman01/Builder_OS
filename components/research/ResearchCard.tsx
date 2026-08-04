@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import {
   Brain,
@@ -13,6 +14,7 @@ import {
   Loader2,
   Pencil,
   Sparkles,
+  Zap,
 } from "lucide-react";
 
 import { Research } from "./ResearchClient";
@@ -62,36 +64,21 @@ export default function ResearchCard({
 
   const menuItems = [
     {
-      label: "Generate PRD",
-
-      icon: <Sparkles size={16} />,
-
-      onClick: () =>
-        setGeneratePrdOpen(true),
+      label: "Generate PRD from Research",
+      icon: <Sparkles size={15} className="text-orange-400" />,
+      onClick: () => setGeneratePrdOpen(true),
     },
-
     {
-      label: "Edit Research",
-
-      icon: <Pencil size={16} />,
-
-      onClick: () =>
-        setEditOpen(true),
-
+      label: "Edit Research Brief",
+      icon: <Pencil size={15} />,
+      onClick: () => setEditOpen(true),
     },
-
     {
-      label: "Delete Research",
-
-      icon: <Trash2 size={16} />,
-
+      label: "Delete Research Brief",
+      icon: <Trash2 size={15} />,
       danger: true,
-
-      onClick: () =>
-        setDeleteOpen(true),
-
+      onClick: () => setDeleteOpen(true),
     },
-
   ];
 
   const createdDate = new Intl.DateTimeFormat("en-IN", {
@@ -100,7 +87,8 @@ export default function ResearchCard({
 
   return (
     <>
-      <div
+      <motion.div
+        whileHover={{ y: -3 }}
         className="
         group
         relative
@@ -108,13 +96,15 @@ export default function ResearchCard({
         rounded-3xl
         border
         border-white/10
-        bg-white/[0.03]
+        bg-[#09090c]/90
         p-6
+        sm:p-7
+        backdrop-blur-2xl
+        shadow-xl
         transition-all
         duration-300
-        hover:-translate-y-1
-        hover:border-white/20
-        hover:bg-white/[0.05]
+        hover:border-orange-500/30
+        hover:bg-[#0c0c10]
         "
       >
         {/* Glow */}
@@ -126,213 +116,102 @@ export default function ResearchCard({
           h-36
           w-36
           rounded-full
-          bg-blue-500/10
+          bg-orange-500/10
           blur-3xl
           transition-all
           duration-500
-          group-hover:bg-blue-500/20
+          group-hover:bg-orange-500/20
           "
         />
 
-        {/* Header */}
-        <div className="relative z-10">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div
-                className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-blue-500/20
-                bg-blue-500/10
-                px-3
-                py-1
-                text-xs
-                font-medium
-                text-blue-400
-                "
-              >
-                <Brain size={14} />
-                {research.model ?? "AI"}
+        {/* Content Container */}
+        <div className="relative z-10 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-mono font-semibold text-sky-400">
+                  <Brain size={13} />
+                  {research.model ?? "Gemini 3.6 Flash"}
+                </span>
+
+                {research.tokens && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[11px] font-mono text-[#8a8a93]">
+                    <Zap size={11} className="text-orange-400" />
+                    {research.tokens} Tokens
+                  </span>
+                )}
               </div>
 
               <h2
-                className="
-                mt-5
-                text-xl
-                font-semibold
-                text-white
-                "
+                className="text-lg font-bold text-white tracking-tight line-clamp-1"
+                style={{ fontFamily: "var(--font-sora)" }}
               >
                 {research.title}
               </h2>
 
-              <p
-                className="
-                mt-3
-                line-clamp-3
-                text-sm
-                leading-7
-                text-zinc-500
-                "
-              >
+              <p className="line-clamp-2 text-xs text-[#8a8a93] leading-relaxed">
                 {research.prompt}
               </p>
             </div>
 
-            <div
-              className={`
-                transition
-                ${
-                  loading
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              `}
-            >
+            <div className={loading ? "pointer-events-none opacity-50" : ""}>
               <ActionMenu items={menuItems} />
             </div>
           </div>
 
-          {/* Footer */}
-          <div
-            className="
-            mt-8
-            flex
-            items-center
-            justify-between
-            border-t
-            border-white/10
-            pt-5
-            "
-          >
-            <div className="space-y-3">
-              <div
-                className="
-                flex
-                items-center
-                gap-2
-                text-sm
-                text-zinc-500
-                "
-              >
-                <CalendarDays size={15} />
+          {/* Footer Metadata & Action Link */}
+          <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-4 flex-wrap text-xs">
+            <div className="flex items-center gap-4 text-[#8a8a93]">
+              <div className="flex items-center gap-1.5">
+                <CalendarDays size={14} className="text-sky-400" />
                 <span>{createdDate}</span>
               </div>
 
-              <div
-                className="
-                flex
-                flex-wrap
-                items-center
-                gap-4
-                text-sm
-                text-zinc-500
-                "
-              >
-                <div className="flex items-center gap-2">
-                  <Clock3 size={15} />
-                  <span>{research.generationTime ?? 0}s</span>
+              {research.generationTime && (
+                <div className="flex items-center gap-1.5">
+                  <Clock3 size={14} className="text-yellow-400" />
+                  <span>{research.generationTime}s</span>
                 </div>
-
-                <span
-                  className="
-                  rounded-full
-                  border
-                  border-white/10
-                  bg-white/[0.03]
-                  px-3
-                  py-1
-                  text-xs
-                  font-medium
-                  text-zinc-300
-                  "
-                >
-                  {research.tokens ?? 0} Tokens
-                </span>
-              </div>
+              )}
             </div>
 
-            {loading && (
-              <Loader2
-                size={18}
-                className="
-                  mb-4
-                  animate-spin
-                  text-zinc-500
-                "
-              />
-            )}
+            <div className="flex items-center gap-2">
+              {loading && <Loader2 size={16} className="animate-spin text-orange-400" />}
 
-            <Link
-              href={`/projects/${projectId}/research/${research.id}`}
-              className={`
+              <Link
+                href={`/projects/${projectId}/research/${research.id}`}
+                className="
+                btn-shimmer
                 inline-flex
                 items-center
-                gap-2
-                rounded-xl
+                gap-1.5
+                rounded-full
                 border
-                border-white/10
-                bg-white/[0.03]
+                border-white/15
+                bg-white/[0.05]
                 px-4
                 py-2
-                text-sm
-                font-medium
+                text-xs
+                font-bold
+                text-white
+                shadow-md
                 transition-all
-                duration-300
-                ${
-                  loading
-                    ? "pointer-events-none opacity-50"
-                    : "text-white hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400"
-                }
-              `}
-            >
-              View Research
-              <ArrowRight
-                size={16}
-                className="
-                transition-transform
-                duration-300
-                group-hover:translate-x-1
+                hover:bg-white/10
+                hover:border-white/25
+                active:scale-95
                 "
-              />
-            </Link>
+              >
+                <span>View Research Brief</span>
+                <ArrowRight size={13} className="text-orange-400 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
           </div>
         </div>
-
-        {/* AI Generated Badge */}
-        {research.model && (
-          <div
-            className="
-            pointer-events-none
-            absolute
-            right-5
-            top-5
-            rounded-full
-            border
-            border-blue-500/20
-            bg-blue-500/10
-            px-2.5
-            py-1
-            text-[10px]
-            font-semibold
-            uppercase
-            tracking-wider
-            text-blue-400
-            "
-          >
-            AI Generated
-          </div>
-        )}
-      </div>
+      </motion.div>
 
       <EditResearchModal
         open={editOpen}
-        onClose={() =>
-          setEditOpen(false)
-        }
+        onClose={() => setEditOpen(false)}
         research={{
           id: research.id,
           title: research.title,

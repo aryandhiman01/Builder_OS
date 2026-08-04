@@ -333,9 +333,8 @@ export default function SettingsClient() {
             <div className="flex border-b border-white/10 gap-2 flex-wrap">
               <button
                 onClick={() => setActiveTab("general")}
-                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${
-                  activeTab === "general" ? "text-white" : "text-[#8a8a93] hover:text-white"
-                }`}
+                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${activeTab === "general" ? "text-white" : "text-[#8a8a93] hover:text-white"
+                  }`}
               >
                 <Sliders size={14} className={activeTab === "general" ? "text-orange-400" : ""} />
                 <span>General Workspace</span>
@@ -346,9 +345,8 @@ export default function SettingsClient() {
 
               <button
                 onClick={() => setActiveTab("security")}
-                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${
-                  activeTab === "security" ? "text-white" : "text-[#8a8a93] hover:text-white"
-                }`}
+                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${activeTab === "security" ? "text-white" : "text-[#8a8a93] hover:text-white"
+                  }`}
               >
                 <Lock size={14} className={activeTab === "security" ? "text-orange-400" : ""} />
                 <span>Security & Passwords</span>
@@ -359,9 +357,8 @@ export default function SettingsClient() {
 
               <button
                 onClick={() => setActiveTab("notifications")}
-                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${
-                  activeTab === "notifications" ? "text-white" : "text-[#8a8a93] hover:text-white"
-                }`}
+                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${activeTab === "notifications" ? "text-white" : "text-[#8a8a93] hover:text-white"
+                  }`}
               >
                 <Bell size={14} className={activeTab === "notifications" ? "text-orange-400" : ""} />
                 <span>Notifications</span>
@@ -372,9 +369,8 @@ export default function SettingsClient() {
 
               <button
                 onClick={() => setActiveTab("api")}
-                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${
-                  activeTab === "api" ? "text-white" : "text-[#8a8a93] hover:text-white"
-                }`}
+                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${activeTab === "api" ? "text-white" : "text-[#8a8a93] hover:text-white"
+                  }`}
               >
                 <Key size={14} className={activeTab === "api" ? "text-orange-400" : ""} />
                 <span>API Keys & Integrations</span>
@@ -385,9 +381,8 @@ export default function SettingsClient() {
 
               <button
                 onClick={() => setActiveTab("danger")}
-                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${
-                  activeTab === "danger" ? "text-white" : "text-[#8a8a93] hover:text-white"
-                }`}
+                className={`flex items-center gap-2 pb-3 px-4 text-xs font-bold transition-all relative ${activeTab === "danger" ? "text-white" : "text-[#8a8a93] hover:text-white"
+                  }`}
               >
                 <Database size={14} className={activeTab === "danger" ? "text-rose-400" : ""} />
                 <span>Data & Danger Zone</span>
@@ -533,14 +528,12 @@ export default function SettingsClient() {
                           setSettings((prev) => (prev ? { ...prev, autoSavePrd: val } : null));
                           handleSaveSettings({ autoSavePrd: val });
                         }}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          settings.autoSavePrd ? "bg-orange-500" : "bg-zinc-700"
-                        }`}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${settings.autoSavePrd ? "bg-orange-500" : "bg-zinc-700"
+                          }`}
                       >
                         <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            settings.autoSavePrd ? "translate-x-5" : "translate-x-0"
-                          }`}
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.autoSavePrd ? "translate-x-5" : "translate-x-0"
+                            }`}
                         />
                       </button>
                     </div>
@@ -715,9 +708,8 @@ export default function SettingsClient() {
                         setSettings((prev) => (prev ? { ...prev, emailNotifications: val } : null));
                         handleSaveSettings({ emailNotifications: val });
                       }}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                        settings.emailNotifications ? "bg-orange-500" : "bg-zinc-700"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${settings.emailNotifications ? "bg-orange-500" : "bg-zinc-700"
+                        }`}
                     >
                       <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${settings.emailNotifications ? "translate-x-5" : "translate-x-0"}`} />
                     </button>
@@ -735,9 +727,8 @@ export default function SettingsClient() {
                         setSettings((prev) => (prev ? { ...prev, aiTaskAlerts: val } : null));
                         handleSaveSettings({ aiTaskAlerts: val });
                       }}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                        settings.aiTaskAlerts ? "bg-orange-500" : "bg-zinc-700"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${settings.aiTaskAlerts ? "bg-orange-500" : "bg-zinc-700"
+                        }`}
                     >
                       <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${settings.aiTaskAlerts ? "translate-x-5" : "translate-x-0"}`} />
                     </button>
@@ -755,9 +746,8 @@ export default function SettingsClient() {
                         setSettings((prev) => (prev ? { ...prev, securityAlerts: val } : null));
                         handleSaveSettings({ securityAlerts: val });
                       }}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                        settings.securityAlerts ? "bg-orange-500" : "bg-zinc-700"
-                      }`}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${settings.securityAlerts ? "bg-orange-500" : "bg-zinc-700"
+                        }`}
                     >
                       <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${settings.securityAlerts ? "translate-x-5" : "translate-x-0"}`} />
                     </button>

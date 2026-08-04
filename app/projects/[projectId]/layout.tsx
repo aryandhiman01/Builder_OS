@@ -46,6 +46,11 @@ export default async function ProjectLayout({
       createdAt: true,
       updatedAt: true,
       userId: true,
+      members: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
@@ -54,10 +59,11 @@ export default async function ProjectLayout({
   }
 
   const isOwner = project.userId === session.user.id;
+  const membersCount = (project.members?.length || 0) + 1;
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
-      <ProjectWorkspaceHeader project={project} />
+      <ProjectWorkspaceHeader project={{ ...project, membersCount }} isOwner={isOwner} />
 
       <ProjectNavigation projectId={project.id} isOwner={isOwner} />
 

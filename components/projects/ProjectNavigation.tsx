@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 import {
   LayoutDashboard,
@@ -10,7 +11,6 @@ import {
   Map,
   Boxes,
   CheckSquare,
-  BookOpen,
   Settings,
 } from "lucide-react";
 
@@ -68,7 +68,6 @@ export default function ProjectNavigation({
       icon: Settings,
       ownerOnly: true,
     },
-
   ];
 
   const visibleNav = navigation.filter(
@@ -79,12 +78,12 @@ export default function ProjectNavigation({
     <nav
       className="
       sticky
-      top-[104px]
+      top-[90px]
       z-30
       border-b
       border-white/10
       bg-[#050505]/90
-      backdrop-blur-xl
+      backdrop-blur-2xl
       "
     >
       <div
@@ -95,41 +94,41 @@ export default function ProjectNavigation({
         items-center
         gap-2
         overflow-x-auto
-        px-8
-        py-4
+        px-4 sm:px-8
+        py-3.5
+        no-scrollbar
         "
       >
         {visibleNav.map((item) => {
           const Icon = item.icon;
-
-          const active =
-            pathname === item.href;
+          const active = pathname === item.href;
 
           return (
             <Link
               key={item.title}
               href={item.href}
               className={`
+                relative
                 inline-flex
                 shrink-0
                 items-center
                 gap-2
-                rounded-xl
+                rounded-full
                 px-4
-                py-2.5
-                text-sm
-                font-medium
+                py-2
+                text-xs
+                font-bold
                 transition-all
+                duration-200
                 ${
                   active
-                    ? "bg-white text-black"
-                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"
+                    ? "bg-white text-black shadow-lg shadow-white/10 scale-100"
+                    : "text-[#8a8a93] hover:bg-white/[0.06] hover:text-white"
                 }
               `}
             >
-              <Icon size={17} />
-
-              {item.title}
+              <Icon size={15} className={active ? "text-orange-500" : ""} />
+              <span>{item.title}</span>
             </Link>
           );
         })}
