@@ -154,7 +154,7 @@ export default function Sidebar({
       {/* DESKTOP SIDEBAR (Fixed, Collapsible)             */}
       {/* ------------------------------------------------ */}
       <motion.aside
-        animate={{ width: isCollapsed ? 76 : 240 }}
+        animate={{ width: isCollapsed ? 64 : 200 }}
         transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="
         hidden

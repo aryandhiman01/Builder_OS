@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ProjectsClient from "@/components/projects/ProjectsClient";
 
 const projectInclude = {
@@ -54,5 +55,9 @@ export default async function ProjectsPage() {
     ...sharedProjects.map((p) => ({ ...p, isShared: true })),
   ];
 
-  return <ProjectsClient projects={allProjects} />;
-}
+  return (
+    <DashboardLayout>
+      <ProjectsClient projects={allProjects} />
+    </DashboardLayout>
+  );
+}

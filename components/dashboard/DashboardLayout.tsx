@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <DashboardHeader onOpenMobileSidebar={() => setIsMobileOpen(true)} />
 
         {/* Main Independently Scrollable Page Content */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 scroll-smooth">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 scroll-smooth">
           {children}
         </main>
       </div>

@@ -121,7 +121,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
   };
 
   return (
-    <div className="space-y-10 max-w-7xl mx-auto pb-16">
+    <div className="space-y-6 max-w-full pb-10">
       {/* AI Hero Banner */}
       <motion.div {...sectionAnimation}>
         <AIHeroCard />
