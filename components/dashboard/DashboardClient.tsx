@@ -59,7 +59,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
       if (!isSilent) setLoading(true);
       else setIsRefreshing(true);
 
-      const res = await fetch("/api/dashboard/stats");
+      const res = await fetch("/api/dashboard/stats", { cache: "no-store" });
       if (!res.ok) return;
 
       const data = await res.json();

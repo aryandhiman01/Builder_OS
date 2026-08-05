@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { error } from "console";
 
 interface RouteContext {
     params: Promise<{
@@ -53,7 +52,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
         }
 
         const body = await req.json();
-        const { title, description, priority, status, dueDate, order} = body;
+        const { title, description, priority, status, dueDate, order, estimatedHours, tags, subtasks } = body;
 
         const updatedTask = await prisma.task.update({
             where: {
@@ -64,8 +63,17 @@ export async function PATCH(req: Request, { params }: RouteContext) {
                 description: description !== undefined ? description : task.description,
                 priority: priority ?? task.priority,
                 status: status ?? task.status,
-                dueDate: dueDate ? new Date(dueDate) : task.dueDate,
+                dueDate: dueDate !== undefined ? (dueDate ? new Date(dueDate) : null) : task.dueDate,
                 order: order ?? task.order,
+                estimatedHours: estimatedHours !== undefined
+                    ? (estimatedHours !== null && estimatedHours !== '' ? parseFloat(String(estimatedHours)) : null)
+                    : task.estimatedHours,
+                tags: tags !== undefined
+                    ? (tags === null ? null : typeof tags === 'string' ? tags : JSON.stringify(tags))
+                    : task.tags,
+                subtasks: subtasks !== undefined
+                    ? (subtasks === null ? null : typeof subtasks === 'string' ? subtasks : JSON.stringify(subtasks))
+                    : task.subtasks,
             },
         });
 

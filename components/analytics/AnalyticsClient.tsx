@@ -319,9 +319,9 @@ export default function AnalyticsClient() {
       // ignore
     }
 
-    // Fetch once on page mount (silent if SWR cached data exists)
+    // Fetch live real-time data on page mount
     const hasCache = !!sessionStorage.getItem("builderos_analytics_cache");
-    fetchAnalytics(hasCache);
+    fetchAnalytics(hasCache, true);
   }, [fetchAnalytics]);
 
   // Relative time ago updater (Pure UI, zero DB calls)

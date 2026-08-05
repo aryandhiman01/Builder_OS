@@ -26,6 +26,7 @@ import {
   Activity,
   Layers,
 } from "lucide-react";
+import Logo from "@/components/shared/Logo";
 
 interface UserProfileData {
   id: string;
@@ -173,57 +174,44 @@ export default function ProfileClient() {
 
   return (
     <div className="min-h-screen bg-[#060606] text-white">
-      {/* Top Header Navbar */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#09090c]/90 px-4 sm:px-8 py-3.5 backdrop-blur-2xl shadow-lg">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+      {/* Exact Landing Page Floating Pill Navbar Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="fixed top-2 sm:top-3 inset-x-0 z-50 px-3 sm:px-6 w-full max-w-full box-border"
+      >
+        <div className="mx-auto max-w-5xl rounded-full border border-white/[0.1] bg-[#0a0a0c]/90 backdrop-blur-xl px-3.5 sm:px-6 py-2 sm:py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between">
+          {/* Left: Dashboard Link + Logo & Profile Title */}
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="
-              btn-shimmer
-              flex
-              cursor-pointer
-              items-center
-              gap-2
-              rounded-full
-              border
-              border-white/15
-              bg-white/[0.05]
-              px-4
-              py-2
-              text-xs
-              font-semibold
-              text-white
-              shadow-md
-              transition-all
-              hover:bg-white/10
-              hover:border-white/25
-              active:scale-95
-              "
+              className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 hover:border-white/25 active:scale-95 shrink-0"
             >
-              <ArrowLeft size={14} className="text-orange-400 shrink-0" />
-              <span>Back to Dashboard</span>
+              <ArrowLeft size={13} className="text-orange-400 shrink-0" />
+              <span>Dashboard</span>
             </Link>
 
-            <div className="hidden sm:flex items-center gap-2 border-l border-white/10 pl-3">
-              <UserIcon size={16} className="text-orange-400" />
-              <span className="text-sm font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
-                Account & Settings
+            <div className="flex items-center gap-3 border-l border-white/10 pl-3">
+              <Logo />
+              <span className="hidden sm:inline text-xs sm:text-sm font-semibold text-[#8a8a93] tracking-wide" style={{ fontFamily: "var(--font-sora)" }}>
+                / Profile
               </span>
             </div>
           </div>
 
+          {/* Right: Live Sync Badge */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-mono font-medium text-orange-400">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-3.5 py-1 text-xs font-mono font-medium text-orange-400">
               <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
               Live Sync
             </span>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Main Page Container */}
-      <main className="mx-auto max-w-6xl px-4 sm:px-8 py-8 space-y-8">
+      {/* Main Content Container — Balanced max-w-5xl (Not too wide) */}
+      <main className="mx-auto max-w-5xl px-4 sm:px-6 pt-20 sm:pt-24 pb-12 space-y-6 sm:space-y-8">
         {loading && !user ? (
           <div className="space-y-6">
             <div className="h-44 rounded-3xl border border-white/10 bg-[#09090c]/90 p-8 animate-pulse" />

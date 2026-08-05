@@ -113,7 +113,7 @@ export async function POST(req: Request, { params }: RouteContext) {
         }
 
         const body = await req.json();
-        const { title, description, priority, dueDate } = body;
+        const { title, description, priority, dueDate, estimatedHours, tags, status } = body;
 
         if(!title || title.trim().length === 0) {
             return NextResponse.json(
@@ -143,12 +143,14 @@ export async function POST(req: Request, { params }: RouteContext) {
         const task = await prisma.task.create({
             data: {
                 title: title.trim(),
-                description: description.trim() || null,
+                description: description?.trim() || null,
                 priority: priority || "medium",
                 dueDate: dueDate ? new Date(dueDate) : null,
-                status: "todo",
+                status: status || "todo",
                 order: nextOrder,
                 projectId: project.id,
+                estimatedHours: estimatedHours ? parseFloat(String(estimatedHours)) : null,
+                tags: tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null,
             },
         });
         return NextResponse.json(

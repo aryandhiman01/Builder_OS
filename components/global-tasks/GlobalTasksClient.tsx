@@ -1,0 +1,516 @@
+"use client";
+
+import { useCallback, useEffect, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Sun,
+  List,
+  LayoutGrid,
+  Calendar,
+  AlignLeft,
+  Search,
+  Plus,
+  Brain,
+  ChevronDown,
+  Check,
+  X,
+  SlidersHorizontal,
+  Flag,
+  FolderKanban,
+} from "lucide-react";
+
+import MyDayView from "./MyDayView";
+import ListView from "./ListView";
+import KanbanView from "./KanbanView";
+import CalendarView from "./CalendarView";
+import TimelineView from "./TimelineView";
+import TaskStatsBar from "./TaskStatsBar";
+import GlobalCreateTaskModal from "./GlobalCreateTaskModal";
+import AIGenerateModal from "./AIGenerateModal";
+import TaskDrawer from "./TaskDrawer";
+
+export type TaskView = "myDay" | "list" | "kanban" | "calendar" | "timeline";
+
+export interface GlobalTask {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  dueDate: string | null;
+  estimatedHours: number | null;
+  tags: string | null;
+  subtasks: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  projectId: string;
+  project: { id: string; title: string; color: string };
+}
+
+export interface TaskStats {
+  today: number;
+  inProgress: number;
+  completed: number;
+  overdue: number;
+  highPriorityToday: number;
+  totalFocusHours: number;
+}
+
+interface GlobalTasksClientProps {
+  userName: string;
+}
+
+const VIEWS: { id: TaskView; label: string; icon: React.ElementType }[] = [
+  { id: "myDay", label: "My Day", icon: Sun },
+  { id: "list", label: "List", icon: AlignLeft },
+  { id: "kanban", label: "Kanban", icon: LayoutGrid },
+  { id: "calendar", label: "Calendar", icon: Calendar },
+  { id: "timeline", label: "Timeline", icon: List },
+];
+
+const PRIORITY_FILTERS = ["all", "high", "medium", "low"];
+const DATE_FILTERS = ["all", "today", "tomorrow", "this_week", "upcoming", "completed", "overdue"];
+
+export default function GlobalTasksClient({ userName }: GlobalTasksClientProps) {
+  const [activeView, setActiveView] = useState<TaskView>("myDay");
+  const [tasks, setTasks] = useState<GlobalTask[]>([]);
+  const [stats, setStats] = useState<TaskStats | null>(null);
+  const [projects, setProjects] = useState<{ id: string; title: string; color: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [projectFilter, setProjectFilter] = useState("all");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isAIOpen, setIsAIOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<GlobalTask | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const fetchData = useCallback(async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      const [tasksRes, statsRes, projectsRes] = await Promise.all([
+        fetch("/api/tasks"),
+        fetch("/api/tasks/stats"),
+        fetch("/api/projects"),
+      ]);
+      if (tasksRes.ok) {
+        const d = await tasksRes.json();
+        setTasks(d.tasks || []);
+      }
+      if (statsRes.ok) {
+        const d = await statsRes.json();
+        setStats(d);
+      }
+      if (projectsRes.ok) {
+        const d = await projectsRes.json();
+        const projs = (d.projects || []).map((p: { id: string; title: string; color: string }) => ({
+          id: p.id,
+          title: p.title,
+          color: p.color,
+        }));
+        setProjects(projs);
+      }
+    } catch (e) {
+      console.error("Failed to fetch tasks data:", e);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData(false);
+    const interval = setInterval(() => fetchData(true), 15000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  // Real-time dynamic stats calculation from tasks state (0ms latency update)
+  const derivedStats: TaskStats = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
+    let todayCount = 0;
+    let inProgressCount = 0;
+    let completedCount = 0;
+    let overdueCount = 0;
+    let highPriorityCount = 0;
+    let focusHoursSum = 0;
+
+    tasks.forEach((t) => {
+      const isCompleted = t.status === "completed";
+      const isInProgress = t.status === "in-progress";
+
+      if (isInProgress) inProgressCount++;
+      if (isCompleted) completedCount++;
+
+      const due = t.dueDate ? new Date(t.dueDate) : null;
+      const created = new Date(t.createdAt);
+
+      const isDueToday = due && due >= todayStart && due < todayEnd;
+      const isCreatedToday = created >= todayStart && created < todayEnd;
+      const isOverdue = due && due < todayStart && !isCompleted;
+
+      if (isOverdue) overdueCount++;
+
+      if (!isCompleted && (isDueToday || isCreatedToday || isInProgress)) {
+        todayCount++;
+        if (t.priority === "high") highPriorityCount++;
+      }
+
+      if (!isCompleted && t.estimatedHours) {
+        focusHoursSum += t.estimatedHours;
+      }
+    });
+
+    return {
+      today: todayCount,
+      inProgress: inProgressCount,
+      completed: completedCount,
+      overdue: overdueCount,
+      highPriorityToday: highPriorityCount,
+      totalFocusHours: Math.round(focusHoursSum * 10) / 10,
+    };
+  }, [tasks]);
+
+  // Filtered tasks
+  const filteredTasks = tasks.filter((task) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (
+        !task.title.toLowerCase().includes(q) &&
+        !task.description?.toLowerCase().includes(q) &&
+        !task.project.title.toLowerCase().includes(q)
+      )
+        return false;
+    }
+    if (priorityFilter !== "all" && task.priority !== priorityFilter) return false;
+    if (projectFilter !== "all" && task.projectId !== projectFilter) return false;
+    if (dateFilter !== "all") {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      const tomorrowEnd = new Date(todayEnd);
+      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
+      const weekEnd = new Date(todayStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
+      const due = task.dueDate ? new Date(task.dueDate) : null;
+
+      if (dateFilter === "today") {
+        if (!due || due < todayStart || due >= todayEnd) return false;
+      } else if (dateFilter === "tomorrow") {
+        if (!due || due < todayEnd || due >= tomorrowEnd) return false;
+      } else if (dateFilter === "this_week") {
+        if (!due || due < todayStart || due >= weekEnd) return false;
+      } else if (dateFilter === "upcoming") {
+        if (!due || due < todayEnd) return false;
+      } else if (dateFilter === "completed") {
+        if (task.status !== "completed") return false;
+      } else if (dateFilter === "overdue") {
+        if (!due || due >= todayStart || task.status === "completed") return false;
+      }
+    }
+    return true;
+  });
+
+  const handleTaskUpdate = useCallback(
+    async (taskId: string, updates: Partial<GlobalTask>) => {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      );
+      try {
+        await fetch(`/api/tasks/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updates),
+        });
+        fetchData(true);
+      } catch (e) {
+        console.error("Failed to update task:", e);
+        fetchData(true);
+      }
+    },
+    [fetchData]
+  );
+
+  const handleTaskDelete = useCallback(
+    async (taskId: string) => {
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      setSelectedTask(null);
+      try {
+        await fetch(`/api/tasks/${taskId}`, { method: "DELETE" });
+        fetchData(true);
+      } catch (e) {
+        console.error("Failed to delete task:", e);
+        fetchData(true);
+      }
+    },
+    [fetchData]
+  );
+
+  const renderView = () => {
+    const props = {
+      tasks: filteredTasks,
+      allTasks: tasks,
+      onTaskClick: setSelectedTask,
+      onTaskUpdate: handleTaskUpdate,
+      onTaskDelete: handleTaskDelete,
+      onRefresh: () => fetchData(true),
+      loading,
+    };
+
+    switch (activeView) {
+      case "myDay":
+        return <MyDayView {...props} userName={userName} stats={derivedStats || stats} onCreateTask={() => setIsCreateOpen(true)} />;
+      case "list":
+        return <ListView {...props} />;
+      case "kanban":
+        return <KanbanView {...props} />;
+      case "calendar":
+        return <CalendarView {...props} />;
+      case "timeline":
+        return <TimelineView {...props} />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full min-h-0 space-y-0">
+      {/* ─── Page Header ─────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/[0.07]"
+      >
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "var(--font-sora)" }}>
+            Tasks
+          </h1>
+          <p className="mt-0.5 text-xs text-[#8a8a93]">
+            Your developer command center — all projects, one place.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Search */}
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8a8a93]" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks..."
+              className="h-9 w-48 rounded-xl border border-white/10 bg-white/[0.04] pl-8 pr-3 text-xs text-white placeholder-[#8a8a93] outline-none transition focus:border-white/20 focus:bg-white/[0.06]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8a8a93] hover:text-white"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          {/* Filter toggle */}
+          <button
+            onClick={() => setIsFilterOpen((v) => !v)}
+            className={`flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold transition ${
+              isFilterOpen
+                ? "border-orange-500/40 bg-orange-500/10 text-orange-400"
+                : "border-white/10 bg-white/[0.04] text-[#8a8a93] hover:text-white hover:bg-white/[0.07]"
+            }`}
+          >
+            <SlidersHorizontal size={13} />
+            Filters
+          </button>
+
+          {/* New Task */}
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="btn-shimmer flex h-9 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.07] px-4 text-xs font-semibold text-white transition hover:bg-white/10 active:scale-95"
+          >
+            <Plus size={14} />
+            New Task
+          </button>
+
+          {/* AI Generate — white premium button */}
+          <button
+            onClick={() => setIsAIOpen(true)}
+            className="btn-shimmer flex h-9 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black shadow-md transition hover:bg-zinc-100 active:scale-95"
+          >
+            <Brain size={14} className="text-orange-500" />
+            AI Generate
+          </button>
+        </div>
+      </motion.div>
+
+      {/* ─── Filter Bar (collapsible) ──────────────── */}
+      <AnimatePresence>
+        {isFilterOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap items-center gap-4 py-3.5 border-b border-white/[0.07]">
+              {/* Date Filter Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#8a8a93] flex items-center gap-1.5">
+                  <Calendar size={13} className="text-orange-400" /> Date:
+                </span>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="h-9 rounded-xl border border-white/10 bg-[#111115] px-3.5 text-xs font-semibold text-white outline-none focus:border-orange-500/40 transition cursor-pointer"
+                >
+                  <option value="all">All Dates</option>
+                  <option value="today">Today</option>
+                  <option value="tomorrow">Tomorrow</option>
+                  <option value="this_week">This Week</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="completed">Completed</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+              </div>
+
+              {/* Priority Filter Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#8a8a93] flex items-center gap-1.5">
+                  <Flag size={13} className="text-orange-400" /> Priority:
+                </span>
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="h-9 rounded-xl border border-white/10 bg-[#111115] px-3.5 text-xs font-semibold text-white outline-none focus:border-orange-500/40 transition cursor-pointer capitalize"
+                >
+                  <option value="all">All Priorities</option>
+                  <option value="high">High Priority</option>
+                  <option value="medium">Medium Priority</option>
+                  <option value="low">Low Priority</option>
+                </select>
+              </div>
+
+              {/* Project Filter Dropdown */}
+              {projects.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-[#8a8a93] flex items-center gap-1.5">
+                    <FolderKanban size={13} className="text-orange-400" /> Project:
+                  </span>
+                  <select
+                    value={projectFilter}
+                    onChange={(e) => setProjectFilter(e.target.value)}
+                    className="h-9 rounded-xl border border-white/10 bg-[#111115] px-3.5 text-xs font-semibold text-white outline-none focus:border-orange-500/40 transition cursor-pointer"
+                  >
+                    <option value="all">All Projects</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Clear Filters Button (if active) */}
+              {(dateFilter !== "all" || priorityFilter !== "all" || projectFilter !== "all" || searchQuery) && (
+                <button
+                  onClick={() => {
+                    setDateFilter("all");
+                    setPriorityFilter("all");
+                    setProjectFilter("all");
+                    setSearchQuery("");
+                  }}
+                  className="ml-auto flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 font-semibold transition py-1 px-2.5 rounded-lg border border-orange-500/20 bg-orange-500/10 hover:bg-orange-500/20"
+                >
+                  <X size={12} /> Reset Filters
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Stats Bar ────────────────────────────── */}
+      <div className="py-4">
+        <TaskStatsBar stats={derivedStats || stats} loading={loading} />
+      </div>
+
+      {/* ─── View Tabs ───────────────────────────── */}
+      <div className="flex items-center gap-1 border-b border-white/[0.07] pb-0">
+        {VIEWS.map((view) => {
+          const Icon = view.icon;
+          const isActive = activeView === view.id;
+          return (
+            <button
+              key={view.id}
+              onClick={() => setActiveView(view.id)}
+              className={`relative flex h-9 items-center gap-2 rounded-t-lg px-4 text-xs font-semibold transition-all duration-150 ${
+                isActive
+                  ? "text-white bg-white/[0.06]"
+                  : "text-[#8a8a93] hover:text-white hover:bg-white/[0.04]"
+              }`}
+            >
+              <Icon size={14} />
+              {view.label}
+              {view.id === "myDay" && (
+                <span className="ml-0.5 text-orange-400">⭐</span>
+              )}
+              {isActive && (
+                <motion.div
+                  layoutId="activeViewTab"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-400 rounded-full"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ─── Active View ─────────────────────────── */}
+      <div className="flex-1 min-h-0 overflow-y-auto pt-5 pb-10 scroll-smooth">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeView}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="h-full"
+          >
+            {renderView()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* ─── Modals ──────────────────────────────── */}
+      <GlobalCreateTaskModal
+        open={isCreateOpen}
+        projects={projects}
+        onClose={() => setIsCreateOpen(false)}
+        onSuccess={() => { fetchData(true); setIsCreateOpen(false); }}
+      />
+
+      <AIGenerateModal
+        open={isAIOpen}
+        projects={projects}
+        onClose={() => setIsAIOpen(false)}
+        onSuccess={() => { fetchData(true); setIsAIOpen(false); }}
+      />
+
+      {/* ─── Task Drawer ─────────────────────────── */}
+      <TaskDrawer
+        task={selectedTask}
+        projects={projects}
+        onClose={() => setSelectedTask(null)}
+        onUpdate={handleTaskUpdate}
+        onDelete={handleTaskDelete}
+      />
+    </div>
+  );
+}

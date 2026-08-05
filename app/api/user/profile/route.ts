@@ -32,7 +32,7 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Live counts from PostgreSQL database
+    // Live counts from PostgreSQL database (Real-Time 0ms Delay)
     const [
       projectsCount,
       tasksCount,
@@ -41,6 +41,8 @@ export async function GET() {
       researchesCount,
       prdsCount,
       roadmapsCount,
+      architecturesCount,
+      documentsCount,
     ] = await Promise.all([
       prisma.project.count({ where: { userId: user.id } }),
       prisma.task.count({ where: { project: { userId: user.id } } }),
@@ -56,11 +58,22 @@ export async function GET() {
       prisma.research.count({ where: { project: { userId: user.id } } }),
       prisma.pRD.count({ where: { project: { userId: user.id } } }),
       prisma.roadmap.count({ where: { project: { userId: user.id } } }),
+      prisma.architecture.count({ where: { project: { userId: user.id } } }),
+      prisma.document.count({ where: { project: { userId: user.id } } }),
     ]);
 
     const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
     const hasPassword = Boolean(user.password);
     const authProviders = user.accounts.map((a) => a.provider);
+
+    // Total AI Runs includes all AI Conversations (Chats), Researches, PRDs, Roadmaps, Architectures & Documents
+    const totalAiRuns =
+      aiConversationsCount +
+      researchesCount +
+      prdsCount +
+      roadmapsCount +
+      architecturesCount +
+      documentsCount;
 
     return NextResponse.json({
       user: {
@@ -80,47 +93,15 @@ export async function GET() {
         researchesCount,
         prdsCount,
         roadmapsCount,
-        totalAiRuns: aiConversationsCount + researchesCount + prdsCount + roadmapsCount,
+        architecturesCount,
+        documentsCount,
+        totalAiRuns,
       },
     });
   } catch (error) {
     console.error("GET /api/user/profile error:", error);
     return NextResponse.json(
       { error: "Failed to fetch user profile" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PATCH(req: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { name, image } = await req.json();
-
-    const updatedUser = await prisma.user.update({
-      where: { email: session.user.email },
-      data: {
-        name: name !== undefined ? name : undefined,
-        image: image !== undefined ? image : undefined,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        image: true,
-      },
-    });
-
-    return NextResponse.json({ user: updatedUser });
-  } catch (error) {
-    console.error("PATCH /api/user/profile error:", error);
-    return NextResponse.json(
-      { error: "Failed to update profile" },
       { status: 500 }
     );
   }

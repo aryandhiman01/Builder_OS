@@ -3,9 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Server-side in-memory RAM cache per user (30s TTL)
+// Server-side RAM cache
 const analyticsCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL_MS = 30_000;
+const CACHE_TTL_MS = 0; // Live real-time calculations from PostgreSQL
 
 export async function GET(req: Request) {
   try {
@@ -60,8 +60,8 @@ export async function GET(req: Request) {
     const totalRoadmaps = projects.reduce((s, p) => s + p.roadmaps.length, 0);
     const totalArchitectures = projects.reduce((s, p) => s + p.architectures.length, 0);
     const totalDocuments = projects.reduce((s, p) => s + p.documents.length, 0);
-    const totalAiRequests = totalResearches + totalPrds + totalRoadmaps + totalArchitectures + totalDocuments;
     const totalAiConversations = aiConversations.length;
+    const totalAiRequests = totalResearches + totalPrds + totalRoadmaps + totalArchitectures + totalDocuments + totalAiConversations;
     const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     const allAIItems = projects.flatMap((p) => [
@@ -122,6 +122,7 @@ export async function GET(req: Request) {
       { type: "Roadmap", count: totalRoadmaps, color: "#38BDF8" },
       { type: "Architecture", count: totalArchitectures, color: "#34D399" },
       { type: "Document", count: totalDocuments, color: "#F59E0B" },
+      { type: "AI Chat", count: totalAiConversations, color: "#EC4899" },
     ];
 
     const projectsByCategory: Record<string, number> = {};

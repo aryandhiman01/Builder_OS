@@ -120,20 +120,27 @@ export async function GET() {
       roadmapsCount,
       architecturesCount,
       documentsCount,
+      aiConversationCountRaw,
     ] = await Promise.all([
       prisma.research.count({ where: { projectId: { in: projectIds } } }),
       prisma.pRD.count({ where: { projectId: { in: projectIds } } }),
       prisma.roadmap.count({ where: { projectId: { in: projectIds } } }),
       prisma.architecture.count({ where: { projectId: { in: projectIds } } }),
       prisma.document.count({ where: { projectId: { in: projectIds } } }),
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
+        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
+      `,
     ]);
+
+    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
 
     const aiRequestsCount =
       researchesCount +
       prdsCount +
       roadmapsCount +
       architecturesCount +
-      documentsCount;
+      documentsCount +
+      aiConversationsCount;
 
     // 4. Recent Projects (Top 4)
     const recentProjects = allMappedProjects.slice(0, 4);

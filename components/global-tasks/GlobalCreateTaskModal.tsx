@@ -1,83 +1,65 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  Plus,
-  Calendar,
-  Clock,
-  Tag,
-  Flag,
-  Loader2,
-} from "lucide-react";
+import { X, Plus, Calendar, Clock, Tag, FolderKanban, Loader2 } from "lucide-react";
+import type { GlobalTask } from "./GlobalTasksClient";
 
-interface CreateTaskModalProps {
-  projectId: string;
-  open: boolean;
-  onClose: () => void;
+interface Project {
+  id: string;
+  title: string;
+  color: string;
 }
 
-export default function CreateTaskModal({
-  projectId,
-  open,
-  onClose,
-}: CreateTaskModalProps) {
-  const router = useRouter();
+interface GlobalCreateTaskModalProps {
+  open: boolean;
+  projects: Project[];
+  onClose: () => void;
+  onSuccess: (newTask: GlobalTask) => void;
+}
 
+export default function GlobalCreateTaskModal({
+  open,
+  projects,
+  onClose,
+  onSuccess,
+}: GlobalCreateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [projectId, setProjectId] = useState("");
   const [priority, setPriority] = useState("medium");
   const [status, setStatus] = useState("todo");
   const [dueDate, setDueDate] = useState("");
   const [estimatedHours, setEstimatedHours] = useState("");
   const [tagsInput, setTagsInput] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setPriority("medium");
-    setStatus("todo");
-    setDueDate("");
-    setEstimatedHours("");
-    setTagsInput("");
-    setError("");
+  const reset = () => {
+    setTitle(""); setDescription(""); setProjectId("");
+    setPriority("medium"); setStatus("todo"); setDueDate("");
+    setEstimatedHours(""); setTagsInput(""); setError("");
   };
 
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
+  const handleClose = () => { reset(); onClose(); };
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) { setError("Task title is required"); return; }
+    if (!projectId) { setError("Please select a project"); return; }
 
-    if (!title.trim()) {
-      setError("Task title is required");
-      return;
-    }
+    setError("");
+    setLoading(true);
 
     try {
-      setLoading(true);
-      setError("");
-
-      const tags = tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      const response = await fetch(`/api/projects/${projectId}/tasks`, {
+      const tags = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+      const res = await fetch("/api/tasks", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || undefined,
+          projectId,
           priority,
           status,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
@@ -86,29 +68,23 @@ export default function CreateTaskModal({
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to create task");
-      }
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Failed to create task"); return; }
 
-      handleClose();
-      router.refresh();
+      reset();
+      onSuccess(data.task);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred");
-      }
+      console.error(err);
+      setError("Something went wrong");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -125,7 +101,7 @@ export default function CreateTaskModal({
             transition={{ type: "spring", stiffness: 400, damping: 35 }}
             className="relative z-10 w-full max-w-xl max-h-[90vh] overflow-y-auto scrollbar-none rounded-3xl border border-white/10 bg-[#090909] p-6 sm:p-7 shadow-2xl"
           >
-            {/* Close button */}
+            {/* Close */}
             <button
               onClick={handleClose}
               disabled={loading}
@@ -136,33 +112,50 @@ export default function CreateTaskModal({
 
             {/* Header */}
             <div className="flex items-center gap-3.5 mb-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/[0.05] border border-white/10">
                 <Plus size={20} className="text-orange-400" />
               </div>
               <div>
-                <h2
-                  className="text-xl font-bold text-white tracking-tight"
-                  style={{ fontFamily: "var(--font-sora)" }}
-                >
+                <h2 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "var(--font-sora)" }}>
                   New Task
                 </h2>
-                <p className="text-xs text-[#8a8a93]">
-                  Add a task to this project.
-                </p>
+                <p className="text-xs text-[#8a8a93]">Add a task to any of your projects.</p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Project (required) */}
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#8a8a93]">
+                  <FolderKanban size={13} /> Project <span className="text-red-400">*</span>
+                </label>
+                {projects.length === 0 ? (
+                  <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.05] px-4 py-3 text-sm text-red-400">
+                    No projects found. Create a project first.
+                  </div>
+                ) : (
+                  <select
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    required
+                    className="w-full rounded-2xl border border-white/10 bg-[#111] px-4 py-2.5 text-sm text-white outline-none focus:border-white/20 transition"
+                  >
+                    <option value="" disabled>-- Select Project --</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
               {/* Title */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">
-                  Task Title *
-                </label>
+                <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">Task Title *</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Design Landing Page"
+                  placeholder="Design Landing Page"
                   autoFocus
                   className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-[#8a8a93] outline-none transition focus:border-white/20 focus:bg-white/[0.05]"
                 />
@@ -170,9 +163,7 @@ export default function CreateTaskModal({
 
               {/* Description */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">
-                  Description
-                </label>
+                <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">Description</label>
                 <textarea
                   rows={2}
                   value={description}
@@ -182,12 +173,10 @@ export default function CreateTaskModal({
                 />
               </div>
 
-              {/* Priority + Status */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Priority & Status */}
+              <div className="grid gap-4 grid-cols-2">
                 <div>
-                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#8a8a93]">
-                    <Flag size={12} /> Priority
-                  </label>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">Priority</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
@@ -199,9 +188,7 @@ export default function CreateTaskModal({
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#8a8a93]">
-                    <Flag size={12} /> Status
-                  </label>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#8a8a93]">Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
@@ -214,8 +201,8 @@ export default function CreateTaskModal({
                 </div>
               </div>
 
-              {/* Due Date + Estimated Hours */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Due Date & Est. Hours */}
+              <div className="grid gap-4 grid-cols-2">
                 <div>
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#8a8a93]">
                     <Calendar size={12} /> Due Date
@@ -247,17 +234,14 @@ export default function CreateTaskModal({
               {/* Tags */}
               <div>
                 <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-[#8a8a93]">
-                  <Tag size={12} /> Tags{" "}
-                  <span className="font-normal text-[#8a8a93]/60">
-                    (comma separated)
-                  </span>
+                  <Tag size={12} /> Tags <span className="font-normal text-[#8a8a93]/60">(comma separated)</span>
                 </label>
                 <input
                   type="text"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
                   placeholder="frontend, api, testing"
-                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-[#8a8a93] outline-none transition focus:border-white/20"
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder-[#8a8a93] outline-none focus:border-white/20 transition"
                 />
               </div>
 
@@ -280,20 +264,11 @@ export default function CreateTaskModal({
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || projects.length === 0}
                   className="btn-shimmer inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-100 disabled:opacity-50 active:scale-95 shadow-sm"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={16} />
-                      Create Task
-                    </>
-                  )}
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                  {loading ? "Creating..." : "Create Task"}
                 </button>
               </div>
             </form>

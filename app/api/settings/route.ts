@@ -4,10 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const DEFAULT_SETTINGS = {
-  aiModel: "gemini-3.6-flash",
-  defaultView: "grid",
-  autoSavePrd: true,
-  pollingInterval: "5s",
   emailNotifications: true,
   aiTaskAlerts: true,
   securityAlerts: true,
@@ -84,7 +80,8 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { settings } = await req.json();
+    const body = await req.json();
+    const settings = body?.settings || body;
 
     if (!settings || typeof settings !== "object") {
       return NextResponse.json(
