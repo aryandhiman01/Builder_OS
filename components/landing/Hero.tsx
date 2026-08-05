@@ -562,7 +562,7 @@ export default function Hero() {
         <motion.h1
           initial="hidden"
           animate="visible"
-          className="mx-auto max-w-5xl text-[44px] sm:text-[68px] md:text-[80px] lg:text-[88px] font-bold leading-[1.05] tracking-[-0.04em] text-white"
+          className="mx-auto max-w-5xl text-[30px] min-[380px]:text-[38px] sm:text-[64px] md:text-[76px] lg:text-[88px] font-bold leading-[1.08] tracking-[-0.04em] text-white break-words"
           style={{ fontFamily: "var(--font-sora)" }}
         >
           <AnimatedHeadline line="Everything you need" delay={0.1} />

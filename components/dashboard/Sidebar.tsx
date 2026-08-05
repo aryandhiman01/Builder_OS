@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -42,11 +42,19 @@ export default function Sidebar({
   isMobileOpen,
   onCloseMobile,
 }: SidebarProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
 
   const isCollapsed = controlledIsCollapsed ?? internalIsCollapsed;
   const handleToggle = onToggleCollapse ?? (() => setInternalIsCollapsed((prev) => !prev));
+
+  // Prefetch all sidebar routes in background for 0ms instant tab clicks
+  useEffect(() => {
+    sidebarItems.forEach((item) => {
+      router.prefetch(item.href);
+    });
+  }, [router]);
 
   return (
     <>
@@ -120,6 +128,7 @@ export default function Sidebar({
                 <Link
                   key={item.title}
                   href={item.href}
+                  prefetch={true}
                   title={isCollapsed ? item.title : undefined}
                   className={`
                     group
@@ -239,6 +248,7 @@ export default function Sidebar({
                     <Link
                       key={item.title}
                       href={item.href}
+                      prefetch={true}
                       onClick={onCloseMobile}
                       className={`
                         group

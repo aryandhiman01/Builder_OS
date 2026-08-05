@@ -12,10 +12,7 @@ interface ResearchPageProps {
   }>;
 }
 
-export default async function ResearchPage({
-  params,
-}: ResearchPageProps) {
-
+export default async function ResearchPage({ params }: ResearchPageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -24,48 +21,41 @@ export default async function ResearchPage({
 
   const { projectId } = await params;
 
-  const project = await prisma.project.findFirst({
-
+  // Single-pass parallel DB queries for project & researches
+  const [project, researches] = await Promise.all([
+    prisma.project.findFirst({
       where: {
-
         id: projectId,
-
         user: {
-          email:
-            session.user.email,
+          email: session.user.email,
         },
-
       },
-
-    });
+    }),
+    prisma.research.findMany({
+      where: {
+        projectId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  const researches = await prisma.research.findMany({
-
-      where: {
-        projectId,
-      },
-
-      orderBy: {
-        createdAt: "desc",
-      },
-
-    });
-
-      return (
-        <ResearchClient
-        project={{
-            id: project.id,
-            title: project.title,
-            description: project.description,
-            status: project.status,
-            category: project.category,
-            color: project.color,
-        }}
-        researches={researches}
-        />
+  return (
+    <ResearchClient
+      project={{
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        status: project.status,
+        category: project.category,
+        color: project.color,
+      }}
+      researches={researches}
+    />
   );
 }

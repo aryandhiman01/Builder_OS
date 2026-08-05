@@ -72,34 +72,39 @@ export async function GET(req: Request) {
       ? Math.round(allAIItems.reduce((s, a) => s + (a.generationTime || 0), 0) / allAIItems.length)
       : 0;
 
-    // Monthly calculations - last 12 months (Both Cumulative & Specific Monthly Additions)
+    // Monthly calculations - last 12 months (Pre-computed timestamps for single-pass 0ms calculation)
     const now = new Date();
     const cumulativeGrowth = [];
     const monthlyAdditions = [];
 
+    // Pre-calculate project, task & AI asset timestamps once
+    const projectTimestamps = projects.map((p) => new Date(p.createdAt).getTime());
+    const taskTimestamps = allTasks.map((t) => new Date(t.createdAt).getTime());
+    const aiTimestamps = projects.flatMap((p) => [
+      ...p.researches.map((r) => new Date(r.createdAt).getTime()),
+      ...p.prds.map((prd) => new Date(prd.createdAt).getTime()),
+      ...p.roadmaps.map((rm) => new Date(rm.createdAt).getTime()),
+      ...p.architectures.map((arch) => new Date(arch.createdAt).getTime()),
+      ...p.documents.map((doc) => new Date(doc.createdAt).getTime()),
+    ]);
+    aiConversations.forEach((c) => aiTimestamps.push(new Date(c.createdAt).getTime()));
+
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const startTime = d.getTime();
       const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+      const endTime = monthEnd.getTime();
       const label = d.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 
-      // 1. Cumulative totals up to monthEnd
-      const cumProjects = projects.filter((p) => new Date(p.createdAt) <= monthEnd).length;
-      const cumTasks = allTasks.filter((t) => new Date(t.createdAt) <= monthEnd).length;
-      let cumAI = 0;
-      projects.forEach((p) => {
-        const allAI = [...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents];
-        cumAI += allAI.filter((a) => new Date(a.createdAt) <= monthEnd).length;
-      });
+      // Fast numeric timestamp filtering (0ms execution)
+      const cumProjects = projectTimestamps.filter((t) => t <= endTime).length;
+      const cumTasks = taskTimestamps.filter((t) => t <= endTime).length;
+      const cumAI = aiTimestamps.filter((t) => t <= endTime).length;
       cumulativeGrowth.push({ month: label, projects: cumProjects, tasks: cumTasks, aiRequests: cumAI });
 
-      // 2. Specific new additions created in this exact month
-      const newProjects = projects.filter((p) => { const c = new Date(p.createdAt); return c >= d && c <= monthEnd; }).length;
-      const newTasks = allTasks.filter((t) => { const c = new Date(t.createdAt); return c >= d && c <= monthEnd; }).length;
-      let newAI = 0;
-      projects.forEach((p) => {
-        const allAI = [...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents];
-        newAI += allAI.filter((a) => { const ac = new Date(a.createdAt); return ac >= d && ac <= monthEnd; }).length;
-      });
+      const newProjects = projectTimestamps.filter((t) => t >= startTime && t <= endTime).length;
+      const newTasks = taskTimestamps.filter((t) => t >= startTime && t <= endTime).length;
+      const newAI = aiTimestamps.filter((t) => t >= startTime && t <= endTime).length;
       monthlyAdditions.push({ month: label, projects: newProjects, tasks: newTasks, aiRequests: newAI });
     }
 

@@ -19,15 +19,18 @@ import {
   FolderKanban,
 } from "lucide-react";
 
+import dynamic from "next/dynamic";
+
 import MyDayView from "./MyDayView";
 import ListView from "./ListView";
 import KanbanView from "./KanbanView";
 import CalendarView from "./CalendarView";
 import TimelineView from "./TimelineView";
 import TaskStatsBar from "./TaskStatsBar";
-import GlobalCreateTaskModal from "./GlobalCreateTaskModal";
-import AIGenerateModal from "./AIGenerateModal";
 import TaskDrawer from "./TaskDrawer";
+
+const GlobalCreateTaskModal = dynamic(() => import("./GlobalCreateTaskModal"), { ssr: false });
+const AIGenerateModal = dynamic(() => import("./AIGenerateModal"), { ssr: false });
 
 export type TaskView = "myDay" | "list" | "kanban" | "calendar" | "timeline";
 
@@ -91,26 +94,42 @@ export default function GlobalTasksClient({ userName }: GlobalTasksClientProps) 
     try {
       if (!silent) setLoading(true);
       const [tasksRes, statsRes, projectsRes] = await Promise.all([
-        fetch("/api/tasks"),
-        fetch("/api/tasks/stats"),
-        fetch("/api/projects"),
+        fetch("/api/tasks", { cache: "no-store" }),
+        fetch("/api/tasks/stats", { cache: "no-store" }),
+        fetch("/api/projects", { cache: "no-store" }),
       ]);
+      let fetchedTasks: GlobalTask[] = [];
+      let fetchedStats: TaskStats | null = null;
+      let fetchedProjects: { id: string; title: string; color: string }[] = [];
+
       if (tasksRes.ok) {
         const d = await tasksRes.json();
-        setTasks(d.tasks || []);
+        fetchedTasks = d.tasks || [];
+        setTasks(fetchedTasks);
       }
       if (statsRes.ok) {
         const d = await statsRes.json();
-        setStats(d);
+        fetchedStats = d;
+        setStats(fetchedStats);
       }
       if (projectsRes.ok) {
         const d = await projectsRes.json();
-        const projs = (d.projects || []).map((p: { id: string; title: string; color: string }) => ({
+        fetchedProjects = (d.projects || []).map((p: { id: string; title: string; color: string }) => ({
           id: p.id,
           title: p.title,
           color: p.color,
         }));
-        setProjects(projs);
+        setProjects(fetchedProjects);
+      }
+
+      try {
+        sessionStorage.setItem("builderos_tasks_cache", JSON.stringify({
+          tasks: fetchedTasks,
+          stats: fetchedStats,
+          projects: fetchedProjects,
+        }));
+      } catch {
+        // ignore
       }
     } catch (e) {
       console.error("Failed to fetch tasks data:", e);
@@ -120,7 +139,24 @@ export default function GlobalTasksClient({ userName }: GlobalTasksClientProps) 
   }, []);
 
   useEffect(() => {
-    fetchData(false);
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("builderos_tasks_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.tasks) {
+          setTasks(parsed.tasks || []);
+          if (parsed.stats) setStats(parsed.stats);
+          if (parsed.projects) setProjects(parsed.projects);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    fetchData(hasCache);
     const interval = setInterval(() => fetchData(true), 15000);
     return () => clearInterval(interval);
   }, [fetchData]);

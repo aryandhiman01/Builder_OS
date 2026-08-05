@@ -4,6 +4,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// Short 2s in-memory server cache per user to eliminate DB waterfall on rapid re-renders
+const dashboardCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL_MS = 2_000;
+
 function getRelativeTimeString(date: Date): string {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
@@ -20,7 +24,7 @@ function getRelativeTimeString(date: Date): string {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(date));
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -30,31 +34,62 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true, name: true, email: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // 1. Fetch User Projects with Tasks & AI Relations
-    const projects = await prisma.project.findMany({
-      where: { userId: user.id },
-      include: {
-        tasks: true,
-        researches: true,
-        prds: true,
-        roadmaps: true,
-        architectures: true,
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    // Check server memory cache for 0ms responses on rapid navigation
+    const url = new URL(req.url);
+    const forceRefresh = url.searchParams.get("refresh") === "true";
+    const cached = dashboardCache.get(user.id);
+    if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return NextResponse.json(cached.data);
+    }
+
+    // Single-pass parallel query execution to prevent DB waterfalls
+    const [projects, aiConversationCountRaw] = await Promise.all([
+      prisma.project.findMany({
+        where: { userId: user.id },
+        include: {
+          tasks: { select: { id: true, title: true, status: true, updatedAt: true } },
+          researches: { select: { id: true, title: true, createdAt: true } },
+          prds: { select: { id: true, title: true, createdAt: true } },
+          roadmaps: { select: { id: true, title: true, createdAt: true } },
+          architectures: { select: { id: true, title: true, createdAt: true } },
+          documents: { select: { id: true, title: true, createdAt: true } },
+        },
+        orderBy: { updatedAt: "desc" },
+      }),
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
+        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
+      `,
+    ]);
 
     const projectsCount = projects.length;
+    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
 
-    // 2. Compute Tasks, Project Progress & Workspace Completion Percentage
     let totalTasksCount = 0;
     let completedTasksCount = 0;
     let totalProjectsProgressSum = 0;
+    let totalResearchesCount = 0;
+    let totalPrdsCount = 0;
+    let totalRoadmapsCount = 0;
+    let totalArchitecturesCount = 0;
+    let totalDocumentsCount = 0;
+
+    type ActivityItem = {
+      id: string;
+      title: string;
+      description: string;
+      time: string;
+      timestamp: number;
+      iconType: "FolderKanban" | "Brain" | "CheckCircle2" | "Sparkles" | "FileText" | "LayoutTemplate";
+    };
+
+    const activities: ActivityItem[] = [];
 
     const allMappedProjects = projects.map((p) => {
       const projTotalTasks = p.tasks.length;
@@ -64,6 +99,11 @@ export async function GET() {
 
       totalTasksCount += projTotalTasks;
       completedTasksCount += projCompletedTasks;
+      totalResearchesCount += p.researches.length;
+      totalPrdsCount += p.prds.length;
+      totalRoadmapsCount += p.roadmaps.length;
+      totalArchitecturesCount += p.architectures.length;
+      totalDocumentsCount += p.documents.length;
 
       const hasResearch = p.researches.length > 0;
       const hasPRD = p.prds.length > 0;
@@ -93,6 +133,76 @@ export async function GET() {
         validStatus = "Building";
       }
 
+      // Collect project activities
+      activities.push({
+        id: `proj-${p.id}`,
+        title: "Created a new project",
+        description: p.title,
+        time: getRelativeTimeString(p.updatedAt),
+        timestamp: new Date(p.updatedAt).getTime(),
+        iconType: "FolderKanban",
+      });
+
+      // Collect research activities
+      p.researches.forEach((r) => {
+        activities.push({
+          id: `res-${r.id}`,
+          title: "Generated AI Research",
+          description: `${r.title} (${p.title})`,
+          time: getRelativeTimeString(r.createdAt),
+          timestamp: new Date(r.createdAt).getTime(),
+          iconType: "Sparkles",
+        });
+      });
+
+      // Collect PRD activities
+      p.prds.forEach((prd) => {
+        activities.push({
+          id: `prd-${prd.id}`,
+          title: "Generated PRD",
+          description: `${prd.title} (${p.title})`,
+          time: getRelativeTimeString(prd.createdAt),
+          timestamp: new Date(prd.createdAt).getTime(),
+          iconType: "FileText",
+        });
+      });
+
+      // Collect Roadmap activities
+      p.roadmaps.forEach((rm) => {
+        activities.push({
+          id: `rm-${rm.id}`,
+          title: "Generated Product Roadmap",
+          description: `${rm.title} (${p.title})`,
+          time: getRelativeTimeString(rm.createdAt),
+          timestamp: new Date(rm.createdAt).getTime(),
+          iconType: "LayoutTemplate",
+        });
+      });
+
+      // Collect Architecture activities
+      p.architectures.forEach((arch) => {
+        activities.push({
+          id: `arch-${arch.id}`,
+          title: "Generated System Architecture",
+          description: `${arch.title} (${p.title})`,
+          time: getRelativeTimeString(arch.createdAt),
+          timestamp: new Date(arch.createdAt).getTime(),
+          iconType: "Brain",
+        });
+      });
+
+      // Collect Task activities
+      p.tasks.forEach((t) => {
+        activities.push({
+          id: `task-${t.id}`,
+          title: t.status === "completed" || t.status === "done" ? "Completed a task" : "Updated a task",
+          description: `${t.title} (${p.title})`,
+          time: getRelativeTimeString(t.updatedAt),
+          timestamp: new Date(t.updatedAt).getTime(),
+          iconType: "CheckCircle2",
+        });
+      });
+
       return {
         id: p.id,
         title: p.title,
@@ -111,211 +221,19 @@ export async function GET() {
         ? Math.round(totalProjectsProgressSum / projectsCount)
         : 0;
 
-    // 3. Compute AI Requests Count
-    const projectIds = projects.map((p) => p.id);
-
-    const [
-      researchesCount,
-      prdsCount,
-      roadmapsCount,
-      architecturesCount,
-      documentsCount,
-      aiConversationCountRaw,
-    ] = await Promise.all([
-      prisma.research.count({ where: { projectId: { in: projectIds } } }),
-      prisma.pRD.count({ where: { projectId: { in: projectIds } } }),
-      prisma.roadmap.count({ where: { projectId: { in: projectIds } } }),
-      prisma.architecture.count({ where: { projectId: { in: projectIds } } }),
-      prisma.document.count({ where: { projectId: { in: projectIds } } }),
-      prisma.$queryRaw<Array<{ count: bigint | number }>>`
-        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
-      `,
-    ]);
-
-    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
-
     const aiRequestsCount =
-      researchesCount +
-      prdsCount +
-      roadmapsCount +
-      architecturesCount +
-      documentsCount +
+      totalResearchesCount +
+      totalPrdsCount +
+      totalRoadmapsCount +
+      totalArchitecturesCount +
+      totalDocumentsCount +
       aiConversationsCount;
-
-    // 4. Recent Projects (Top 4)
-    const recentProjects = allMappedProjects.slice(0, 4);
-
-    // 5. Gather Recent Activities
-    const [recentProjectsRaw, recentResearches, recentPrds, recentRoadmaps, recentArchitectures, recentTasks] =
-      await Promise.all([
-        prisma.project.findMany({
-          where: { userId: user.id },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: { id: true, title: true, createdAt: true },
-        }),
-        prisma.research.findMany({
-          where: { projectId: { in: projectIds } },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: { id: true, title: true, createdAt: true, project: { select: { title: true } } },
-        }),
-        prisma.pRD.findMany({
-          where: { projectId: { in: projectIds } },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: { id: true, title: true, createdAt: true, project: { select: { title: true } } },
-        }),
-        prisma.roadmap.findMany({
-          where: { projectId: { in: projectIds } },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: { id: true, title: true, createdAt: true, project: { select: { title: true } } },
-        }),
-        prisma.architecture.findMany({
-          where: { projectId: { in: projectIds } },
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: { id: true, title: true, createdAt: true, project: { select: { title: true } } },
-        }),
-        prisma.task.findMany({
-          where: { projectId: { in: projectIds } },
-          take: 5,
-          orderBy: { updatedAt: "desc" },
-          select: { id: true, title: true, status: true, updatedAt: true, project: { select: { title: true } } },
-        }),
-      ]);
-
-    type ActivityItem = {
-      id: string;
-      title: string;
-      description: string;
-      time: string;
-      timestamp: number;
-      iconType: "FolderKanban" | "Brain" | "CheckCircle2" | "Sparkles" | "FileText" | "LayoutTemplate";
-    };
-
-    const activities: ActivityItem[] = [];
-
-    recentProjectsRaw.forEach((p: { id: string; title: string; createdAt: Date }) => {
-      activities.push({
-        id: `proj-${p.id}`,
-        title: "Created a new project",
-        description: p.title,
-        time: getRelativeTimeString(p.createdAt),
-        timestamp: new Date(p.createdAt).getTime(),
-        iconType: "FolderKanban",
-      });
-    });
-
-    recentResearches.forEach((r: { id: string; title: string; createdAt: Date; project: { title: string } }) => {
-      activities.push({
-        id: `res-${r.id}`,
-        title: "Generated AI Research",
-        description: `${r.title} (${r.project.title})`,
-        time: getRelativeTimeString(r.createdAt),
-        timestamp: new Date(r.createdAt).getTime(),
-        iconType: "Sparkles",
-      });
-    });
-
-    recentPrds.forEach((prd: { id: string; title: string; createdAt: Date; project: { title: string } }) => {
-      activities.push({
-        id: `prd-${prd.id}`,
-        title: "Generated PRD",
-        description: `${prd.title} (${prd.project.title})`,
-        time: getRelativeTimeString(prd.createdAt),
-        timestamp: new Date(prd.createdAt).getTime(),
-        iconType: "FileText",
-      });
-    });
-
-    recentRoadmaps.forEach((rm: { id: string; title: string; createdAt: Date; project: { title: string } }) => {
-      activities.push({
-        id: `rm-${rm.id}`,
-        title: "Generated Product Roadmap",
-        description: `${rm.title} (${rm.project.title})`,
-        time: getRelativeTimeString(rm.createdAt),
-        timestamp: new Date(rm.createdAt).getTime(),
-        iconType: "LayoutTemplate",
-      });
-    });
-
-    recentArchitectures.forEach((arch: { id: string; title: string; createdAt: Date; project: { title: string } }) => {
-      activities.push({
-        id: `arch-${arch.id}`,
-        title: "Generated System Architecture",
-        description: `${arch.title} (${arch.project.title})`,
-        time: getRelativeTimeString(arch.createdAt),
-        timestamp: new Date(arch.createdAt).getTime(),
-        iconType: "Brain",
-      });
-    });
-
-    recentTasks.forEach((t: { id: string; title: string; status: string; updatedAt: Date; project: { title: string } }) => {
-      activities.push({
-        id: `task-${t.id}`,
-        title: t.status === "completed" || t.status === "done" ? "Completed a task" : "Updated a task",
-        description: `${t.title} (${t.project.title})`,
-        time: getRelativeTimeString(t.updatedAt),
-        timestamp: new Date(t.updatedAt).getTime(),
-        iconType: "CheckCircle2",
-      });
-    });
 
     activities.sort((a, b) => b.timestamp - a.timestamp);
     const recentActivities = activities.slice(0, 6);
+    const recentProjects = allMappedProjects.slice(0, 4);
 
-    // 6. Urgent Active Tasks
-    const urgentTasks = recentTasks
-      .filter((t) => t.status !== "completed" && t.status !== "done")
-      .map((t) => ({
-        id: t.id,
-        title: t.title,
-        status: t.status,
-        projectTitle: t.project.title,
-        updatedAt: getRelativeTimeString(t.updatedAt),
-      }));
-
-    // 7. Recent AI Artifacts Combined
-    const aiArtifactsCombined = [
-      ...recentResearches.map((r) => ({
-        id: r.id,
-        title: r.title,
-        type: "Research",
-        projectTitle: r.project.title,
-        time: getRelativeTimeString(r.createdAt),
-        timestamp: new Date(r.createdAt).getTime(),
-      })),
-      ...recentPrds.map((p) => ({
-        id: p.id,
-        title: p.title,
-        type: "PRD",
-        projectTitle: p.project.title,
-        time: getRelativeTimeString(p.createdAt),
-        timestamp: new Date(p.createdAt).getTime(),
-      })),
-      ...recentRoadmaps.map((rm) => ({
-        id: rm.id,
-        title: rm.title,
-        type: "Roadmap",
-        projectTitle: rm.project.title,
-        time: getRelativeTimeString(rm.createdAt),
-        timestamp: new Date(rm.createdAt).getTime(),
-      })),
-      ...recentArchitectures.map((arch) => ({
-        id: arch.id,
-        title: arch.title,
-        type: "Architecture",
-        projectTitle: arch.project.title,
-        time: getRelativeTimeString(arch.createdAt),
-        timestamp: new Date(arch.createdAt).getTime(),
-      })),
-    ]
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 5);
-
-    return NextResponse.json({
+    const payload = {
       user: {
         name: user.name,
         email: user.email,
@@ -329,9 +247,12 @@ export async function GET() {
       },
       recentProjects,
       recentActivities,
-      urgentTasks,
-      recentAiArtifacts: aiArtifactsCombined,
-    });
+    };
+
+    // Save to short 2s memory cache
+    dashboardCache.set(user.id, { data: payload, timestamp: Date.now() });
+
+    return NextResponse.json(payload);
   } catch (error) {
     console.error("Dashboard stats error:", error);
     return NextResponse.json(

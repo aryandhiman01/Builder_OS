@@ -21,43 +21,45 @@ export default async function PRDsPage({ params }: PageProps) {
 
   const { projectId } = await params;
 
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      user: {
-        email: session.user.email,
-      },
-    },
-    include: {
-      researches: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        select: {
-          id: true,
-          title: true,
-          prompt: true,
-          model: true,
-          tokens: true,
-          generationTime: true,
-          createdAt: true,
+  // Single-pass parallel execution for project & PRDs
+  const [project, prds] = await Promise.all([
+    prisma.project.findFirst({
+      where: {
+        id: projectId,
+        user: {
+          email: session.user.email,
         },
       },
-    },
-  });
+      include: {
+        researches: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            id: true,
+            title: true,
+            prompt: true,
+            model: true,
+            tokens: true,
+            generationTime: true,
+            createdAt: true,
+          },
+        },
+      },
+    }),
+    prisma.pRD.findMany({
+      where: {
+        projectId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
 
   if (!project) {
     redirect("/projects");
   }
-
-  const prds = await prisma.pRD.findMany({
-    where: {
-      projectId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
 
   return (
     <PRDPageClient

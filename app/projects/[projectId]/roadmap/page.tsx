@@ -7,72 +7,74 @@ import { prisma } from "@/lib/prisma";
 import RoadmapPageClient from "./RoadmapPageClient";
 
 interface PageProps {
-    params: Promise<{
-        projectId: string;
-    }>;
+  params: Promise<{
+    projectId: string;
+  }>;
 }
 
 export default async function RoadmapsPage({ params }: PageProps) {
-    const session = await getServerSession(authOptions);
-    
-    if(!session?.user?.email) {
-        redirect("/login"); 
-    }
+  const session = await getServerSession(authOptions);
 
-    const { projectId } = await params;
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
 
-    const project = await prisma.project.findFirst({
-        where: {
-            id: projectId,
-            user: {
-                email: session.user.email,
-            },
+  const { projectId } = await params;
+
+  // Single-pass parallel execution for project & roadmaps
+  const [project, roadmaps] = await Promise.all([
+    prisma.project.findFirst({
+      where: {
+        id: projectId,
+        user: {
+          email: session.user.email,
         },
-        include: {
-            prds: {
-                orderBy: {
-                    createdAt: "desc",
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    prompt: true,
-                    model: true,
-                    tokens: true,
-                    generationTime: true,
-                    createdAt: true,
-                },
-            },
-        },
-    });
-
-    if(!project) {
-        redirect("/projects");
-    }
-
-    const roadmaps = await prisma.roadmap.findMany({
-        where: {
-            projectId,
-        },
-        orderBy: {
+      },
+      include: {
+        prds: {
+          orderBy: {
             createdAt: "desc",
+          },
+          select: {
+            id: true,
+            title: true,
+            prompt: true,
+            model: true,
+            tokens: true,
+            generationTime: true,
+            createdAt: true,
+          },
         },
-        include: {
-            prd: {
-                select: {
-                    id: true,
-                    title: true,
-                },
-            },
+      },
+    }),
+    prisma.roadmap.findMany({
+      where: {
+        projectId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        prd: {
+          select: {
+            id: true,
+            title: true,
+          },
         },
-    });
+      },
+    }),
+  ]);
 
-    return (
-        <RoadmapPageClient
-            projectId={projectId}
-            projectTitle={project.title}
-            initialRoadmaps={roadmaps}
-            prds={project.prds}
-        />
-    )
+  if (!project) {
+    redirect("/projects");
+  }
+
+  return (
+    <RoadmapPageClient
+      projectId={projectId}
+      projectTitle={project.title}
+      initialRoadmaps={roadmaps}
+      prds={project.prds}
+    />
+  );
 }

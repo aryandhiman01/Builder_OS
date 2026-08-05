@@ -14,11 +14,16 @@ import {
   Check,
 } from "lucide-react";
 
+import dynamic from "next/dynamic";
+
 import StatsCard from "@/components/dashboard/StatsCard";
 import ProjectCard from "@/components/dashboard/ProjectCard";
 import RecentActivity, { ActivityItemData } from "@/components/dashboard/RecentActivity";
 import AIHeroCard from "@/components/dashboard/AIHeroCard";
-import CreateProjectModal from "@/components/projects/CreateProjectModal";
+
+const CreateProjectModal = dynamic(() => import("@/components/projects/CreateProjectModal"), {
+  ssr: false,
+});
 
 interface ProjectData {
   id: string;
@@ -54,12 +59,13 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
   const [projectFilter, setProjectFilter] = useState<"all" | "Building" | "Planning" | "Completed">("all");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
-  const fetchStats = useCallback(async (isSilent = false) => {
+  const fetchStats = useCallback(async (isSilent = false, forceRefresh = false) => {
     try {
       if (!isSilent) setLoading(true);
       else setIsRefreshing(true);
 
-      const res = await fetch("/api/dashboard/stats", { cache: "no-store" });
+      const url = forceRefresh ? "/api/dashboard/stats?refresh=true" : "/api/dashboard/stats";
+      const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) return;
 
       const data = await res.json();
@@ -69,6 +75,12 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
       setStats(data.stats);
       setRecentProjects(data.recentProjects || []);
       setRecentActivities(data.recentActivities || []);
+
+      try {
+        sessionStorage.setItem("builderos_dashboard_cache", JSON.stringify(data));
+      } catch {
+        // ignore quota errors
+      }
     } catch (err) {
       console.error("Failed to fetch dashboard real-time data:", err);
     } finally {
@@ -77,19 +89,32 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
     }
   }, []);
 
-  // Initial fetch and 3-second real-time polling loop
+  // Instant SWR Render from cache + silent background revalidation on mount & focus
   useEffect(() => {
-    fetchStats(false);
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("builderos_dashboard_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.stats) {
+          if (parsed.user?.name) setUserName(parsed.user.name);
+          setStats(parsed.stats);
+          setRecentProjects(parsed.recentProjects || []);
+          setRecentActivities(parsed.recentActivities || []);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {
+      // ignore
+    }
 
-    const interval = setInterval(() => {
-      fetchStats(true);
-    }, 3000);
+    fetchStats(hasCache, true);
 
-    const handleFocus = () => fetchStats(true);
+    const handleFocus = () => fetchStats(true, true);
     window.addEventListener("focus", handleFocus);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("focus", handleFocus);
     };
   }, [fetchStats]);

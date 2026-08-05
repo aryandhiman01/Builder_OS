@@ -125,10 +125,10 @@ export default function SettingsClient() {
   };
 
   // Fetch Settings & User Profile
-  const fetchSettings = useCallback(async () => {
+  const fetchSettings = useCallback(async (isSilent = false) => {
     try {
-      setLoading(true);
-      const res = await fetch("/api/settings");
+      if (!isSilent) setLoading(true);
+      const res = await fetch("/api/settings", { cache: "no-store" });
       if (!res.ok) {
         if (res.status === 401) {
           router.push("/login");
@@ -139,16 +139,38 @@ export default function SettingsClient() {
       const data = await res.json();
       setUser(data.user);
       setSettings(data.settings);
+
+      try {
+        sessionStorage.setItem("builderos_settings_cache", JSON.stringify(data));
+      } catch {
+        // ignore
+      }
     } catch (err) {
       console.error(err);
       toast.error("Could not load settings");
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   }, [router]);
 
   useEffect(() => {
-    fetchSettings();
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("builderos_settings_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.user) {
+          setUser(parsed.user);
+          setSettings(parsed.settings);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    fetchSettings(hasCache);
   }, [fetchSettings]);
 
   // Handle Save Settings

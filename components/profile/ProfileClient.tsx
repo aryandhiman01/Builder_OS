@@ -70,10 +70,10 @@ export default function ProfileClient() {
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "stats">("profile");
 
   // Fetch live real-time profile & stats from backend
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = useCallback(async (isSilent = false) => {
     try {
-      setLoading(true);
-      const res = await fetch("/api/user/profile");
+      if (!isSilent) setLoading(true);
+      const res = await fetch("/api/user/profile", { cache: "no-store" });
       if (!res.ok) throw new Error("Failed to load profile");
 
       const data = await res.json();
@@ -81,16 +81,40 @@ export default function ProfileClient() {
       setStats(data.stats);
       setNameInput(data.user.name || "");
       setImageInput(data.user.image || "");
+
+      try {
+        sessionStorage.setItem("builderos_profile_cache", JSON.stringify(data));
+      } catch {
+        // ignore
+      }
     } catch (err) {
       console.error("Profile fetch error:", err);
       toast.error("Failed to load live profile data");
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProfile();
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("builderos_profile_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.user) {
+          setUser(parsed.user);
+          setStats(parsed.stats);
+          setNameInput(parsed.user.name || "");
+          setImageInput(parsed.user.image || "");
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    fetchProfile(hasCache);
   }, [fetchProfile]);
 
   // Member Since date formatting

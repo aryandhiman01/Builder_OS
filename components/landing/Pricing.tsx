@@ -96,7 +96,7 @@ export default function Pricing() {
             initial={{ opacity: 0, y: 30 }}
             animate={titleInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mx-auto max-w-2xl text-5xl font-bold text-white md:text-6xl"
+            className="mx-auto max-w-2xl text-3xl min-[380px]:text-4xl sm:text-5xl font-bold text-white md:text-6xl break-words"
             style={{ fontFamily: "var(--font-sora)", letterSpacing: "-0.03em" }}
           >
             Invest in your{" "}

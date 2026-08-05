@@ -503,11 +503,10 @@ export default function Features() {
                   animate={titleInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.5, delay: 0.05 + i * 0.08 }}
                   onClick={() => setActive(i)}
-                  className={`group w-full rounded-xl border px-4 py-3.5 text-left transition-all duration-300 ${
-                    isActive
+                  className={`group w-full rounded-xl border px-4 py-3.5 text-left transition-all duration-300 ${isActive
                       ? "feature-item-active"
                       : "border-white/[0.05] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]"
-                  }`}
+                    }`}
                   style={
                     isActive
                       ? { borderColor: `${feature.accent}40`, background: `${feature.accent}08` }
@@ -530,16 +529,14 @@ export default function Features() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span
-                          className={`text-sm font-medium transition-colors duration-200 ${
-                            isActive ? "text-white" : "text-white/70 group-hover:text-white/90"
-                          }`}
+                          className={`text-sm font-medium transition-colors duration-200 ${isActive ? "text-white" : "text-white/70 group-hover:text-white/90"
+                            }`}
                         >
                           {feature.title}
                         </span>
                         <ChevronRight
-                          className={`h-4 w-4 shrink-0 transition-all duration-300 ${
-                            isActive ? "translate-x-0.5 opacity-100" : "opacity-0 group-hover:opacity-50"
-                          }`}
+                          className={`h-4 w-4 shrink-0 transition-all duration-300 ${isActive ? "translate-x-0.5 opacity-100" : "opacity-0 group-hover:opacity-50"
+                            }`}
                           style={{ color: isActive ? feature.accent : "#8a8a93" }}
                         />
                       </div>

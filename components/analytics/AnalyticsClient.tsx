@@ -82,14 +82,13 @@ const containerVariants: Variants = {
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 24, scale: 0.98 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1],
+      duration: 0.25,
+      ease: "easeOut",
     },
   },
 };
@@ -270,6 +269,11 @@ export default function AnalyticsClient() {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [timeAgoText, setTimeAgoText] = useState<string>("just now");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const fetchAnalytics = useCallback(async (silent = false, forceRefresh = false) => {
     try {
@@ -541,26 +545,28 @@ export default function AnalyticsClient() {
             icon={TrendingUp}
           >
             <div className="h-[220px] sm:h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                <AreaChart data={charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
-                      <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={col} stopOpacity={0.3} />
-                        <stop offset="100%" stopColor={col} stopOpacity={0} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  <Area type="monotone" dataKey="projects" name="Projects" stroke={COLORS.orange} fill="url(#gradP)" strokeWidth={2.5} dot={false} />
-                  <Area type="monotone" dataKey="tasks" name="Tasks" stroke={COLORS.blue} fill="url(#gradT)" strokeWidth={2.5} dot={false} />
-                  <Area type="monotone" dataKey="aiRequests" name="AI Requests" stroke={COLORS.violet} fill="url(#gradA)" strokeWidth={2.5} dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <AreaChart data={charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
+                        <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={col} stopOpacity={0.3} />
+                          <stop offset="100%" stopColor={col} stopOpacity={0} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<DarkTooltip />} />
+                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    <Area type="monotone" dataKey="projects" name="Projects" stroke={COLORS.orange} fill="url(#gradP)" strokeWidth={2.5} dot={false} />
+                    <Area type="monotone" dataKey="tasks" name="Tasks" stroke={COLORS.blue} fill="url(#gradT)" strokeWidth={2.5} dot={false} />
+                    <Area type="monotone" dataKey="aiRequests" name="AI Requests" stroke={COLORS.violet} fill="url(#gradA)" strokeWidth={2.5} dot={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </ChartCard>
 
@@ -571,18 +577,20 @@ export default function AnalyticsClient() {
             icon={BarChart2}
           >
             <div className="h-[220px] sm:h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                <BarChart data={charts.monthlyAdditions || charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  <Bar dataKey="projects" name="New Projects" fill={COLORS.orange} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="tasks" name="New Tasks" fill={COLORS.blue} radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="aiRequests" name="New AI Assets" fill={COLORS.violet} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <BarChart data={charts.monthlyAdditions || charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<DarkTooltip />} />
+                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    <Bar dataKey="projects" name="New Projects" fill={COLORS.orange} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="tasks" name="New Tasks" fill={COLORS.blue} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="aiRequests" name="New AI Assets" fill={COLORS.violet} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </ChartCard>
         </div>
@@ -603,24 +611,26 @@ export default function AnalyticsClient() {
               <EmptyChart label="No tasks created yet" />
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                  <PieChart>
-                    <Pie
-                      data={charts.taskStatusDistribution}
-                      cx="50%" cy="50%"
-                      innerRadius="50%" outerRadius="72%"
-                      paddingAngle={4}
-                      dataKey="count"
-                      nameKey="status"
-                    >
-                      {charts.taskStatusDistribution.map((e, i) => (
-                        <Cell key={i} fill={STATUS_COLORS[e.status] || PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<DarkTooltip />} />
-                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {isMounted && (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                    <PieChart>
+                      <Pie
+                        data={charts.taskStatusDistribution}
+                        cx="50%" cy="50%"
+                        innerRadius="50%" outerRadius="72%"
+                        paddingAngle={4}
+                        dataKey="count"
+                        nameKey="status"
+                      >
+                        {charts.taskStatusDistribution.map((e, i) => (
+                          <Cell key={i} fill={STATUS_COLORS[e.status] || PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<DarkTooltip />} />
+                      <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             )}
           </ChartCard>
@@ -630,24 +640,26 @@ export default function AnalyticsClient() {
               <EmptyChart label="No tasks created yet" />
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                  <PieChart>
-                    <Pie
-                      data={charts.taskPriorityDistribution}
-                      cx="50%" cy="50%"
-                      innerRadius="50%" outerRadius="72%"
-                      paddingAngle={4}
-                      dataKey="count"
-                      nameKey="priority"
-                    >
-                      {charts.taskPriorityDistribution.map((e, i) => (
-                        <Cell key={i} fill={PRIORITY_COLORS[e.priority] || PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<DarkTooltip />} />
-                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {isMounted && (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                    <PieChart>
+                      <Pie
+                        data={charts.taskPriorityDistribution}
+                        cx="50%" cy="50%"
+                        innerRadius="50%" outerRadius="72%"
+                        paddingAngle={4}
+                        dataKey="count"
+                        nameKey="priority"
+                      >
+                        {charts.taskPriorityDistribution.map((e, i) => (
+                          <Cell key={i} fill={PRIORITY_COLORS[e.priority] || PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<DarkTooltip />} />
+                      <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             )}
           </ChartCard>
@@ -666,41 +678,45 @@ export default function AnalyticsClient() {
         <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
           <ChartCard title="Daily Activity — Last 14 Days" sub="All workspace actions per day" icon={Activity}>
             <div className="h-[210px] sm:h-[240px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                <BarChart data={charts.dailyActivity} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis
-                    dataKey="day"
-                    tick={{ fill: "#8a8a93", fontSize: 9 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => v.split(",")[0]}
-                  />
-                  <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Bar dataKey="actions" name="Actions" radius={[5, 5, 0, 0]}>
-                    {charts.dailyActivity.map((_, i) => (
-                      <Cell key={i} fill={`rgba(255,107,53,${0.35 + (i / Math.max(charts.dailyActivity.length - 1, 1)) * 0.65})`} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <BarChart data={charts.dailyActivity} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis
+                      dataKey="day"
+                      tick={{ fill: "#8a8a93", fontSize: 9 }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v) => v.split(",")[0]}
+                    />
+                    <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<DarkTooltip />} />
+                    <Bar dataKey="actions" name="Actions" radius={[5, 5, 0, 0]}>
+                      {charts.dailyActivity.map((_, i) => (
+                        <Cell key={i} fill={`rgba(255,107,53,${0.35 + (i / Math.max(charts.dailyActivity.length - 1, 1)) * 0.65})`} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </ChartCard>
 
           <ChartCard title="Weekly Task Completion" sub="Created vs completed tasks per week" icon={CheckCircle2}>
             <div className="h-[210px] sm:h-[240px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                <LineChart data={charts.weeklyTaskCompletion} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="week" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<DarkTooltip />} />
-                  <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  <Line type="monotone" dataKey="created" name="Created" stroke={COLORS.blue} strokeWidth={2.5} dot={{ fill: COLORS.blue, r: 3 }} />
-                  <Line type="monotone" dataKey="completed" name="Completed" stroke={COLORS.emerald} strokeWidth={2.5} dot={{ fill: COLORS.emerald, r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <LineChart data={charts.weeklyTaskCompletion} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="week" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<DarkTooltip />} />
+                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    <Line type="monotone" dataKey="created" name="Created" stroke={COLORS.blue} strokeWidth={2.5} dot={{ fill: COLORS.blue, r: 3 }} />
+                    <Line type="monotone" dataKey="completed" name="Completed" stroke={COLORS.emerald} strokeWidth={2.5} dot={{ fill: COLORS.emerald, r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </ChartCard>
         </div>
@@ -722,17 +738,19 @@ export default function AnalyticsClient() {
             ) : (
               <>
                 <div className="h-[200px] sm:h-[220px] w-full">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                    <BarChart data={charts.aiBreakdown} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 0 }} barSize={14}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="type" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} width={80} />
-                      <Tooltip content={<DarkTooltip />} />
-                      <Bar dataKey="count" name="Count" radius={[0, 6, 6, 0]}>
-                        {charts.aiBreakdown.map((e, i) => <Cell key={i} fill={e.color} />)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {isMounted && (
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                      <BarChart data={charts.aiBreakdown} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 0 }} barSize={14}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                        <XAxis type="number" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <YAxis type="category" dataKey="type" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} width={80} />
+                        <Tooltip content={<DarkTooltip />} />
+                        <Bar dataKey="count" name="Count" radius={[0, 6, 6, 0]}>
+                          {charts.aiBreakdown.map((e, i) => <Cell key={i} fill={e.color} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2.5 sm:gap-3 border-t border-white/[0.06] pt-3">
                   {charts.aiBreakdown.map((a) => (
@@ -753,24 +771,26 @@ export default function AnalyticsClient() {
               <EmptyChart label="No projects yet" />
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                  <PieChart>
-                    <Pie
-                      data={charts.projectCategoryData}
-                      dataKey="count"
-                      nameKey="category"
-                      cx="50%" cy="50%"
-                      outerRadius="72%"
-                      paddingAngle={4}
-                    >
-                      {charts.projectCategoryData.map((_, i) => (
-                        <Cell key={i} fill={PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<DarkTooltip />} />
-                    <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {isMounted && (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                    <PieChart>
+                      <Pie
+                        data={charts.projectCategoryData}
+                        dataKey="count"
+                        nameKey="category"
+                        cx="50%" cy="50%"
+                        outerRadius="72%"
+                        paddingAngle={4}
+                      >
+                        {charts.projectCategoryData.map((_, i) => (
+                          <Cell key={i} fill={PIE_PALETTE[i % PIE_PALETTE.length]} stroke="rgba(0,0,0,0.4)" strokeWidth={1} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<DarkTooltip />} />
+                      <Legend iconType="circle" iconSize={7} formatter={(v) => <span className="text-[11px] text-[#8a8a93]">{v}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             )}
           </ChartCard>

@@ -26,7 +26,7 @@ export async function GET() {
       },
     };
 
-    const [totalToday, inProgress, completed, overdue, activeTasks] = await Promise.all([
+    const [totalToday, inProgress, completed, overdue, activeTasks, highPriorityToday] = await Promise.all([
       // Today's / Active tasks (created today, due today, or in-progress)
       prisma.task.count({
         where: {
@@ -63,23 +63,23 @@ export async function GET() {
         },
         select: { estimatedHours: true },
       }),
+      // High Priority Today count
+      prisma.task.count({
+        where: {
+          ...baseWhere,
+          status: { not: "completed" },
+          priority: "high",
+          OR: [
+            { dueDate: { gte: todayStart, lt: todayEnd } },
+            { createdAt: { gte: todayStart, lt: todayEnd } },
+          ],
+        },
+      }),
     ]);
 
     const totalFocusHours = activeTasks
       .filter((t) => t.estimatedHours)
       .reduce((sum, t) => sum + (t.estimatedHours ?? 0), 0);
-
-    const highPriorityToday = await prisma.task.count({
-      where: {
-        ...baseWhere,
-        status: { not: "completed" },
-        priority: "high",
-        OR: [
-          { dueDate: { gte: todayStart, lt: todayEnd } },
-          { createdAt: { gte: todayStart, lt: todayEnd } },
-        ],
-      },
-    });
 
     return NextResponse.json({
       today: totalToday,

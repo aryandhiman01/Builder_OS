@@ -216,10 +216,16 @@ export default function ProjectOverviewClient({
         if (!isSilent) setLoading(true);
         if (isSilent) setIsSyncing(true);
 
-        const res = await fetch(`/api/projects/${projectId}/overview`);
+        const res = await fetch(`/api/projects/${projectId}/overview`, { cache: "no-store" });
         if (!res.ok) return;
         const result = await res.json();
         setData(result);
+
+        try {
+          sessionStorage.setItem(`builderos_project_cache_${projectId}`, JSON.stringify(result));
+        } catch {
+          // ignore
+        }
       } catch (err) {
         console.error("Error fetching real-time project overview:", err);
       } finally {
@@ -233,8 +239,24 @@ export default function ProjectOverviewClient({
   );
 
   useEffect(() => {
-    fetchOverview(false);
-  }, [fetchOverview]);
+    setIsMounted(true);
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem(`builderos_project_cache_${projectId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed?.project) {
+          setData(parsed);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    fetchOverview(hasCache);
+  }, [projectId, fetchOverview]);
 
   if (loading && !data) {
     return (
