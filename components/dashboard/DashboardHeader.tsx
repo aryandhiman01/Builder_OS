@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Search, Plus, Menu } from "lucide-react";
 import UserDropdown from "./UserDropdown";
@@ -14,6 +14,18 @@ interface DashboardHeaderProps {
   onOpenMobileSidebar?: () => void;
 }
 
+function getGreetingInfo(hour: number) {
+  if (hour >= 5 && hour < 12) {
+    return { text: "Good Morning", emoji: "👋" };
+  } else if (hour >= 12 && hour < 17) {
+    return { text: "Good Afternoon", emoji: "☀️" };
+  } else if (hour >= 17 && hour < 22) {
+    return { text: "Good Evening", emoji: "🌆" };
+  } else {
+    return { text: "Good Night", emoji: "🌙" };
+  }
+}
+
 export default function DashboardHeader({
   onNewProject,
   searchQuery = "",
@@ -24,10 +36,20 @@ export default function DashboardHeader({
   const router = useRouter();
   const [internalModalOpen, setInternalModalOpen] = useState(false);
 
-  const hour = new Date().getHours();
-  let greeting = "Good Evening";
-  if (hour < 12) greeting = "Good Morning";
-  else if (hour < 18) greeting = "Good Afternoon";
+  const [greetingInfo, setGreetingInfo] = useState<{ text: string; emoji: string }>(() => {
+    return getGreetingInfo(new Date().getHours());
+  });
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const currentHour = new Date().getHours();
+      setGreetingInfo(getGreetingInfo(currentHour));
+    };
+
+    updateGreeting();
+    const interval = setInterval(updateGreeting, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const firstName = session?.user?.name?.split(" ")[0] ?? "Builder";
 
@@ -75,7 +97,7 @@ export default function DashboardHeader({
                   className="text-base sm:text-lg font-bold tracking-tight text-white leading-none"
                   style={{ fontFamily: "var(--font-sora)" }}
                 >
-                  {greeting}, {firstName} 👋
+                  {greetingInfo.text}, {firstName} {greetingInfo.emoji}
                 </h1>
               </div>
               <p className="mt-1 text-xs text-[#8a8a93] hidden sm:block">
