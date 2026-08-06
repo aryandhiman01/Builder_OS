@@ -1,11 +1,5 @@
-import {
-  ai,
-  DEFAULT_MODEL,
-} from "../client";
-
-import {
-  buildResearchPrompt,
-} from "../prompts/research";
+import { generateContentWithRetry, DEFAULT_MODEL } from "../client";
+import { buildResearchPrompt } from "../prompts/research";
 
 export interface ResearchResult {
   content: string;
@@ -14,64 +8,38 @@ export interface ResearchResult {
   generationTime: number;
 }
 
-export async function generateResearch(
-  prompt: string
-): Promise<ResearchResult> {
-
+export async function generateResearch(prompt: string): Promise<ResearchResult> {
   const startTime = Date.now();
 
   try {
+    const { response, usedModel } = await generateContentWithRetry({
+      model: DEFAULT_MODEL,
+      contents: buildResearchPrompt(prompt),
+      config: {
+        temperature: 0.4,
+        topP: 0.9,
+      },
+    });
 
-    const response =
-      await ai.models.generateContent({
-
-        model: DEFAULT_MODEL,
-
-        contents: buildResearchPrompt(
-          prompt
-        ),
-
-      });
-
-    const generationTime =
-      (Date.now() - startTime) / 1000;
-
-    const content =
-      response.text?.trim() ?? "";
+    const generationTime = Math.round((Date.now() - startTime) / 1000);
+    const content = response.text?.trim() ?? "";
 
     if (!content) {
-
-      throw new Error(
-        "Gemini returned an empty response."
-      );
-
+      throw new Error("Gemini returned an empty response.");
     }
 
     return {
-
       content,
-
-      model: DEFAULT_MODEL,
-
-      tokens:
-        response.usageMetadata
-          ?.totalTokenCount ?? 0,
-
+      model: usedModel,
+      tokens: response.usageMetadata?.totalTokenCount ?? 0,
       generationTime,
-
     };
-
-  } catch (error) {
-
-    console.error(
-      "Gemini Error:",
-      error
-    );
-
-    throw new Error(
-      "Failed to generate AI research."
-    );
-
+  } catch (error: any) {
+    console.error("Gemini Generation Error:", error);
+    const status = error?.status ?? error?.error?.code;
+    if (status === 503 || error?.message?.includes("high demand")) {
+      throw new Error("Gemini AI is currently experiencing high demand. Please retry in a few seconds.");
+    }
+    throw new Error(error?.message || "Failed to generate AI research.");
   }
-
 }

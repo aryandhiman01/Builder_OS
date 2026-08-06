@@ -27,9 +27,12 @@ OUTPUT RULES
 
 - Return ONLY Markdown.
 - Never wrap the response inside triple backticks.
-- Every Mermaid diagram MUST use valid Mermaid syntax.
+- Every Mermaid diagram MUST use strictly valid Mermaid syntax.
 - Mermaid supports flowchart, sequenceDiagram, classDiagram, erDiagram, stateDiagram, journey, gantt, pie, gitGraph, mindmap, timeline, and C4 diagrams only.
 - Never output componentDiagram, component, package, @startuml, or any PlantUML syntax. For component views, use flowchart LR with Mermaid subgraph ... end groups.
+- For flowchart node labels: ALWAYS enclose node text in double quotes if it contains spaces, linebreaks, or parentheses (e.g. NodeID["Next.js Router<br/>(Role Guards)"]). NEVER use unquoted \\n or unquoted () inside node brackets [...].
+- For erDiagram: ONLY use PK or FK as key modifiers. NEVER use SK, UK, INDEX, or custom tokens between attribute name and comment (e.g. use string institutional_id "Roll No / Faculty ID [SK]").
+- For subgraphs: ALWAYS provide an alphanumeric ID and quoted title (e.g. subgraph frontend_arch ["Frontend Architecture"]).
 - Use proper Markdown headings.
 - Use Markdown tables where appropriate.
 - Be highly detailed.

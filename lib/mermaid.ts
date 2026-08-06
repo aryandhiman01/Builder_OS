@@ -62,11 +62,87 @@ function convertComponentDiagram(source: string): string {
   return output.join("\n");
 }
 
+/**
+ * Robust, production-grade Mermaid Chart Sanitizer and Parser.
+ * Automatically fixes common LLM output syntax errors:
+ * - erDiagram: Strips non-standard attribute modifiers like SK/UK/INDEX.
+ * - flowchart: Fixes node labels containing unquoted \n or parentheses.
+ * - subgraphs: Ensures subgraph titles with spaces are properly quoted and assigned IDs.
+ */
+export function sanitizeMermaidChart(rawChart: string): string {
+  let chart = rawChart.trim();
+
+  if (/^\s*componentDiagram\b/i.test(chart)) {
+    chart = convertComponentDiagram(chart);
+  }
+
+  const lines = chart.split("\n");
+  const firstLine = lines[0] || "";
+  const isErDiagram = /^\s*erDiagram\b/i.test(firstLine);
+  const isFlowchart = /^\s*(flowchart|graph)\b/i.test(firstLine);
+
+  const cleanedLines: string[] = [];
+
+  for (let line of lines) {
+    let trimmed = line.trim();
+    if (!trimmed) {
+      cleanedLines.push("");
+      continue;
+    }
+
+    // --- 1. ER DIAGRAM SANITIZATION ---
+    if (isErDiagram) {
+      // Fix non-standard attribute key modifiers: e.g. "string institutional_id SK "Roll No"" -> "string institutional_id "Roll No [SK]""
+      const erAttrMatch = trimmed.match(/^(\s*)([A-Za-z0-9_<>]+)\s+([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)(?:\s+"([^"]*)")?/);
+      if (erAttrMatch) {
+        const [, indent, type, name, modifier, comment] = erAttrMatch;
+        const upperMod = modifier.toUpperCase();
+        if (upperMod === "PK" || upperMod === "FK") {
+          cleanedLines.push(`${indent}${type} ${name} ${upperMod}${comment ? ` "${comment}"` : ""}`);
+          continue;
+        } else {
+          const newComment = comment ? `"${comment} [${modifier}]"` : `"[${modifier}]"`;
+          cleanedLines.push(`${indent}${type} ${name} ${newComment}`);
+          continue;
+        }
+      }
+    }
+
+    // --- 2. FLOWCHART / GRAPH SANITIZATION ---
+    if (isFlowchart) {
+      // Fix subgraph titles with unquoted spaces:  subgraph UI Layer  ->  subgraph ui_layer ["UI Layer"]
+      const subgraphMatch = trimmed.match(/^subgraph\s+([^\s"\[]+(?:\s+[^\s"\[]+)+)\s*$/i);
+      if (subgraphMatch) {
+        const title = subgraphMatch[1].trim();
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+        cleanedLines.push(`subgraph ${slug} ["${title}"]`);
+        continue;
+      }
+
+      // Fix unquoted node labels with \n or special chars: NodeID[Next.js App Router\n(Role Guards)] -> NodeID["Next.js App Router<br/>(Role Guards)"]
+      trimmed = trimmed.replace(/([A-Za-z0-9_]+)\[([^\]]+)\]/g, (match, nodeId, label) => {
+        if (label.startsWith('"') && label.endsWith('"')) {
+          return match;
+        }
+        const sanitizedLabel = label
+          .replace(/\\n/g, "<br/>")
+          .replace(/\n/g, "<br/>")
+          .replace(/"/g, "'");
+        return `${nodeId}["${sanitizedLabel}"]`;
+      });
+    }
+
+    cleanedLines.push(trimmed);
+  }
+
+  return cleanedLines.join("\n");
+}
+
 export function normalizeArchitectureMermaid(content: string): string {
-  const normalize = (chart: string) => /^\s*componentDiagram\b/i.test(chart) ? convertComponentDiagram(chart) : chart.trim();
   const fenced = content.replace(/```[^\n]*\n([\s\S]*?)```/g, (block, chart) => {
-    const normalized = normalize(chart);
-    return normalized === chart.trim() ? block : `\`\`\`mermaid\n${normalized}\n\`\`\``;
+    const normalized = sanitizeMermaidChart(chart);
+    return `\`\`\`mermaid\n${normalized}\n\`\`\``;
   });
+
   return fenced.replace(/(^|\n)(componentDiagram\b[\s\S]*?)(?=\n#{1,6}\s|$)/gi, (_match, prefix, chart) => `${prefix}\`\`\`mermaid\n${convertComponentDiagram(chart)}\n\`\`\``);
 }

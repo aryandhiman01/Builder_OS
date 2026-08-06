@@ -168,14 +168,17 @@ function convertComponentToFlowchart(raw: string): string {
 
 // ─── Auto-fix chart before rendering ─────────────────────────────────────────
 
+import { sanitizeMermaidChart } from "@/lib/mermaid";
+
 function prepareChart(raw: string): { chart: string; converted: boolean } {
-  const tok = firstToken(raw);
+  const sanitized = sanitizeMermaidChart(raw);
+  const tok = firstToken(sanitized);
 
   if (tok === "component" || tok === "componentdiagram") {
-    return { chart: convertComponentToFlowchart(raw), converted: true };
+    return { chart: convertComponentToFlowchart(sanitized), converted: true };
   }
 
-  return { chart: raw.trim(), converted: false };
+  return { chart: sanitized.trim(), converted: true };
 }
 
 // ─── Module-level Mermaid initialisation flag ─────────────────────────────────

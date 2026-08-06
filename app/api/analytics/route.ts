@@ -126,7 +126,6 @@ export async function GET(req: Request) {
       { type: "PRD", count: totalPrds, color: "#FF6B35" },
       { type: "Roadmap", count: totalRoadmaps, color: "#38BDF8" },
       { type: "Architecture", count: totalArchitectures, color: "#34D399" },
-      { type: "Document", count: totalDocuments, color: "#F59E0B" },
       { type: "AI Chat", count: totalAiConversations, color: "#EC4899" },
     ];
 
