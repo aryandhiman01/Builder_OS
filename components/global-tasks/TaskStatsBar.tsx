@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckSquare, Clock, AlertTriangle, TrendingUp } from "lucide-react";
+import { CheckSquare, Clock, AlertTriangle, TrendingUp, Sparkles, CheckCircle2, Flame, Layers } from "lucide-react";
 import { motion } from "framer-motion";
 import type { TaskStats } from "./GlobalTasksClient";
 
@@ -12,43 +12,53 @@ interface TaskStatsBarProps {
 const statItems = [
   {
     key: "today" as keyof TaskStats,
-    label: "Today's Tasks",
+    label: "TODAY'S TASKS",
     icon: CheckSquare,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10 border-blue-500/20",
-    accent: "bg-blue-400",
+    desc: "Scheduled for today",
+    iconBg: "border-sky-500/30 bg-sky-500/10 text-sky-400",
+    badgeStyle: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+    borderHover: "hover:border-sky-500/40",
+    badgeLabel: "today",
   },
   {
     key: "inProgress" as keyof TaskStats,
-    label: "In Progress",
-    icon: TrendingUp,
-    color: "text-orange-400",
-    bg: "bg-orange-500/10 border-orange-500/20",
-    accent: "bg-orange-400",
+    label: "IN PROGRESS",
+    icon: Flame,
+    desc: "Active tasks building",
+    iconBg: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+    badgeStyle: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+    borderHover: "hover:border-amber-500/40",
+    badgeLabel: "active",
   },
   {
     key: "completed" as keyof TaskStats,
-    label: "Completed",
-    icon: CheckSquare,
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10 border-emerald-500/20",
-    accent: "bg-emerald-400",
+    label: "COMPLETED",
+    icon: CheckCircle2,
+    desc: "Successfully done",
+    iconBg: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+    badgeStyle: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+    borderHover: "hover:border-emerald-500/40",
+    badgeLabel: "done",
   },
   {
     key: "overdue" as keyof TaskStats,
-    label: "Overdue",
+    label: "OVERDUE",
     icon: AlertTriangle,
-    color: "text-red-400",
-    bg: "bg-red-500/10 border-red-500/20",
-    accent: "bg-red-400",
+    desc: "Immediate attention",
+    iconBg: "border-rose-500/30 bg-rose-500/10 text-rose-400",
+    badgeStyle: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+    borderHover: "hover:border-rose-500/40",
+    badgeLabel: "overdue",
   },
   {
     key: "totalFocusHours" as keyof TaskStats,
-    label: "Focus Hours",
+    label: "FOCUS HOURS",
     icon: Clock,
-    color: "text-violet-400",
-    bg: "bg-violet-500/10 border-violet-500/20",
-    accent: "bg-violet-400",
+    desc: "Deep focus time",
+    iconBg: "border-purple-500/30 bg-purple-500/10 text-purple-400",
+    badgeStyle: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+    borderHover: "hover:border-purple-500/40",
+    badgeLabel: "total",
     suffix: "h",
   },
 ];
@@ -66,19 +76,40 @@ export default function TaskStatsBar({ stats, loading }: TaskStatsBarProps) {
             key={item.key}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.06 }}
-            className="relative flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.025] px-4 py-3.5 overflow-hidden"
+            whileHover={{ y: -3 }}
+            transition={{ duration: 0.2, delay: i * 0.04 }}
+            className={`
+              group relative overflow-hidden rounded-xl border border-white/10 bg-[#09090c]/90 p-3.5 sm:p-4 shadow-md backdrop-blur-xl transition-all duration-200 ${item.borderHover} hover:bg-[#0c0c10]
+            `}
           >
-            {/* subtle left accent bar */}
-            <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-l-xl ${item.accent}`} />
-
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${item.bg}`}>
-              <Icon size={14} className={item.color} />
+            {/* Top Header & Icon Badge */}
+            <div className="flex items-start justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8a8a93]">
+                {item.label}
+              </span>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-lg border shadow-inner transition-transform duration-200 group-hover:scale-105 ${item.iconBg}`}>
+                <Icon size={15} />
+              </div>
             </div>
-            <div className="min-w-0">
-              <div className="text-[10px] font-medium text-[#8a8a93] truncate leading-tight">{item.label}</div>
-              <div className={`text-xl font-bold leading-tight mt-0.5 ${isLoading ? "text-[#8a8a93]" : "text-white"}`}>
-                {isLoading ? "—" : `${value ?? 0}${item.suffix ?? ""}`}
+
+            {/* Value Number */}
+            <h2
+              className={`mt-1 text-2xl sm:text-3xl font-black tracking-tight ${
+                isLoading ? "text-[#8a8a93] animate-pulse" : "text-white"
+              }`}
+              style={{ fontFamily: "var(--font-sora)" }}
+            >
+              {isLoading ? "—" : `${value ?? 0}${item.suffix ?? ""}`}
+            </h2>
+
+            {/* Bottom Description & Trend Badge */}
+            <div className="mt-3 flex items-center justify-between pt-2 border-t border-white/[0.06]">
+              <p className="text-[11px] text-[#8a8a93] truncate min-w-0 pr-1.5 font-medium">
+                {item.desc}
+              </p>
+              <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-mono font-semibold shrink-0 ${item.badgeStyle}`}>
+                <TrendingUp size={10} />
+                <span>{isLoading ? "0" : `${value ?? 0}${item.suffix ?? ""} ${item.badgeLabel}`}</span>
               </div>
             </div>
           </motion.div>
@@ -87,3 +118,4 @@ export default function TaskStatsBar({ stats, loading }: TaskStatsBarProps) {
     </div>
   );
 }
+
