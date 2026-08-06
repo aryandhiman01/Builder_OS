@@ -546,7 +546,7 @@ export default function AnalyticsClient() {
           >
             <div className="h-[220px] sm:h-[260px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 240 }}>
                   <AreaChart data={charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       {[["gradP", COLORS.orange], ["gradT", COLORS.blue], ["gradA", COLORS.violet]].map(([id, col]) => (
@@ -578,7 +578,7 @@ export default function AnalyticsClient() {
           >
             <div className="h-[220px] sm:h-[260px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 240 }}>
                   <BarChart data={charts.monthlyAdditions || charts.monthlyGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis dataKey="month" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -612,7 +612,7 @@ export default function AnalyticsClient() {
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
                 {isMounted && (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 400, height: 230 }}>
                     <PieChart>
                       <Pie
                         data={charts.taskStatusDistribution}
@@ -641,7 +641,7 @@ export default function AnalyticsClient() {
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
                 {isMounted && (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 400, height: 230 }}>
                     <PieChart>
                       <Pie
                         data={charts.taskPriorityDistribution}
@@ -679,7 +679,7 @@ export default function AnalyticsClient() {
           <ChartCard title="Daily Activity — Last 14 Days" sub="All workspace actions per day" icon={Activity}>
             <div className="h-[210px] sm:h-[240px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 220 }}>
                   <BarChart data={charts.dailyActivity} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                     <XAxis
@@ -705,7 +705,7 @@ export default function AnalyticsClient() {
           <ChartCard title="Weekly Task Completion" sub="Created vs completed tasks per week" icon={CheckCircle2}>
             <div className="h-[210px] sm:h-[240px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 220 }}>
                   <LineChart data={charts.weeklyTaskCompletion} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis dataKey="week" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -739,7 +739,7 @@ export default function AnalyticsClient() {
               <>
                 <div className="h-[200px] sm:h-[220px] w-full">
                   {isMounted && (
-                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 200 }}>
                       <BarChart data={charts.aiBreakdown} layout="vertical" margin={{ top: 5, right: 15, left: 10, bottom: 0 }} barSize={14}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
                         <XAxis type="number" tick={{ fill: "#8a8a93", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -772,7 +772,7 @@ export default function AnalyticsClient() {
             ) : (
               <div className="h-[230px] sm:h-[250px] w-full">
                 {isMounted && (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 400, height: 230 }}>
                     <PieChart>
                       <Pie
                         data={charts.projectCategoryData}
@@ -796,6 +796,7 @@ export default function AnalyticsClient() {
           </ChartCard>
         </div>
       </motion.section>
+
 
       {/* ── Project Progress Bars ── */}
       <motion.section

@@ -4,9 +4,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Short 2s in-memory server cache per user to eliminate DB waterfall on rapid re-renders
+// Short 3s in-memory server cache per user to eliminate DB pool exhaustion on rapid re-renders
 const dashboardCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL_MS = 2_000;
+const CACHE_TTL_MS = 3_000;
 
 function getRelativeTimeString(date: Date): string {
   const now = new Date();
@@ -41,35 +41,47 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check server memory cache for 0ms responses on rapid navigation
+    // Check server memory cache for 0ms responses on rapid navigation (guard against connection pool exhaustion)
     const url = new URL(req.url);
     const forceRefresh = url.searchParams.get("refresh") === "true";
     const cached = dashboardCache.get(user.id);
-    if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    const timeSinceCache = cached ? Date.now() - cached.timestamp : Infinity;
+
+    // Return cached data if less than 3s old OR if rapid re-fetch within 1s
+    if (cached && (!forceRefresh ? timeSinceCache < CACHE_TTL_MS : timeSinceCache < 1_000)) {
       return NextResponse.json(cached.data);
     }
 
-    // Single-pass parallel query execution to prevent DB waterfalls
-    const [projects, aiConversationCountRaw] = await Promise.all([
-      prisma.project.findMany({
-        where: { userId: user.id },
-        include: {
-          tasks: { select: { id: true, title: true, status: true, updatedAt: true } },
-          researches: { select: { id: true, title: true, createdAt: true } },
-          prds: { select: { id: true, title: true, createdAt: true } },
-          roadmaps: { select: { id: true, title: true, createdAt: true } },
-          architectures: { select: { id: true, title: true, createdAt: true } },
-          documents: { select: { id: true, title: true, createdAt: true } },
-        },
-        orderBy: { updatedAt: "desc" },
-      }),
-      prisma.$queryRaw<Array<{ count: bigint | number }>>`
-        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
-      `,
-    ]);
+    // Optimized sequential query execution to prevent DB connection pool exhaustion (P2024)
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { userId: user.id },
+          { members: { some: { userId: user.id } } },
+        ],
+      },
+      include: {
+        tasks: { select: { id: true, title: true, description: true, tags: true, status: true, updatedAt: true }, take: 15 },
+        researches: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
+        prds: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
+        roadmaps: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
+        architectures: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
+        documents: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 15,
+    });
+
+    const aiConversations = await prisma.aIConversation.findMany({
+      where: { userId: user.id },
+      select: { id: true, title: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+      take: 10,
+    });
+
 
     const projectsCount = projects.length;
-    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
+    const aiConversationsCount = aiConversations.length;
 
     let totalTasksCount = 0;
     let completedTasksCount = 0;
@@ -90,6 +102,18 @@ export async function GET(req: Request) {
     };
 
     const activities: ActivityItem[] = [];
+
+    // Collect AI Conversations
+    aiConversations.forEach((conv) => {
+      activities.push({
+        id: `conv-${conv.id}`,
+        title: "AI Chat Session",
+        description: conv.title || "Interactive AI workspace session",
+        time: getRelativeTimeString(conv.updatedAt),
+        timestamp: new Date(conv.updatedAt).getTime(),
+        iconType: "Brain",
+      });
+    });
 
     const allMappedProjects = projects.map((p) => {
       const projTotalTasks = p.tasks.length;
@@ -191,15 +215,32 @@ export async function GET(req: Request) {
         });
       });
 
+      // Collect Document activities
+      p.documents.forEach((doc) => {
+        activities.push({
+          id: `doc-${doc.id}`,
+          title: "Generated AI Document",
+          description: `${doc.title} (${p.title})`,
+          time: getRelativeTimeString(doc.createdAt),
+          timestamp: new Date(doc.createdAt).getTime(),
+          iconType: "FileText",
+        });
+      });
+
       // Collect Task activities
       p.tasks.forEach((t) => {
+        const isAIGenerated = t.tags?.includes("AI") || t.description?.toLowerCase().includes("ai");
         activities.push({
           id: `task-${t.id}`,
-          title: t.status === "completed" || t.status === "done" ? "Completed a task" : "Updated a task",
+          title: isAIGenerated
+            ? "AI Generated Task"
+            : t.status === "completed" || t.status === "done"
+            ? "Completed a task"
+            : "Updated a task",
           description: `${t.title} (${p.title})`,
           time: getRelativeTimeString(t.updatedAt),
           timestamp: new Date(t.updatedAt).getTime(),
-          iconType: "CheckCircle2",
+          iconType: isAIGenerated ? "Sparkles" : "CheckCircle2",
         });
       });
 
@@ -230,7 +271,9 @@ export async function GET(req: Request) {
       aiConversationsCount;
 
     activities.sort((a, b) => b.timestamp - a.timestamp);
-    const recentActivities = activities.slice(0, 6);
+    const recentActivities = activities.slice(0, 50);
+
+
     const recentProjects = allMappedProjects.slice(0, 4);
 
     const payload = {
@@ -249,15 +292,37 @@ export async function GET(req: Request) {
       recentActivities,
     };
 
-    // Save to short 2s memory cache
+    // Save to short 3s memory cache
     dashboardCache.set(user.id, { data: payload, timestamp: Date.now() });
+
 
     return NextResponse.json(payload);
   } catch (error) {
     console.error("Dashboard stats error:", error);
+
+    // Fallback to cached payload on connection pool timeout or database pressure
+    try {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.email) {
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true },
+        });
+        if (user) {
+          const cached = dashboardCache.get(user.id);
+          if (cached?.data) {
+            return NextResponse.json(cached.data);
+          }
+        }
+      }
+    } catch {
+      // ignore fallback error
+    }
+
     return NextResponse.json(
       { error: "Internal server error fetching dashboard stats" },
       { status: 500 }
     );
   }
 }
+

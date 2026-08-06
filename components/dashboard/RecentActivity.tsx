@@ -49,12 +49,34 @@ const ICON_COLOR_MAP = {
 export default function RecentActivity({ activities = [], loading = false }: RecentActivityProps) {
   const [filter, setFilter] = useState<"all" | "ai" | "projects">("all");
 
-  const filteredActivities = activities.filter((act) => {
-    if (filter === "all") return true;
-    if (filter === "ai") return act.iconType === "Brain" || act.iconType === "Sparkles" || act.iconType === "FileText";
-    if (filter === "projects") return act.iconType === "FolderKanban" || act.iconType === "CheckCircle2" || act.iconType === "LayoutTemplate";
-    return true;
-  });
+  const filteredActivities = activities
+    .filter((act) => {
+      if (filter === "all") return true;
+      if (filter === "ai") {
+        const titleLow = act.title.toLowerCase();
+        const descLow = act.description.toLowerCase();
+        return (
+          act.iconType === "Brain" ||
+          act.iconType === "Sparkles" ||
+          act.iconType === "FileText" ||
+          act.iconType === "LayoutTemplate" ||
+          titleLow.includes("ai") ||
+          titleLow.includes("generated") ||
+          descLow.includes("ai")
+        );
+      }
+      if (filter === "projects") {
+        const titleLow = act.title.toLowerCase();
+        return (
+          act.iconType === "FolderKanban" ||
+          (act.iconType === "CheckCircle2" && !titleLow.includes("ai"))
+        );
+      }
+      return true;
+    })
+    .slice(0, 8);
+
+
 
   return (
     <div

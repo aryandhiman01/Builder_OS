@@ -734,7 +734,7 @@ export default function ProjectOverviewClient({
           >
             <div className="h-[210px] sm:h-[235px] w-full">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 500, height: 220 }}>
                   <BarChart
                     data={analytics.milestoneAnalytics}
                     margin={{ top: 15, right: 15, left: -20, bottom: 0 }}
@@ -805,15 +805,15 @@ export default function ProjectOverviewClient({
           >
             <div className="h-[210px] sm:h-[235px] w-full relative flex items-center justify-center">
               {isMounted && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={150}>
-                  {taskStats.total === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                      <div className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[#8a8a93]">
-                        <CheckSquare size={18} />
-                      </div>
-                      <p className="mt-2 text-xs text-[#8a8a93]">No tasks created yet</p>
+                taskStats.total === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-[#8a8a93]">
+                      <CheckSquare size={18} />
                     </div>
-                  ) : (
+                    <p className="mt-2 text-xs text-[#8a8a93]">No tasks created yet</p>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 300, height: 220 }}>
                     <PieChart>
                       <Pie
                         data={analytics.taskStatusChart.filter((d) => d.value > 0)}
@@ -832,9 +832,10 @@ export default function ProjectOverviewClient({
                       </Pie>
                       <Tooltip content={<DarkTooltip />} />
                     </PieChart>
-                  )}
-                </ResponsiveContainer>
+                  </ResponsiveContainer>
+                )
               )}
+
               {taskStats.total > 0 && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <span className="text-xl sm:text-2xl font-extrabold text-white font-mono" style={{ fontFamily: "var(--font-sora)" }}>
