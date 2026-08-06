@@ -7,28 +7,25 @@ import type { SVGProps } from "react";
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "#features" },
-    { label: "How it Works", href: "#workflow" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Changelog", href: "#" },
-    { label: "Roadmap", href: "#" },
+    { label: "Features", href: "/#features" },
+    { label: "How it Works", href: "/#workflow" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "Changelog", href: "/docs" },
+    { label: "Roadmap", href: "/roadmaps" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Press", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
   ],
   Resources: [
-    { label: "Documentation", href: "#" },
-    { label: "API Reference", href: "#" },
-    { label: "Community", href: "#" },
-    { label: "Status", href: "#" },
+    { label: "Documentation", href: "/docs" },
+    { label: "Community", href: "/community" },
+    { label: "Status", href: "/status" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
   ],
 };
 
@@ -125,15 +122,15 @@ export default function Footer() {
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="group flex items-center gap-1 text-sm text-zinc-500 transition-colors hover:text-white"
                     >
                       {link.label}
-                      {link.href !== "#" && link.href.startsWith("http") && (
+                      {link.href.startsWith("http") && (
                         <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                       )}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
