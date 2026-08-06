@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   FileText,
   Map,
@@ -434,6 +434,16 @@ export default function Features() {
   const sectionRef = useRef(null);
   const titleInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
+  const AUTO_ROTATE_MS = 3500;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActive((prev) => (prev + 1) % features.length);
+    }, AUTO_ROTATE_MS);
+
+    return () => clearTimeout(timer);
+  }, [active]);
+
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
@@ -504,8 +514,8 @@ export default function Features() {
                   transition={{ duration: 0.5, delay: 0.05 + i * 0.08 }}
                   onClick={() => setActive(i)}
                   className={`group w-full rounded-xl border px-4 py-3.5 text-left transition-all duration-300 ${isActive
-                      ? "feature-item-active"
-                      : "border-white/[0.05] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]"
+                    ? "feature-item-active"
+                    : "border-white/[0.05] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]"
                     }`}
                   style={
                     isActive
@@ -546,13 +556,21 @@ export default function Features() {
                     </div>
                   </div>
 
-                  {/* Active progress bar */}
+                  {/* Active progress bar timer */}
                   {isActive && (
-                    <motion.div
-                      layoutId="activeBar"
-                      className="mt-3 h-px rounded-full"
-                      style={{ background: `linear-gradient(90deg, ${feature.accent}80, transparent)` }}
-                    />
+                    <div className="mt-3 h-0.5 w-full rounded-full bg-white/[0.08] overflow-hidden">
+                      <motion.div
+                        key={`progress-${active}`}
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: AUTO_ROTATE_MS / 1000, ease: "linear" }}
+                        className="h-full rounded-full"
+                        style={{
+                          background: `linear-gradient(90deg, ${feature.accent}, ${feature.accent}aa)`,
+                          boxShadow: `0 0 6px ${feature.accent}60`,
+                        }}
+                      />
+                    </div>
                   )}
                 </motion.button>
               );
