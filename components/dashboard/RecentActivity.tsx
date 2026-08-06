@@ -20,6 +20,7 @@ export interface ActivityItemData {
   title: string;
   description: string;
   time: string;
+  category?: "ai" | "project" | "task";
   iconType?: "FolderKanban" | "Brain" | "CheckCircle2" | "Sparkles" | "FileText" | "LayoutTemplate";
 }
 
@@ -49,32 +50,32 @@ const ICON_COLOR_MAP = {
 export default function RecentActivity({ activities = [], loading = false }: RecentActivityProps) {
   const [filter, setFilter] = useState<"all" | "ai" | "projects">("all");
 
-  const filteredActivities = activities
-    .filter((act) => {
-      if (filter === "all") return true;
-      if (filter === "ai") {
-        const titleLow = act.title.toLowerCase();
-        const descLow = act.description.toLowerCase();
-        return (
-          act.iconType === "Brain" ||
-          act.iconType === "Sparkles" ||
-          act.iconType === "FileText" ||
-          act.iconType === "LayoutTemplate" ||
-          titleLow.includes("ai") ||
-          titleLow.includes("generated") ||
-          descLow.includes("ai")
-        );
-      }
-      if (filter === "projects") {
-        const titleLow = act.title.toLowerCase();
-        return (
-          act.iconType === "FolderKanban" ||
-          (act.iconType === "CheckCircle2" && !titleLow.includes("ai"))
-        );
-      }
-      return true;
-    })
-    .slice(0, 8);
+  const filteredActivities = activities.filter((act) => {
+    if (filter === "all") return true;
+    if (filter === "ai") {
+      if (act.category) return act.category === "ai";
+      const titleLow = act.title.toLowerCase();
+      const descLow = act.description.toLowerCase();
+      return (
+        act.iconType === "Brain" ||
+        act.iconType === "Sparkles" ||
+        act.iconType === "FileText" ||
+        act.iconType === "LayoutTemplate" ||
+        titleLow.includes("ai") ||
+        titleLow.includes("generated") ||
+        descLow.includes("ai")
+      );
+    }
+    if (filter === "projects") {
+      if (act.category) return act.category === "project" || act.category === "task";
+      const titleLow = act.title.toLowerCase();
+      return (
+        act.iconType === "FolderKanban" ||
+        (act.iconType === "CheckCircle2" && !titleLow.includes("ai"))
+      );
+    }
+    return true;
+  });
 
 
 
@@ -149,12 +150,7 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
       </div>
 
       {/* Timeline Stream */}
-      <div className="relative pt-2">
-        {/* Vertical Timeline Line */}
-        {!loading && filteredActivities.length > 0 && (
-          <div className="absolute left-[19px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-white/10 via-white/5 to-transparent" />
-        )}
-
+      <div className="relative pt-1">
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -180,7 +176,10 @@ export default function RecentActivity({ activities = [], loading = false }: Rec
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="relative max-h-[340px] overflow-y-auto pr-1.5 space-y-3 custom-scrollbar">
+            {/* Vertical Timeline Line */}
+            <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-white/10 via-white/5 to-transparent pointer-events-none" />
+
             <AnimatePresence mode="popLayout">
               {filteredActivities.map((activity) => {
                 const Icon = (activity.iconType && ICON_MAP[activity.iconType]) || Sparkles;

@@ -98,6 +98,7 @@ export async function GET(req: Request) {
       description: string;
       time: string;
       timestamp: number;
+      category: "ai" | "project" | "task";
       iconType: "FolderKanban" | "Brain" | "CheckCircle2" | "Sparkles" | "FileText" | "LayoutTemplate";
     };
 
@@ -111,6 +112,7 @@ export async function GET(req: Request) {
         description: conv.title || "Interactive AI workspace session",
         time: getRelativeTimeString(conv.updatedAt),
         timestamp: new Date(conv.updatedAt).getTime(),
+        category: "ai",
         iconType: "Brain",
       });
     });
@@ -157,13 +159,14 @@ export async function GET(req: Request) {
         validStatus = "Building";
       }
 
-      // Collect project activities
+      // Collect project activities (Use createdAt for project creation timestamp)
       activities.push({
         id: `proj-${p.id}`,
         title: "Created a new project",
         description: p.title,
-        time: getRelativeTimeString(p.updatedAt),
-        timestamp: new Date(p.updatedAt).getTime(),
+        time: getRelativeTimeString(p.createdAt),
+        timestamp: new Date(p.createdAt).getTime(),
+        category: "project",
         iconType: "FolderKanban",
       });
 
@@ -175,6 +178,7 @@ export async function GET(req: Request) {
           description: `${r.title} (${p.title})`,
           time: getRelativeTimeString(r.createdAt),
           timestamp: new Date(r.createdAt).getTime(),
+          category: "ai",
           iconType: "Sparkles",
         });
       });
@@ -187,6 +191,7 @@ export async function GET(req: Request) {
           description: `${prd.title} (${p.title})`,
           time: getRelativeTimeString(prd.createdAt),
           timestamp: new Date(prd.createdAt).getTime(),
+          category: "ai",
           iconType: "FileText",
         });
       });
@@ -199,6 +204,7 @@ export async function GET(req: Request) {
           description: `${rm.title} (${p.title})`,
           time: getRelativeTimeString(rm.createdAt),
           timestamp: new Date(rm.createdAt).getTime(),
+          category: "ai",
           iconType: "LayoutTemplate",
         });
       });
@@ -211,6 +217,7 @@ export async function GET(req: Request) {
           description: `${arch.title} (${p.title})`,
           time: getRelativeTimeString(arch.createdAt),
           timestamp: new Date(arch.createdAt).getTime(),
+          category: "ai",
           iconType: "Brain",
         });
       });
@@ -223,6 +230,7 @@ export async function GET(req: Request) {
           description: `${doc.title} (${p.title})`,
           time: getRelativeTimeString(doc.createdAt),
           timestamp: new Date(doc.createdAt).getTime(),
+          category: "ai",
           iconType: "FileText",
         });
       });
@@ -240,6 +248,7 @@ export async function GET(req: Request) {
           description: `${t.title} (${p.title})`,
           time: getRelativeTimeString(t.updatedAt),
           timestamp: new Date(t.updatedAt).getTime(),
+          category: isAIGenerated ? "ai" : "task",
           iconType: isAIGenerated ? "Sparkles" : "CheckCircle2",
         });
       });
