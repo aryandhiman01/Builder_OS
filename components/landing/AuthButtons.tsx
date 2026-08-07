@@ -33,7 +33,7 @@ export default function AuthButtons() {
   // If not logged in, show Log In and Get Started buttons
   if (!session) {
     return (
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
         <Link
           href="/login"
           className="
@@ -41,15 +41,16 @@ export default function AuthButtons() {
           border
           border-white/10
           bg-white/[0.04]
-          px-4
-          py-1.5
-          text-xs
+          px-2 sm:px-4
+          py-1 sm:py-1.5
+          text-[10px] sm:text-xs
           font-medium
           text-white
           transition-all
           duration-200
           hover:bg-white/[0.08]
           hover:border-white/20
+          whitespace-nowrap
           "
         >
           Log In
@@ -59,9 +60,9 @@ export default function AuthButtons() {
           className="
           rounded-full
           bg-white
-          px-4
-          py-1.5
-          text-xs
+          px-2.5 sm:px-4
+          py-1 sm:py-1.5
+          text-[10px] sm:text-xs
           font-semibold
           text-black
           transition-all
@@ -70,6 +71,7 @@ export default function AuthButtons() {
           active:scale-95
           shadow-lg
           shadow-white/10
+          whitespace-nowrap
           "
         >
           Get Started

@@ -46,19 +46,23 @@ function ResearchPreview({ accent }: { accent: string }) {
     { icon: BarChart3, label: "Market Position", val: "Early mover advantage" },
   ];
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">AI Market Report</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20">1.2s</span>
+    <div className="space-y-2 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">AI Market Report</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20 shrink-0">1.2s</span>
       </div>
       {rows.map((r, i) => {
         const Icon = r.icon;
         return (
           <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-            className="flex items-center gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-            <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: accent }} />
-            <span className="text-xs text-[#8a8a93] w-28 shrink-0">{r.label}</span>
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 shrink-0">
+              <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: accent }} />
+              <span className="text-xs text-[#8a8a93] font-medium truncate">{r.label}</span>
+            </div>
             <span className="text-xs text-white font-mono truncate">{r.val}</span>
           </motion.div>
         );
@@ -74,22 +78,24 @@ function PRDPreview({ accent }: { accent: string }) {
     { icon: TerminalSquare, label: "Endpoints", val: "POST /api/prd/generate" },
   ];
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">PRD v1.0 — Draft</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse">Generating…</span>
+    <div className="space-y-1.5 sm:space-y-2 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">PRD v1.0 — Draft</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse shrink-0">Generating…</span>
       </div>
       {sections.map((s, i) => {
         const Icon = s.icon;
         return (
           <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-            className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Icon className="h-3 w-3" style={{ color: accent }} />
-              <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: accent }}>{s.label}</span>
+            className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2 sm:p-2.5 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
+              <Icon className="h-3 w-3 shrink-0" style={{ color: accent }} />
+              <span className="text-[10px] uppercase tracking-wider font-semibold truncate" style={{ color: accent }}>{s.label}</span>
             </div>
-            <p className="text-xs text-white/80 font-mono leading-relaxed">{s.val}</p>
+            <p className="text-[11px] sm:text-xs text-white/80 font-mono leading-tight sm:leading-relaxed break-words">{s.val}</p>
           </motion.div>
         );
       })}
@@ -99,29 +105,31 @@ function PRDPreview({ accent }: { accent: string }) {
 
 function RoadmapPreview({ accent }: { accent: string }) {
   const phases = [
-    { label: "Phase 1", desc: "MVP Core Engine & Auth", weeks: "Wk 1–2", pct: 100, icon: Flag },
+    { label: "Phase 1", desc: "MVP Core Engine", weeks: "Wk 1–2", pct: 100, icon: Flag },
     { label: "Phase 2", desc: "AI Chat & Diagrams", weeks: "Wk 3–4", pct: 60, icon: Activity },
     { label: "Phase 3", desc: "Public Beta Launch", weeks: "Wk 5–6", pct: 0, icon: Calendar },
   ];
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">Q3 – Q4 Roadmap</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">6 weeks</span>
+    <div className="space-y-2 sm:space-y-3 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">Q3 – Q4 Roadmap</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">6 weeks</span>
       </div>
       {phases.map((p, i) => {
         const Icon = p.icon;
         return (
           <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
-            className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-2">
-                <Icon className="h-3.5 w-3.5" style={{ color: accent }} />
-                <span className="text-xs font-semibold text-white">{p.label}</span>
-                <span className="text-xs text-[#8a8a93]">{p.desc}</span>
+            className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-2 sm:px-3 sm:py-2.5 min-w-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: accent }} />
+                <span className="text-xs font-semibold text-white shrink-0">{p.label}</span>
+                <span className="text-xs text-[#8a8a93] truncate hidden sm:inline">{p.desc}</span>
               </div>
-              <span className="text-[10px] font-mono text-zinc-500">{p.weeks}</span>
+              <span className="text-[10px] font-mono text-zinc-500 shrink-0">{p.weeks}</span>
             </div>
             <div className="h-1 w-full rounded-full bg-white/[0.06]">
               <motion.div className="h-1 rounded-full" style={{ background: accent }}
@@ -143,23 +151,25 @@ function ArchPreview({ accent }: { accent: string }) {
     { icon: Network, label: "Services", val: "REST API + WebSockets", color: "text-emerald-400" },
   ];
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">System Topology</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Auto-generated</span>
+    <div className="space-y-1.5 sm:space-y-2 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">System Topology</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">Auto-generated</span>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
         {nodes.map((n, i) => {
           const Icon = n.icon;
           return (
             <motion.div key={i} initial={{ opacity: 0, scale: 0.93 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}
-              className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Icon className={`h-3.5 w-3.5 ${n.color}`} />
-                <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: accent }}>{n.label}</span>
+              className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2 sm:p-2.5 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <Icon className={`h-3.5 w-3.5 shrink-0 ${n.color}`} />
+                <span className="text-[10px] uppercase tracking-wider font-semibold truncate" style={{ color: accent }}>{n.label}</span>
               </div>
-              <p className="text-xs text-white/70 font-mono leading-tight">{n.val}</p>
+              <p className="text-[11px] sm:text-xs text-white/70 font-mono leading-tight break-words">{n.val}</p>
             </motion.div>
           );
         })}
@@ -170,27 +180,31 @@ function ArchPreview({ accent }: { accent: string }) {
 
 function TaskPreview({ accent }: { accent: string }) {
   const tasks = [
-    { label: "Configure OAuth & Session Handler", priority: "High", icon: Flag, dot: "bg-rose-400" },
-    { label: "Build Dynamic Interactive Node Graph", priority: "Active", icon: Activity, dot: "bg-amber-400 animate-pulse" },
-    { label: "Setup Stripe Webhooks & Billing", priority: "Backlog", icon: Server, dot: "bg-zinc-500" },
-    { label: "Write Unit Tests for PRD Module", priority: "Backlog", icon: CheckSquare, dot: "bg-zinc-500" },
+    { label: "OAuth & Session Handler", priority: "High", icon: Flag, dot: "bg-rose-400" },
+    { label: "Build Node Graph Engine", priority: "Active", icon: Activity, dot: "bg-amber-400 animate-pulse" },
+    { label: "Stripe Webhooks & Billing", priority: "Backlog", icon: Server, dot: "bg-zinc-500" },
+    { label: "Unit Tests for PRD Module", priority: "Backlog", icon: CheckSquare, dot: "bg-zinc-500" },
   ];
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">Sprint Kanban</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">18 tasks</span>
+    <div className="space-y-1.5 sm:space-y-2 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">Sprint Kanban</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 shrink-0">18 tasks</span>
       </div>
       {tasks.map((t, i) => {
         const Icon = t.icon;
         return (
           <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-            className="flex items-center gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-            <div className={`h-2 w-2 rounded-full shrink-0 ${t.dot}`} />
-            <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: accent }} />
-            <span className="text-xs text-white/80 flex-1 truncate">{t.label}</span>
-            <span className="text-[10px] text-zinc-500 shrink-0">{t.priority}</span>
+            className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 sm:px-3 sm:py-2 min-w-0 w-full">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
+              <div className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full shrink-0 ${t.dot}`} />
+              <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" style={{ color: accent }} />
+              <span className="text-[11px] sm:text-xs text-white/85 font-medium truncate">{t.label}</span>
+            </div>
+            <span className="text-[10px] text-zinc-400 shrink-0 font-mono font-medium pl-1">{t.priority}</span>
           </motion.div>
         );
       })}
@@ -206,29 +220,33 @@ function WorkspacePreview({ accent }: { accent: string }) {
     { icon: GitBranch, label: "Arch Diagram", status: "Linked", color: "text-amber-400" },
   ];
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider">Unified View</span>
-        <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">All synced</span>
+    <div className="space-y-1.5 sm:space-y-2 max-w-full overflow-hidden">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: accent }} />
+          <span className="text-[11px] text-[#8a8a93] font-medium uppercase tracking-wider truncate">Unified View</span>
+        </div>
+        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">All synced</span>
       </div>
       {tools.map((t, i) => {
         const Icon = t.icon;
         return (
           <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-            className="flex items-center gap-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-            <Icon className={`h-3.5 w-3.5 shrink-0 ${t.color}`} />
-            <span className="text-xs text-white/80 flex-1">{t.label}</span>
-            <div className="flex items-center gap-1.5">
-              <Link2 className="h-3 w-3 text-zinc-600" />
-              <span className="text-[10px] text-zinc-500">{t.status}</span>
+            className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 sm:px-3 sm:py-2 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
+              <Icon className={`h-3.5 w-3.5 shrink-0 ${t.color}`} />
+              <span className="text-[10px] sm:text-xs text-white/80 truncate">{t.label}</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Link2 className="h-3 w-3 text-zinc-600 shrink-0" />
+              <span className="text-[9px] sm:text-[10px] text-zinc-500 font-mono">{t.status}</span>
             </div>
           </motion.div>
         );
       })}
-      <div className="flex items-center gap-2 pt-1 px-1">
-        <History className="h-3 w-3 text-zinc-600" />
-        <span className="text-[10px] text-zinc-600">Last synced 2 min ago — v14 snapshot saved</span>
+      <div className="flex items-center gap-1.5 pt-1 px-1 min-w-0">
+        <History className="h-3 w-3 text-zinc-600 shrink-0" />
+        <span className="text-[9px] sm:text-[10px] text-zinc-500 truncate">Last synced 2 min ago — v14 snapshot saved</span>
       </div>
     </div>
   );
@@ -355,7 +373,7 @@ function FeaturePreview({ feature }: { feature: (typeof features)[0] }) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: -20, scale: 0.97 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="h-full rounded-2xl border p-6 lg:p-8 backdrop-blur-2xl flex flex-col relative overflow-hidden shadow-2xl"
+      className="h-full rounded-2xl border p-4 sm:p-6 lg:p-8 backdrop-blur-2xl flex flex-col relative overflow-hidden shadow-2xl max-w-full min-w-0"
       style={{
         background: `linear-gradient(135deg, ${feature.accentBg}, rgba(10,10,12,0.95))`,
         borderColor: feature.accentBorder,
@@ -369,47 +387,47 @@ function FeaturePreview({ feature }: { feature: (typeof features)[0] }) {
       />
 
       {/* Icon + tag */}
-      <div className="mb-5 flex items-center gap-3 relative z-10">
+      <div className="mb-4 sm:mb-5 flex items-center gap-3 relative z-10 min-w-0">
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-2xl shrink-0 shadow-lg"
+          className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl shrink-0 shadow-lg"
           style={{ background: `${feature.accent}18`, border: `1px solid ${feature.accent}35` }}
         >
-          <Icon className="h-6 w-6" style={{ color: feature.accent }} />
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: feature.accent }} />
         </div>
-        <div>
+        <div className="min-w-0">
           <span
-            className="text-[11px] font-bold uppercase tracking-widest"
+            className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest block truncate"
             style={{ color: feature.accent }}
           >
             {feature.tag}
           </span>
-          <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight" style={{ fontFamily: "var(--font-sora)" }}>
+          <h3 className="text-lg sm:text-2xl font-bold text-white tracking-tight truncate" style={{ fontFamily: "var(--font-sora)" }}>
             {feature.title}
           </h3>
         </div>
       </div>
 
       {/* Description */}
-      <p className="mb-5 text-sm leading-relaxed text-[#9a9a9f] relative z-10">{feature.desc}</p>
+      <p className="mb-4 sm:mb-5 text-xs sm:text-sm leading-relaxed text-[#9a9a9f] relative z-10">{feature.desc}</p>
 
       {/* Bullets */}
-      <ul className="mb-6 space-y-2.5 relative z-10">
+      <ul className="mb-5 sm:mb-6 space-y-2 sm:space-y-2.5 relative z-10">
         {feature.bullets.map((bullet, i) => (
           <motion.li
             key={bullet}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.07, duration: 0.35 }}
-            className="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-white/85"
+            className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-medium text-white/85"
           >
-            <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: feature.accent }} />
-            {bullet}
+            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" style={{ color: feature.accent }} />
+            <span className="truncate">{bullet}</span>
           </motion.li>
         ))}
       </ul>
 
       {/* Rich unique preview panel */}
-      <div className="mt-auto rounded-xl bg-black/50 border border-white/[0.08] p-4 relative z-10 backdrop-blur-md shadow-inner">
+      <div className="mt-auto rounded-xl bg-black/50 border border-white/[0.08] p-3 sm:p-4 relative z-10 backdrop-blur-md shadow-inner overflow-hidden max-w-full min-w-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={feature.title}

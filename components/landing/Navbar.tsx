@@ -32,12 +32,12 @@ export default function Navbar() {
         className="fixed top-2 sm:top-3 inset-x-0 z-50 px-3 sm:px-6 w-full max-w-full box-border"
       >
         <div
-          className={`mx-auto max-w-6xl rounded-full transition-all duration-300 border border-white/[0.1] bg-[#0a0a0c]/90 backdrop-blur-xl px-3.5 sm:px-6 py-2 sm:py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between ${
+          className={`mx-auto max-w-6xl rounded-full transition-all duration-300 border border-white/[0.1] bg-[#0a0a0c]/90 backdrop-blur-xl px-2.5 sm:px-6 py-1.5 sm:py-2.5 shadow-2xl shadow-black/80 flex items-center justify-between gap-1 sm:gap-3 ${
             scrolled ? "border-white/20 bg-[#09090b]/95 shadow-black" : ""
           }`}
         >
           {/* Left: Logo */}
-          <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-6 min-w-0">
             <Logo />
 
             {/* Center links */}
