@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Community & Feature Discussions
+    url: https://github.com/aryandhiman01/Builder_OS/discussions
+    about: Ask questions, share feedback, or discuss roadmap ideas with the BuilderOS community.
+  - name: 🔒 Security Vulnerability Report
+    url: https://github.com/aryandhiman01/Builder_OS/security/advisories/new
+    about: Report sensitive security vulnerabilities confidentially.
