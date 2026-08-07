@@ -1,239 +1,234 @@
-<h1 align="center">Builder OS</h1>
+<div align="center">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs" alt="Next.js 16" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript 5" />
-  <img src="https://img.shields.io/badge/Prisma-6-2D3748?style=for-the-badge&logo=prisma" alt="Prisma 6" />
-  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Gemini-AI-8A2BE2?style=for-the-badge" alt="Gemini AI" />
-</p>
+  <h1>⚡ BuilderOS</h1>
 
-<p align="center">
-  <a href="https://builder-os-silk.vercel.app" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Live-Demo-0A84FF?style=for-the-badge" alt="Live Demo" /></a>
-  <a href="#installation"><img src="https://img.shields.io/badge/Setup-Quick%20Start-4CAF50?style=for-the-badge" alt="Quick Start" /></a>
-  <a href="#workflow-example"><img src="https://img.shields.io/badge/Workflow-Product%20Lifecycle-FF6B6B?style=for-the-badge" alt="Workflow" /></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/Stack-Modern%20AI%20Stack-00BFA5?style=for-the-badge" alt="Tech Stack" /></a>
-</p>
+  <p><strong>The unified platform to plan, architect, and ship software products.</strong></p>
+  <p>Streamline your entire product lifecycle — moving seamlessly from initial research and PRDs to visual system blueprints, strategic roadmaps, and task execution.</p>
 
-<p align="center">
-  Builder OS is an AI-native workspace for turning ambitious ideas into structured product outcomes. It helps teams move from discovery and research to PRDs, roadmaps, architecture, execution, and collaboration through one intelligent workflow.
-</p>
+  <p>
+    <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-16.2-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js 16" /></a>
+    <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" /></a>
+    <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 5" /></a>
+    <a href="https://www.prisma.io"><img src="https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma ORM" /></a>
+    <a href="https://neon.tech"><img src="https://img.shields.io/badge/Neon-PostgreSQL-02E693?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon PostgreSQL" /></a>
+    <a href="https://ai.google.dev"><img src="https://img.shields.io/badge/Google_Gemini-AI-8E44AD?style=for-the-badge&logo=google&logoColor=white" alt="Gemini AI" /></a>
+  </p>
 
-> Builder OS brings strategy, planning, and delivery together in a single unified workspace for modern product teams.
+  <p>
+    <a href="https://builder-os-silk.vercel.app"><b>🌐 Live Demo</b></a> •
+    <a href="#-quick-start"><b>🚀 Quick Start</b></a> •
+    <a href="#-core-modules"><b>✨ Core Modules</b></a> •
+    <a href="#-system-architecture"><b>📐 Architecture</b></a> •
+    <a href="#-contributing"><b>🤝 Contributing</b></a>
+  </p>
 
-## Why Builder OS
+  <br />
+</div>
 
-Builder OS turns a product idea into a working delivery system by combining:
+---
 
-<p align="center">
-  <img src="https://img.shields.io/badge/AI-Research%20%26%20PRD-9C27B0?style=flat-square" alt="AI Research and PRD" />
-  <img src="https://img.shields.io/badge/Roadmaps-Planning-03A9F4?style=flat-square" alt="Roadmaps" />
-  <img src="https://img.shields.io/badge/Architecture-Visual-FF9800?style=flat-square" alt="Architecture" />
-  <img src="https://img.shields.io/badge/Collaboration-Team-4CAF50?style=flat-square" alt="Team Collaboration" />
-</p>
+## 📌 Overview
 
-- AI-assisted research and product discovery
-- Product requirements document generation
-- Roadmap planning
-- Technical architecture generation
-- Project and task management
-- Team collaboration with invitations and membership roles
-- Real-time dashboard analytics and activity tracking
+**BuilderOS** brings product strategy, system architecture, roadmaps, and sprint execution together into a single, unified workspace for software engineering teams.
 
-## Product Workflow
+It empowers developers, software architects, and tech leads to move seamlessly from raw concepts to **Product Requirement Documents (PRDs)**, **visual system architecture blueprints**, **strategic roadmaps**, and **drag-and-drop task delivery** through one streamlined workflow.
 
-```mermaid
-flowchart LR
-    A[User creates project] --> B[Dashboard overview]
-    B --> C[AI Workspace]
-    C --> D[Research]
-    D --> E[PRD]
-    E --> F[Roadmap]
-    F --> G[Architecture]
-    G --> H[Tasks + Delivery]
-    H --> I[Team collaboration]
-```
+---
 
-## Core AI Pipeline
+## ✨ Core Modules
 
-```mermaid
-flowchart TD
-    P[Project Idea] --> R[Generate Research]
-    R --> PRD[Generate PRD]
-    PRD --> RM[Generate Roadmap]
-    RM --> ARC[Generate Architecture]
-    ARC --> T[Task Breakdown and Execution]
-```
+### 1. 🗺️ Roadmap Hub & Strategic Planning Engine
+* **Standalone & Project Roadmaps:** Create independent planning roadmaps or bind roadmaps directly to active development projects.
+* **Instant 0ms Filtering:** Switch instantly between *All Roadmaps*, *Standalone*, *Project Roadmaps*, and *Completed* without network latency.
+* **Interactive Checklist & Progress:** Track step-by-step milestone completion with real-time percentage indicators.
+* **AI Concept Explainer:** Get instant AI explanations for any step or technical concept right inside the roadmap.
+* **Curated AI Resources:** Automatically search and curate top documentation links, video tutorials, GitHub repos, and courses for your roadmap.
+* **1-Click Project Conversion:** Seamlessly convert standalone roadmaps into full execution projects with dedicated task boards.
 
-## System Architecture
+### 2. 📑 AI PRD & Product Discovery Studio
+* **Automated Requirements Generation:** Generate detailed Product Requirement Documents (PRDs) containing feature specs, user stories, and acceptance criteria.
+* **Custom PRD Input:** Synthesize custom technical requirements into structured documentation.
+
+### 3. 📐 Visual System Architecture Generator
+* **Mermaid.js Diagramming:** Automatically output interactive architecture diagrams (Microservices, Monolith, Serverless, Event-Driven).
+* **Tech Stack Recommendations:** Receive AI-recommended backend, database, and infrastructure choices based on project scope.
+
+### 4. ⚡ Task Execution & Kanban Board
+* **Drag-and-Drop Interface:** Powered by `@dnd-kit` for responsive task management across *To Do*, *In Progress*, and *Done*.
+* **Today's Focus & Overdue Tracking:** Instantly filter high-priority tasks and stay ahead of deadlines.
+* **AI Task Generation:** Convert PRDs and roadmaps into granular actionable tasks automatically.
+
+### 5. 🤖 AI Workspace & Multi-Source Intelligence
+* **Multi-Model Assistant:** Integrated with Google Gemini AI for code generation, architecture advice, and product research.
+* **Contextual Knowledge Integration:** Source context directly from active project files and research documents.
+
+### 6. 📊 Real-Time Analytics & Team Collaboration
+* **Velocity Metrics:** Monitor total project health, milestone completion rates, and sprint completion analytics.
+* **Workspace Membership:** Invite team members, manage RBAC roles, and collaborate effortlessly.
+
+---
+
+## 📐 System Architecture
 
 ```mermaid
 flowchart TB
-    U[User Browser] --> N[Next.js App Router]
-    N --> A[Auth & Session Layer]
-    N --> P[Project APIs]
-    N --> AI[AI Workspace APIs]
-    P --> DB[(PostgreSQL via Prisma)]
-    AI --> GEN[Gemini AI Generation Services]
-    GEN --> DOCS[Research / PRD / Roadmap / Architecture Documents]
-    DB --> R[Dashboard Stats, Projects, Tasks, Invites]
+    subgraph Client ["Client Layer (Browser)"]
+        UI["React 19 / Next.js App Router"]
+        FM["Framer Motion (60fps GPU Accelerated)"]
+        DND["@dnd-kit Kanban Engine"]
+    end
+
+    subgraph API ["Application & Middleware"]
+        NEXT["Next.js 16 Server Components & Routes"]
+        AUTH["NextAuth.js (JWT Session Security)"]
+        RETRY["Neon DB Cold-Start Resilience Layer"]
+    end
+
+    subgraph Data ["Data & AI Infrastructure"]
+        PRISMA["Prisma ORM 6.19"]
+        NEON[("Neon PostgreSQL Database")]
+        GEMINI["Google Gemini AI Engine"]
+    end
+
+    UI --> NEXT
+    NEXT --> AUTH
+    NEXT --> RETRY
+    RETRY --> PRISMA
+    PRISMA --> NEON
+    NEXT --> GEMINI
 ```
 
-## Tech Stack
+---
 
-- Next.js 16
-- React 19
-- TypeScript
-- Prisma ORM
-- PostgreSQL
-- NextAuth
-- Gemini AI model integration
-- Tailwind CSS
-- Radix UI + shadcn-style primitives
-- Resend for email delivery
-- Mermaid rendering for architecture diagrams and docs
-
-## Monorepo-Style Structure
-
-```text
-app/                   # App Router pages and API routes
-components/            # UI components for landing, dashboard, tasks, AI workspace and architecture
-hooks/                 # Reusable client hooks
-lib/                   # Auth, AI prompt builders, Mermaid utilities, prisma client
-prisma/                # Database schema and migrations
-services/              # Service layer for auth, API, project and AI operations
-store/                 # Redux slices and global state
-types/                 # Shared TS interfaces
-public/                # Static assets
-```
-
-## Main Features
-
-### 1. Project-based workspaces
-Create, update, and organize products with status, color tagging, and collaboration members.
-
-### 2. AI asset generation
-Generate the following artifacts from prompt-driven workflows:
-
-- Research
-- PRD
-- Roadmap
-- Architecture
-- Documents
-
-### 3. Collaboration
-Invite teammates, manage project memberships, and send onboarding emails through a secure project flow.
-
-### 4. Dashboard intelligence
-Track project counts, task states, AI request volume, and overall completion percentage in real time.
-
-### 5. Visual docs and diagrams
-Use Mermaid-based architecture rendering and structured roadmap outputs for better team comprehension.
-
-## Installation
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Step%201-Clone%20Repo-6D28D9?style=flat-square" alt="Clone repo" />
-  <img src="https://img.shields.io/badge/Step%202-Install%20Deps-2563EB?style=flat-square" alt="Install dependencies" />
-  <img src="https://img.shields.io/badge/Step%203-Configure%20Env-F59E0B?style=flat-square" alt="Configure env" />
-</p>
-
-1. Clone the repository.
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Configure your environment variables in a `.env` file.
-
-### Required environment variables
-
-```env
-DATABASE_URL=postgresql://... 
-NEXTAUTH_SECRET=your-secret
-NEXTAUTH_URL=http://localhost:3000
-GOOGLE_API_KEY=your-gemini-key
-RESEND_API_KEY=your-resend-key
-```
-
-## Database Setup
-
-Generate Prisma client and run migrations:
-
-```bash
-npx prisma generate
-npx prisma migrate dev
-```
-
-## Run the Application
-
-### Development
-
-```bash
-npm run dev
-```
-
-### Production build
-
-```bash
-npm run build
-npm run start
-```
-
-### Linting
-
-```bash
-npm run lint
-```
-
-## Workflow Example
-
-A typical Builder OS session looks like this:
-
-1. Create a new project.
-2. Open the AI workspace.
-3. Ask for market, customer, or technical research.
-4. Convert that research into a PRD.
-5. Generate a roadmap from the PRD.
-6. Build a system architecture and review Mermaid output.
-7. Track execution through tasks and dashboard metrics.
-
-## API and App Layer Notes
-
-The repository uses the App Router and exposes application logic through route handlers such as:
-
-- `/api/ai/*`
-- `/api/projects/*`
-- `/api/dashboard/*`
-- `/api/auth/*`
-- `/api/invitations/*`
-
-These APIs coordinate database persistence, AI generation, and the UI state that powers the dashboard and project pages.
-
-## Recommended Development Flow
+## 🔄 End-to-End Product Lifecycle Workflow
 
 ```mermaid
 flowchart LR
-    A[Design idea] --> B[Create project]
-    B --> C[Research]
-    C --> D[PRD]
-    D --> E[Roadmap]
-    E --> F[Architecture]
-    F --> G[Tasks]
-    G --> H[Review + ship]
+    A[💡 Idea Discovery] --> B[🔍 AI Research]
+    B --> C[📄 PRD Generation]
+    C --> D[🗺️ Strategic Roadmap]
+    D --> E[📐 System Architecture]
+    E --> F[📋 Task Kanban]
+    F --> G[🚀 Production Shipping]
 ```
 
-## Contribution
+---
 
-Contributions are welcome. If you extend the AI generation pipeline or improve the app experience, keep changes aligned with the existing project abstractions:
+## 💻 Tech Stack
 
-- Keep prompts and generation services isolated in `lib/ai`
-- Keep route logic under `app/api`
-- Keep page-level UI under `app/` and reusable UI under `components/`
-- Make schema changes through Prisma and migration files
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | [Next.js 16](https://nextjs.org/) (App Router & Turbopack) |
+| **UI Library** | [React 19](https://react.dev/) + [Tailwind CSS v4](https://tailwindcss.com/) |
+| **Animations** | [Framer Motion](https://www.framer.com/motion/) (Hardware Accelerated) |
+| **Database** | [Neon Serverless PostgreSQL](https://neon.tech/) |
+| **ORM** | [Prisma 6.19](https://www.prisma.io/) |
+| **Authentication** | [NextAuth.js](https://next-auth.js.org/) |
+| **AI Intelligence** | [Google Gemini AI SDK](https://ai.google.dev/) |
+| **Diagrams** | [Mermaid.js](https://mermaid.js.org/) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Notifications** | [Sonner](https://sonner.emilkowal.ski/) |
 
-## License
+---
 
-This project is currently structured as an internal product workspace. Please confirm your own licensing and deployment policy before production use.
+## ⚡ Performance & Mobile Optimizations
 
+* **Sub-Second Rendering:** Consolidated server-side Prisma queries down to single-trip relational fetches.
+* **Instant 0ms Client Filtering:** React `useMemo` in-memory filtering for zero-latency tab switching.
+* **Neon DB Cold-Start Resilience:** Built-in auto-retry layer to handle serverless pooler wakeups gracefully without crashing.
+* **60fps Mobile Performance:** Hardware-accelerated CSS transforms (`transform-gpu`) and touch-optimized hit targets (`touch-manipulation`).
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+* **Node.js** `v20.x` or higher
+* **npm** `v10.x` or higher
+* **PostgreSQL Database** (Neon or Local instance)
+
+### 1. Clone & Install
+```bash
+git clone https://github.com/aryandhiman01/Builder_OS.git
+cd Builder_OS
+npm install
+```
+
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+DATABASE_URL="postgresql://user:password@ep-your-database-pooler.us-east-1.aws.neon.tech/builder_os?sslmode=require"
+NEXTAUTH_SECRET="your-super-secret-nextauth-key"
+NEXTAUTH_URL="http://localhost:3000"
+GEMINI_API_KEY="your-google-gemini-api-key"
+RESEND_API_KEY="your-resend-api-key"
+```
+
+### 3. Database Initialization
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Navigate to [http://localhost:3000](http://localhost:3000) to launch BuilderOS.
+
+---
+
+## 📂 Project Structure
+
+```text
+Builder_OS/
+├── .github/                  # Issue templates, PR templates, Security & Guidelines
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── CONTRIBUTING.md
+│   ├── CODE_OF_CONDUCT.md
+│   └── SECURITY.md
+├── app/                      # Next.js 16 App Router (Pages & API Routes)
+│   ├── api/                  # REST API Endpoints (Roadmaps, Tasks, AI, Projects)
+│   ├── roadmaps/             # Roadmap Hub & Detail Views
+│   ├── projects/             # Project Management & Architecture Studio
+│   ├── dashboard/            # Real-Time Analytics Dashboard
+│   └── ai-workspace/         # Multi-Source AI Assistant
+├── components/               # Modular UI Components
+│   ├── roadmaps/             # Roadmap Filters, Cards, Header & Modals
+│   ├── ui/                   # Reusable Design Primitives & Confirm Dialogs
+│   ├── architecture/         # Mermaid Architecture Viewers
+│   └── tasks/                # Drag & Drop Kanban Boards
+├── lib/                      # Core Utilities, Prisma Client & Auth Config
+├── prisma/                   # Database Schema (`schema.prisma`)
+└── public/                   # Static Brand Assets
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](.github/CONTRIBUTING.md) and [Code of Conduct](.github/CODE_OF_CONDUCT.md) before submitting Pull Requests.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Run verification checks (`npx tsc --noEmit`)
+4. Commit your Changes (`git commit -m 'feat: Add AmazingFeature'`)
+5. Push to the Branch (`git push origin feature/AmazingFeature`)
+6. Open a Pull Request
+
+---
+
+## 🛡️ Security
+
+If you discover any security issues, please review our [Security Policy](.github/SECURITY.md) and report them confidentially via [GitHub Security Advisories](https://github.com/aryandhiman01/Builder_OS/security/advisories/new).
+
+---
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<p align="center">
+  Crafted with ❤️ by <a href="https://github.com/aryandhiman01">Aryan Dhiman</a> & the BuilderOS Community.
+</p>
