@@ -58,9 +58,7 @@ export default function AuthButtons() {
           href="/signup"
           className="
           rounded-full
-          bg-gradient-to-r
-          from-orange-500
-          to-amber-500
+          bg-white
           px-4
           py-1.5
           text-xs
@@ -68,9 +66,10 @@ export default function AuthButtons() {
           text-black
           transition-all
           duration-200
-          hover:brightness-110
+          hover:bg-zinc-100
+          active:scale-95
           shadow-lg
-          shadow-orange-500/20
+          shadow-white/10
           "
         >
           Get Started
