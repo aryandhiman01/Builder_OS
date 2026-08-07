@@ -25,7 +25,7 @@ export default function ProjectInvitationEmail({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>You&apos;re invited to join {projectName}</title>
+        <title>{`You're invited to join ${projectName}`}</title>
       </head>
       <body
         style={{
