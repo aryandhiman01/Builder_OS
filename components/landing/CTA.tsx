@@ -2,7 +2,7 @@
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { ArrowRight, Sparkles, Quote } from "lucide-react";
+import { ArrowRight, Rocket, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -192,7 +192,7 @@ export default function CTA() {
             transition={{ duration: 0.5 }}
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs sm:text-sm text-orange-300 backdrop-blur-sm"
           >
-            <Sparkles className="h-3.5 w-3.5" />
+            <Rocket className="h-3.5 w-3.5 text-orange-400 shrink-0" />
             Start building today — it's free
           </motion.div>
 
