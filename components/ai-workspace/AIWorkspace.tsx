@@ -189,7 +189,7 @@ export default function AIWorkspace() {
   }
 
   return (
-    <div className="relative flex h-screen w-screen overflow-hidden bg-[#060606] text-white">
+    <div className="relative flex h-[100dvh] w-full max-w-full overflow-hidden bg-[#060606] text-white">
       {/* Optional History Overlay Drawer (Toggled from Header) */}
       {isHistoryOpen && (
         <div className="fixed inset-0 z-50 flex">
@@ -197,7 +197,7 @@ export default function AIWorkspace() {
             className="fixed inset-0 bg-black/70 backdrop-blur-md"
             onClick={() => setIsHistoryOpen(false)}
           />
-          <div className="relative z-10 w-80 h-full border-r border-white/10 bg-[#09090c] shadow-2xl">
+          <div className="relative z-10 w-[280px] sm:w-80 h-full border-r border-white/10 bg-[#09090c] shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
               <span className="text-xs font-bold uppercase tracking-wider text-white">Chat History</span>
               <button
@@ -207,27 +207,29 @@ export default function AIWorkspace() {
                 <X size={16} />
               </button>
             </div>
-            <AIHistorySidebar
-              conversations={conversations}
-              activeConversationId={activeConversationId}
-              loading={historyLoading}
-              onNewChat={() => {
-                handleNewChat();
-                setIsHistoryOpen(false);
-              }}
-              onSelectConversation={handleSelectConversation}
-              onDeleteConversation={handleDeleteConversation}
-            />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <AIHistorySidebar
+                conversations={conversations}
+                activeConversationId={activeConversationId}
+                loading={historyLoading}
+                onNewChat={() => {
+                  handleNewChat();
+                  setIsHistoryOpen(false);
+                }}
+                onSelectConversation={handleSelectConversation}
+                onDeleteConversation={handleDeleteConversation}
+              />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Main Full-Width AI Workspace Canvas (No Left Sidebar by default) */}
-      <div className="flex h-screen flex-1 flex-col overflow-x-hidden min-w-0 bg-[#060606]">
+      {/* Main Full-Width AI Workspace Canvas */}
+      <div className="flex h-full flex-1 flex-col overflow-x-hidden min-w-0 bg-[#060606]">
         {/* Top Header Bar with Back to Dashboard button */}
-        <header className="flex h-[73px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#09090c]/90 px-4 sm:px-8 backdrop-blur-2xl shadow-lg">
+        <header className="flex h-16 sm:h-[73px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#09090c]/90 px-3 sm:px-8 backdrop-blur-2xl shadow-lg">
           {/* Left: Back to Dashboard Button & Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               href="/dashboard"
               className="
@@ -235,13 +237,13 @@ export default function AIWorkspace() {
               flex
               cursor-pointer
               items-center
-              gap-2
+              gap-1.5 sm:gap-2
               rounded-full
               border
               border-white/15
               bg-white/[0.05]
-              px-4
-              py-2
+              px-3 sm:px-4
+              py-1.5 sm:py-2
               text-xs
               font-semibold
               text-white
@@ -250,10 +252,12 @@ export default function AIWorkspace() {
               hover:bg-white/10
               hover:border-white/25
               active:scale-95
+              shrink-0
               "
             >
               <ArrowLeft size={14} className="text-orange-400 shrink-0" />
-              <span>Back to Dashboard</span>
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-2 border-l border-white/10 pl-3">
@@ -264,10 +268,10 @@ export default function AIWorkspace() {
           </div>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-[#8a8a93] transition-all hover:bg-white/[0.08] hover:text-white"
+              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-[#8a8a93] transition-all hover:bg-white/[0.08] hover:text-white"
               title="Toggle Chat History"
             >
               <History size={14} className="text-amber-400" />
@@ -283,7 +287,7 @@ export default function AIWorkspace() {
               gap-1.5
               rounded-full
               bg-white
-              px-4
+              px-3 sm:px-4
               py-1.5
               text-xs
               font-semibold
@@ -296,14 +300,14 @@ export default function AIWorkspace() {
               "
             >
               <Plus size={14} strokeWidth={2.5} />
-              <span>New Chat</span>
+              <span className="hidden min-[360px]:inline">New Chat</span>
             </button>
           </div>
         </header>
 
         {/* Content Body */}
         {messages.length === 0 ? (
-          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-8 px-4 sm:px-8 py-8 overflow-y-auto">
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 sm:gap-8 px-3 sm:px-8 py-6 sm:py-8 overflow-y-auto">
             <AIWelcome />
 
             <div className="w-full">
@@ -313,10 +317,10 @@ export default function AIWorkspace() {
             <AIQuickActions onSelectPrompt={handleSend} />
           </div>
         ) : (
-          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-4 sm:px-8 py-6">
+          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-3 sm:px-8 py-4 sm:py-6">
             <AIChat messages={messages} loading={loading} />
 
-            <div className="mt-6 shrink-0">
+            <div className="mt-4 sm:mt-6 shrink-0">
               <AIInput loading={loading} onSend={handleSend} />
             </div>
           </div>

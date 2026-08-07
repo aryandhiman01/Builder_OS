@@ -84,7 +84,7 @@ export default function AIHistorySidebar({
   }
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[280px] shrink-0 flex-col border-r border-white/[0.08] bg-[#050505] lg:flex">
+    <aside className="flex h-full w-full flex-col bg-[#050505]">
 
       <div className="flex h-[74px] shrink-0 items-center border-b border-white/[0.08] px-4">
         <Logo />

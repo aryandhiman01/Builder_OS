@@ -290,7 +290,7 @@ export default function AIInput({
 
   return (
 
-    <div className="rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-4 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+    <div className="rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-3 sm:p-4 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
 
       <input
         ref={fileInputRef}
@@ -329,7 +329,7 @@ export default function AIInput({
               className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-300"
             >
               <FileText className="h-3.5 w-3.5 text-zinc-500" />
-              <span className="max-w-[160px] truncate">{item.name}</span>
+              <span className="max-w-[120px] sm:max-w-[160px] truncate">{item.name}</span>
               <button
                 onClick={() => removeAttachment(item.id)}
                 className="ml-1 rounded-full p-0.5 hover:bg-white/10"
@@ -352,12 +352,12 @@ export default function AIInput({
           setMessage(e.target.value)
         }
         placeholder="Ask BuilderOS AI anything..."
-        className="max-h-[220px] min-h-[56px] w-full resize-none overflow-y-auto bg-transparent text-[15px] leading-7 text-white placeholder:text-zinc-500 focus:outline-none"
+        className="max-h-[220px] min-h-[50px] sm:min-h-[56px] w-full resize-none overflow-y-auto bg-transparent text-sm sm:text-[15px] leading-6 sm:leading-7 text-white placeholder:text-zinc-500 focus:outline-none"
       />
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-3 sm:mt-4 flex items-center justify-between">
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -373,7 +373,7 @@ export default function AIInput({
             <DropdownMenuContent
               side="bottom"
               align="start"
-              className="w-80 rounded-2xl border border-white/10 bg-[#0a0a0c]/95 p-2 text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+              className="w-[calc(100vw-32px)] sm:w-80 rounded-2xl border border-white/10 bg-[#0a0a0c]/95 p-2 text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
             >
 
               <DropdownMenuItem
