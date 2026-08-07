@@ -1,8 +1,5 @@
-import { ai, DEFAULT_MODEL } from "../client";
+import { generateContentWithRetry, DEFAULT_MODEL } from "../client";
 import { aiChatPrompt } from "../prompts/ai-chat";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 2000;
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -15,52 +12,31 @@ export async function generateChat(
 ) {
   const start = Date.now();
 
-  let lastError: unknown;
+  try {
+    const { response, usedModel } = await generateContentWithRetry({
+      model: DEFAULT_MODEL,
+      contents: aiChatPrompt(message, history),
+      config: {
+        temperature: 0.25,
+        topP: 0.9,
+      },
+    });
 
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: DEFAULT_MODEL,
+    const generationTime = Math.round((Date.now() - start) / 1000);
+    const content = response.text?.trim() ?? "";
 
-        contents: aiChatPrompt(message, history),
-
-        config: {
-          temperature: 0.6,
-          topP: 0.95,
-          topK: 40,
-        },
-      });
-
-      return {
-        message: response.text ?? "",
-
-        model: DEFAULT_MODEL,
-
-        tokens:
-          response.usageMetadata?.totalTokenCount ?? 0,
-
-        generationTime: Math.round(
-          (Date.now() - start) / 1000
-        ),
-      };
-    } catch (error: any) {
-      lastError = error;
-
-      const status =
-        error?.status ?? error?.error?.code;
-
-      if (
-        status !== 503 ||
-        attempt === MAX_RETRIES
-      ) {
-        throw error;
-      }
-
-      await new Promise((resolve) =>
-        setTimeout(resolve, RETRY_DELAY)
-      );
+    if (!content) {
+      throw new Error("AI returned an empty response.");
     }
-  }
 
-  throw lastError;
+    return {
+      message: content,
+      model: usedModel,
+      tokens: response.usageMetadata?.totalTokenCount ?? 0,
+      generationTime,
+    };
+  } catch (error: any) {
+    console.error("AI Chat Generation Error:", error);
+    throw error;
+  }
 }
