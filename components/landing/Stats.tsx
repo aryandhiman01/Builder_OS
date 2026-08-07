@@ -28,7 +28,7 @@ const stats = [
 
 export default function Stats() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
 
   return (
     <section className="relative py-16 sm:py-20">
@@ -39,13 +39,13 @@ export default function Stats() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6" ref={ref}>
-        <div className="relative grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.01]">
+        <div className="relative grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.01] transform-gpu">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.45, delay: i * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
               className={`relative px-4 sm:px-8 py-8 sm:py-10 ${
                 i % 2 === 0 ? "border-r border-white/[0.07]" : ""
               } ${

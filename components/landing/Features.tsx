@@ -432,7 +432,7 @@ function FeaturePreview({ feature }: { feature: (typeof features)[0] }) {
 export default function Features() {
   const [active, setActive] = useState(0);
   const sectionRef = useRef(null);
-  const titleInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const titleInView = useInView(sectionRef, { once: true, margin: "0px" });
 
   const AUTO_ROTATE_MS = 3500;
 
@@ -509,11 +509,11 @@ export default function Features() {
               return (
                 <motion.button
                   key={feature.title}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={titleInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 0.05 + i * 0.08 }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={titleInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.04 + i * 0.05 }}
                   onClick={() => setActive(i)}
-                  className={`group w-full rounded-xl border px-4 py-3.5 text-left transition-all duration-300 ${isActive
+                  className={`group w-full rounded-xl border px-4 py-3.5 text-left transition-all duration-300 transform-gpu ${isActive
                     ? "feature-item-active"
                     : "border-white/[0.05] bg-white/[0.02] hover:border-white/[0.1] hover:bg-white/[0.04]"
                     }`}
@@ -582,7 +582,7 @@ export default function Features() {
             initial={{ opacity: 0, y: 30 }}
             animate={titleInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="min-h-[520px]"
+            className="min-h-[520px] transform-gpu"
             onMouseMove={handleMouseMove}
           >
             <AnimatePresence mode="wait">

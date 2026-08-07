@@ -120,8 +120,8 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0px); filter: blur(0px); }
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes scaleIn {
@@ -172,16 +172,29 @@
 .glow-orange {
   background: radial-gradient(circle, rgba(255, 107, 53, 0.18) 0%, rgba(255, 77, 77, 0.08) 40%, transparent 70%);
   animation: glowPulse 5s ease-in-out infinite;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .glow-violet {
   background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(99, 64, 235, 0.06) 40%, transparent 70%);
   animation: glowPulseSlow 7s ease-in-out infinite;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .glow-teal {
   background: radial-gradient(circle, rgba(13, 148, 136, 0.12) 0%, transparent 60%);
   animation: glowPulseSlow 8s ease-in-out infinite reverse;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  .glow-orange, .glow-violet, .glow-teal {
+    animation: none !important;
+    opacity: 0.2 !important;
+  }
 }
 
 /* Hairline separators */

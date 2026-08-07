@@ -40,14 +40,13 @@ import Image from "next/image";
 /* Animation Variants                                                   */
 /* ------------------------------------------------------------------ */
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 32, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: {
-      delay: i * 0.11,
-      duration: 0.7,
+      delay: i * 0.08,
+      duration: 0.55,
       ease: [0.25, 0.46, 0.45, 0.94],
     },
   }),
@@ -55,16 +54,15 @@ const fadeUp: Variants = {
 
 const wordContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.12 } },
+  visible: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
 };
 
 const wordVariant: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(8px)" },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
@@ -464,15 +462,15 @@ export default function Hero() {
         {/* Central warm glow — the hero orange/red like Raycast */}
         <motion.div
           style={{ y: orbY1 }}
-          className="glow-orange absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2"
+          className="glow-orange absolute left-1/2 top-1/3 h-[280px] w-[280px] sm:h-[600px] sm:w-[600px] -translate-x-1/2 -translate-y-1/2 transform-gpu"
         />
         {/* Violet side glow */}
         <motion.div
           style={{ y: orbY2 }}
-          className="glow-violet absolute right-[5%] top-1/4 h-[450px] w-[450px]"
+          className="glow-violet absolute right-[5%] top-1/4 h-[220px] w-[220px] sm:h-[450px] sm:w-[450px] transform-gpu hidden sm:block"
         />
         {/* Teal bottom glow */}
-        <div className="glow-teal absolute left-[5%] bottom-0 h-[350px] w-[350px]" />
+        <div className="glow-teal absolute left-[5%] bottom-0 h-[200px] w-[200px] sm:h-[350px] sm:w-[350px] transform-gpu hidden sm:block" />
 
         {/* Grid noise overlay */}
         <div
@@ -493,7 +491,7 @@ export default function Hero() {
       {/* ── Main content ── */}
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
-        className="mx-auto w-full max-w-6xl px-4 sm:px-6 text-center relative z-10"
+        className="mx-auto w-full max-w-6xl px-4 sm:px-6 text-center relative z-10 transform-gpu"
       >
         {/* Badge */}
         <motion.div
@@ -526,9 +524,9 @@ export default function Hero() {
           <AnimatedHeadline line="Everything you need" delay={0.1} />
           <span className="block">
             <motion.span
-              initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ delay: 0.38, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.28, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="inline-block bg-gradient-to-r from-orange-400 via-red-400 to-rose-400 bg-clip-text text-transparent"
             >
               to build

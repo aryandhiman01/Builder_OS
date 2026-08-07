@@ -70,20 +70,20 @@ function TestimonialTicker() {
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-32 z-10 bg-gradient-to-l from-[#060606] to-transparent" />
 
       <motion.div
-        animate={{ x: [0, -(testimonials.length * 376)] }}
+        animate={{ x: [0, -(testimonials.length * 296)] }}
         transition={{
-          duration: 40,
+          duration: 35,
           repeat: Infinity,
           ease: "linear",
           repeatType: "loop",
         }}
-        className="flex gap-4"
+        className="flex gap-4 transform-gpu will-change-transform"
         style={{ width: "max-content" }}
       >
         {doubled.map((t, i) => (
           <div
             key={`${t.name}-${i}`}
-            className="w-[360px] shrink-0 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 backdrop-blur-sm"
+            className="w-[280px] sm:w-[360px] shrink-0 rounded-2xl border border-white/[0.07] bg-[#0c0c0e]/80 p-5 sm:p-6 backdrop-blur-sm transform-gpu"
           >
             <div className="mb-4 flex gap-0.5">
               {[1, 2, 3, 4, 5].map((s) => (
