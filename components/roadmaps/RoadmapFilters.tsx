@@ -43,12 +43,12 @@ export default function RoadmapFilters({
   }, []);
 
   return (
-    <div className="relative z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#09090c]/90 p-2.5 backdrop-blur-2xl shadow-xl">
+    <div className="relative z-40 flex items-center justify-between gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-[#09090c]/90 p-2 sm:p-2.5 backdrop-blur-md shadow-xl transform-gpu">
       {/* Filter Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-white/[0.08] active:scale-95"
+          className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-white transition-all hover:bg-white/[0.08] active:scale-95 touch-manipulation"
         >
           <Filter size={14} className="text-orange-400" />
           <span>

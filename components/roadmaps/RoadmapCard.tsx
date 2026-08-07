@@ -38,7 +38,7 @@ export default function RoadmapCard({ roadmap, onConvert, onDelete }: RoadmapCar
   const progressPercent = Math.min(100, Math.max(0, Math.round(roadmap.progress || 0)));
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/95 p-5 backdrop-blur-2xl shadow-xl transition-all duration-300 hover:border-white/20 hover:bg-[#0c0c10] hover:shadow-2xl">
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#09090c]/95 p-4 sm:p-5 backdrop-blur-md shadow-xl transition-all duration-200 ease-out hover:border-white/20 hover:bg-[#0c0c10] hover:shadow-2xl transform-gpu">
       {/* Top Banner & Badges */}
       <div>
         <div className="flex items-center justify-between gap-2">
