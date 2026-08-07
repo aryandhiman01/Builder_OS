@@ -69,12 +69,17 @@ export default async function ArchitecturePage({ params }: PageProps) {
     redirect("/projects");
   }
 
+  const formattedRoadmaps = (project.roadmaps || []).map((r) => ({
+    ...r,
+    prompt: r.prompt ?? "",
+  }));
+
   return (
     <ArchitecturePageClient
       projectId={projectId}
       projectTitle={project.title}
       initialArchitectures={architectures}
-      roadmaps={project.roadmaps}
+      roadmaps={formattedRoadmaps}
     />
   );
 }

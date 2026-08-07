@@ -108,13 +108,13 @@ export async function POST(
     const result = await generateArchitecture(
       project.title,
       roadmap.title,
-      roadmap.content
+      roadmap.content ?? ""
     );
 
     const architecture = await prisma.architecture.create({
       data: {
         title: `${project.title} Architecture`,
-        prompt: roadmap.prompt,
+        prompt: roadmap.prompt ?? "",
         content: result.content,
         model: result.model,
         tokens: result.tokens,

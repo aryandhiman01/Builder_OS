@@ -57,7 +57,15 @@ export async function GET() {
       `,
       prisma.research.count({ where: { project: { userId: user.id } } }),
       prisma.pRD.count({ where: { project: { userId: user.id } } }),
-      prisma.roadmap.count({ where: { project: { userId: user.id } } }),
+      prisma.roadmap.count({
+        where: {
+          OR: [
+            { userId: user.id },
+            { project: { userId: user.id } },
+            { project: { members: { some: { userId: user.id } } } },
+          ],
+        },
+      }),
       prisma.architecture.count({ where: { project: { userId: user.id } } }),
       prisma.document.count({ where: { project: { userId: user.id } } }),
     ]);

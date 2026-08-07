@@ -279,9 +279,54 @@ export async function GET(req: Request) {
       totalDocumentsCount +
       aiConversationsCount;
 
+    const userRoadmaps = await prisma.roadmap.findMany({
+      where: {
+        OR: [
+          { userId: user.id },
+          { project: { userId: user.id } },
+          { project: { members: { some: { userId: user.id } } } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        type: true,
+        status: true,
+        progress: true,
+        projectId: true,
+        updatedAt: true,
+        milestones: {
+          select: {
+            steps: { select: { completed: true } },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 4,
+    });
+
+    const recentRoadmaps = userRoadmaps.map((rm) => {
+      let tSteps = 0;
+      let cSteps = 0;
+      rm.milestones.forEach((m) => {
+        tSteps += m.steps.length;
+        cSteps += m.steps.filter((s) => s.completed).length;
+      });
+      const progress = tSteps > 0 ? Math.round((cSteps / tSteps) * 100) : rm.progress;
+
+      return {
+        id: rm.id,
+        title: rm.title,
+        type: rm.type === "STANDALONE" && !rm.projectId ? "STANDALONE" : "PROJECT",
+        status: rm.status,
+        progress,
+        projectId: rm.projectId,
+        updatedAt: getRelativeTimeString(rm.updatedAt),
+      };
+    });
+
     activities.sort((a, b) => b.timestamp - a.timestamp);
     const recentActivities = activities.slice(0, 50);
-
 
     const recentProjects = allMappedProjects.slice(0, 4);
 
@@ -298,12 +343,12 @@ export async function GET(req: Request) {
         completionPercentage,
       },
       recentProjects,
+      recentRoadmaps,
       recentActivities,
     };
 
     // Save to short 3s memory cache
     dashboardCache.set(user.id, { data: payload, timestamp: Date.now() });
-
 
     return NextResponse.json(payload);
   } catch (error) {

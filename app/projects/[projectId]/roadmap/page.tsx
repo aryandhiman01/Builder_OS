@@ -69,11 +69,17 @@ export default async function RoadmapsPage({ params }: PageProps) {
     redirect("/projects");
   }
 
+  const formattedRoadmaps = roadmaps.map((r) => ({
+    ...r,
+    content: r.content ?? "",
+    prompt: r.prompt ?? "",
+  }));
+
   return (
     <RoadmapPageClient
       projectId={projectId}
       projectTitle={project.title}
-      initialRoadmaps={roadmaps}
+      initialRoadmaps={formattedRoadmaps}
       prds={project.prds}
     />
   );

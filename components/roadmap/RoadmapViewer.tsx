@@ -143,7 +143,7 @@ export default function RoadmapViewer({
             variant="ghost"
             className="mb-1 -ml-3 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl text-xs"
           >
-            <Link href={`/projects/${projectId}/roadmap`}>
+            <Link href={`/projects/${projectId}/roadmap`} prefetch={true}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Roadmaps List
             </Link>

@@ -60,7 +60,10 @@ export default async function RoadmapViewerPage({
     <div className="min-h-screen bg-background">
       <RoadmapViewer
         projectId={projectId}
-        roadmap={roadmap}
+        roadmap={{
+          ...roadmap,
+          content: roadmap.content ?? "",
+        }}
       />
     </div>
   );

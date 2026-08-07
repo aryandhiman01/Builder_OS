@@ -112,6 +112,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 model: result.model,
                 tokens: result.tokens,
                 generationTime: result.generationTime,
+                type: "PROJECT",
+                userId: project.userId,
                 projectId,
                 prdId,
             },

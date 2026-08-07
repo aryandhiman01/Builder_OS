@@ -12,7 +12,10 @@ import {
   Filter,
   ChevronDown,
   Check,
+  Map,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 import dynamic from "next/dynamic";
 
@@ -36,6 +39,15 @@ interface ProjectData {
   color: string;
 }
 
+interface RoadmapItemData {
+  id: string;
+  title: string;
+  type: string;
+  status: string;
+  progress: number;
+  updatedAt: string;
+}
+
 interface StatsData {
   projectsCount: number;
   tasksCount: number;
@@ -52,6 +64,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
   const [userName, setUserName] = useState(initialUserName);
   const [stats, setStats] = useState<StatsData | null>(null);
   const [recentProjects, setRecentProjects] = useState<ProjectData[]>([]);
+  const [recentRoadmaps, setRecentRoadmaps] = useState<RoadmapItemData[]>([]);
   const [recentActivities, setRecentActivities] = useState<ActivityItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -74,6 +87,7 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
       }
       setStats(data.stats);
       setRecentProjects(data.recentProjects || []);
+      setRecentRoadmaps(data.recentRoadmaps || []);
       setRecentActivities(data.recentActivities || []);
 
       try {
@@ -189,6 +203,78 @@ export default function DashboardClient({ initialUserName = "Builder" }: Dashboa
           />
         </div>
       </motion.section>
+
+      {/* Continue Planning Widget */}
+      {recentRoadmaps.length > 0 && (
+        <motion.section {...sectionAnimation} className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2
+                className="text-lg font-bold tracking-tight text-white flex items-center gap-2"
+                style={{ fontFamily: "var(--font-sora)" }}
+              >
+                <Map size={18} className="text-orange-400" />
+                Continue Planning
+              </h2>
+              <p className="mt-0.5 text-xs text-[#8a8a93]">
+                Your active planning roadmaps ready to convert into projects.
+              </p>
+            </div>
+            <Link
+              href="/roadmaps"
+              className="text-xs text-[#8a8a93] hover:text-white flex items-center gap-1 transition-colors font-medium"
+            >
+              View all roadmaps <ArrowRight size={13} className="text-orange-400" />
+            </Link>
+          </div>
+
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {recentRoadmaps.slice(0, 3).map((rm) => (
+              <div
+                key={rm.id}
+                className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-[#09090c] p-4 transition-all hover:border-white/20 hover:bg-[#0c0c10]"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-mono text-orange-400 uppercase font-semibold">
+                      {rm.type}
+                    </span>
+                    <span className="text-[10px] text-[#8a8a93] font-mono">{rm.updatedAt}</span>
+                  </div>
+
+                  <h3 className="mt-2.5 text-sm font-bold text-white group-hover:text-orange-400 transition-colors line-clamp-1">
+                    {rm.title}
+                  </h3>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-white/[0.07] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-orange-400">{rm.progress}%</span>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400"
+                        style={{ width: `${rm.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <Link
+                    href={
+                      (rm as any).projectId
+                        ? `/projects/${(rm as any).projectId}/roadmap/${rm.id}`
+                        : `/roadmaps/${rm.id}`
+                    }
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-white hover:text-orange-400 transition-colors"
+                  >
+                    <span>{(rm as any).projectId ? "View Roadmap" : "Continue"}</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* Recent Projects Section */}
       <motion.section {...sectionAnimation} className="space-y-5">

@@ -70,6 +70,8 @@ export async function POST(
         model: result.model,
         tokens: result.tokens,
         generationTime: result.generationTime,
+        type: "PROJECT",
+        userId: project.userId,
         projectId,
 
         // Custom roadmap
