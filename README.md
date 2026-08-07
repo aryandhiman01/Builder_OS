@@ -15,11 +15,11 @@
   </p>
 
   <p>
-    <a href="https://builder-os-silk.vercel.app"><b>🌐 Live Demo</b></a> •
-    <a href="#-quick-start"><b>🚀 Quick Start</b></a> •
-    <a href="#-core-modules"><b>✨ Core Modules</b></a> •
-    <a href="#-system-architecture"><b>📐 Architecture</b></a> •
-    <a href="#-contributing"><b>🤝 Contributing</b></a>
+    <a href="https://builder-os-silk.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-0A84FF?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" /></a>
+    <a href="#-quick-start"><img src="https://img.shields.io/badge/Quick_Start-4CAF50?style=for-the-badge&logo=rocket&logoColor=white" alt="Quick Start" /></a>
+    <a href="#-core-modules"><img src="https://img.shields.io/badge/Core_Modules-FF6B6B?style=for-the-badge&logo=sparkles&logoColor=white" alt="Core Modules" /></a>
+    <a href="#-system-architecture"><img src="https://img.shields.io/badge/Architecture-00BFA5?style=for-the-badge&logo=diagram-next&logoColor=white" alt="Architecture" /></a>
+    <a href="#-contributing"><img src="https://img.shields.io/badge/Contributing-8E44AD?style=for-the-badge&logo=github&logoColor=white" alt="Contributing" /></a>
   </p>
 
   <br />
