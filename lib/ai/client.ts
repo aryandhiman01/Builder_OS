@@ -9,7 +9,7 @@ export const ai = new GoogleGenAI({
 });
 
 export const DEFAULT_MODEL = "gemini-3.6-flash";
-export const FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-1.5-flash"];
+export const FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-2.5-flash"];
 
 /**
  * Resilient wrapper around Google GenAI generateContent.
@@ -34,6 +34,7 @@ export async function generateContentWithRetry(options: {
           ...options,
           model: currentModel,
         });
+        console.log(`[Gemini AI Success] Used Model: ${currentModel}`);
         return { response, usedModel: currentModel };
       } catch (err: any) {
         lastError = err;
