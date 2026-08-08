@@ -32,45 +32,48 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    const projectUserFilter = {
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    };
+
     // Live counts from PostgreSQL database (Real-Time 0ms Delay)
     const [
       projectsCount,
       tasksCount,
       completedTasksCount,
-      aiConversationCountRaw,
+      aiConversationsCount,
       researchesCount,
       prdsCount,
       roadmapsCount,
       architecturesCount,
       documentsCount,
     ] = await Promise.all([
-      prisma.project.count({ where: { userId: user.id } }),
-      prisma.task.count({ where: { project: { userId: user.id } } }),
+      prisma.project.count({ where: projectUserFilter }),
+      prisma.task.count({ where: { project: projectUserFilter } }),
       prisma.task.count({
         where: {
-          project: { userId: user.id },
+          project: projectUserFilter,
           status: { in: ["completed", "done"] },
         },
       }),
-      prisma.$queryRaw<Array<{ count: bigint | number }>>`
-        SELECT COUNT(*)::int as count FROM "AIConversation" WHERE "userId" = ${user.id}
-      `,
-      prisma.research.count({ where: { project: { userId: user.id } } }),
-      prisma.pRD.count({ where: { project: { userId: user.id } } }),
+      prisma.aIConversation.count({ where: { userId: user.id } }),
+      prisma.research.count({ where: { project: projectUserFilter } }),
+      prisma.pRD.count({ where: { project: projectUserFilter } }),
       prisma.roadmap.count({
         where: {
           OR: [
             { userId: user.id },
-            { project: { userId: user.id } },
-            { project: { members: { some: { userId: user.id } } } },
+            { project: projectUserFilter },
           ],
         },
       }),
-      prisma.architecture.count({ where: { project: { userId: user.id } } }),
-      prisma.document.count({ where: { project: { userId: user.id } } }),
+      prisma.architecture.count({ where: { project: projectUserFilter } }),
+      prisma.document.count({ where: { project: projectUserFilter } }),
     ]);
 
-    const aiConversationsCount = Number(aiConversationCountRaw[0]?.count || 0);
     const hasPassword = Boolean(user.password);
     const authProviders = user.accounts.map((a) => a.provider);
 

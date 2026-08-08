@@ -30,8 +30,15 @@ export async function GET(req: Request) {
       return NextResponse.json(cached.data);
     }
 
+    const projectUserFilter = {
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    };
+
     const projects = await prisma.project.findMany({
-      where: { userId: user.id },
+      where: projectUserFilter,
       include: {
         tasks: true,
         researches: { select: { id: true, createdAt: true, tokens: true, generationTime: true } },
@@ -41,6 +48,11 @@ export async function GET(req: Request) {
         documents: { select: { id: true, createdAt: true, tokens: true, generationTime: true } },
       },
       orderBy: { createdAt: "asc" },
+    });
+
+    const standaloneRoadmaps = await prisma.roadmap.findMany({
+      where: { userId: user.id, projectId: null },
+      select: { id: true, createdAt: true, tokens: true, generationTime: true },
     });
 
     const projectIds = projects.map((p) => p.id);
@@ -57,16 +69,19 @@ export async function GET(req: Request) {
     const completedTasks = allTasks.filter((t) => t.status === "completed" || t.status === "done").length;
     const totalResearches = projects.reduce((s, p) => s + p.researches.length, 0);
     const totalPrds = projects.reduce((s, p) => s + p.prds.length, 0);
-    const totalRoadmaps = projects.reduce((s, p) => s + p.roadmaps.length, 0);
+    const totalRoadmaps = projects.reduce((s, p) => s + p.roadmaps.length, 0) + standaloneRoadmaps.length;
     const totalArchitectures = projects.reduce((s, p) => s + p.architectures.length, 0);
     const totalDocuments = projects.reduce((s, p) => s + p.documents.length, 0);
     const totalAiConversations = aiConversations.length;
     const totalAiRequests = totalResearches + totalPrds + totalRoadmaps + totalArchitectures + totalDocuments + totalAiConversations;
     const taskCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-    const allAIItems = projects.flatMap((p) => [
-      ...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents,
-    ]);
+    const allAIItems = [
+      ...projects.flatMap((p) => [
+        ...p.researches, ...p.prds, ...p.roadmaps, ...p.architectures, ...p.documents,
+      ]),
+      ...standaloneRoadmaps,
+    ];
     const totalTokensUsed = allAIItems.reduce((s, a) => s + (a.tokens || 0), 0);
     const avgGenTime = allAIItems.length > 0
       ? Math.round(allAIItems.reduce((s, a) => s + (a.generationTime || 0), 0) / allAIItems.length)
@@ -80,13 +95,16 @@ export async function GET(req: Request) {
     // Pre-calculate project, task & AI asset timestamps once
     const projectTimestamps = projects.map((p) => new Date(p.createdAt).getTime());
     const taskTimestamps = allTasks.map((t) => new Date(t.createdAt).getTime());
-    const aiTimestamps = projects.flatMap((p) => [
-      ...p.researches.map((r) => new Date(r.createdAt).getTime()),
-      ...p.prds.map((prd) => new Date(prd.createdAt).getTime()),
-      ...p.roadmaps.map((rm) => new Date(rm.createdAt).getTime()),
-      ...p.architectures.map((arch) => new Date(arch.createdAt).getTime()),
-      ...p.documents.map((doc) => new Date(doc.createdAt).getTime()),
-    ]);
+    const aiTimestamps = [
+      ...projects.flatMap((p) => [
+        ...p.researches.map((r) => new Date(r.createdAt).getTime()),
+        ...p.prds.map((prd) => new Date(prd.createdAt).getTime()),
+        ...p.roadmaps.map((rm) => new Date(rm.createdAt).getTime()),
+        ...p.architectures.map((arch) => new Date(arch.createdAt).getTime()),
+        ...p.documents.map((doc) => new Date(doc.createdAt).getTime()),
+      ]),
+      ...standaloneRoadmaps.map((rm) => new Date(rm.createdAt).getTime()),
+    ];
     aiConversations.forEach((c) => aiTimestamps.push(new Date(c.createdAt).getTime()));
 
     for (let i = 11; i >= 0; i--) {

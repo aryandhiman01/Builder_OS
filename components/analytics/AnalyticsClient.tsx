@@ -477,7 +477,7 @@ export default function AnalyticsClient() {
             trendColor="emerald"
           />
           <StatsCard
-            title="AI Generations"
+            title="AI Artifacts"
             value={kpis.totalAiRequests}
             description="PRDs, roadmaps, research & more"
             icon={Brain}

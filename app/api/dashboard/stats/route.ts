@@ -52,14 +52,51 @@ export async function GET(req: Request) {
       return NextResponse.json(cached.data);
     }
 
-    // Optimized sequential query execution to prevent DB connection pool exhaustion (P2024)
+    const projectUserFilter = {
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    };
+
+    // Calculate real-time accurate workspace totals using fast parallel count queries
+    const [
+      projectsCount,
+      tasksCount,
+      completedTasksCount,
+      totalResearchesCount,
+      totalPrdsCount,
+      totalRoadmapsCount,
+      totalArchitecturesCount,
+      totalDocumentsCount,
+      aiConversationsCount,
+    ] = await Promise.all([
+      prisma.project.count({ where: projectUserFilter }),
+      prisma.task.count({ where: { project: projectUserFilter } }),
+      prisma.task.count({
+        where: {
+          project: projectUserFilter,
+          status: { in: ["completed", "done"] },
+        },
+      }),
+      prisma.research.count({ where: { project: projectUserFilter } }),
+      prisma.pRD.count({ where: { project: projectUserFilter } }),
+      prisma.roadmap.count({
+        where: {
+          OR: [
+            { userId: user.id },
+            { project: projectUserFilter },
+          ],
+        },
+      }),
+      prisma.architecture.count({ where: { project: projectUserFilter } }),
+      prisma.document.count({ where: { project: projectUserFilter } }),
+      prisma.aIConversation.count({ where: { userId: user.id } }),
+    ]);
+
+    // Fetch top recent projects & activities for UI presentation
     const projects = await prisma.project.findMany({
-      where: {
-        OR: [
-          { userId: user.id },
-          { members: { some: { userId: user.id } } },
-        ],
-      },
+      where: projectUserFilter,
       include: {
         tasks: { select: { id: true, title: true, description: true, tags: true, status: true, updatedAt: true }, take: 15 },
         researches: { select: { id: true, title: true, createdAt: true }, take: 10, orderBy: { createdAt: "desc" } },
@@ -79,18 +116,7 @@ export async function GET(req: Request) {
       take: 10,
     });
 
-
-    const projectsCount = projects.length;
-    const aiConversationsCount = aiConversations.length;
-
-    let totalTasksCount = 0;
-    let completedTasksCount = 0;
     let totalProjectsProgressSum = 0;
-    let totalResearchesCount = 0;
-    let totalPrdsCount = 0;
-    let totalRoadmapsCount = 0;
-    let totalArchitecturesCount = 0;
-    let totalDocumentsCount = 0;
 
     type ActivityItem = {
       id: string;
@@ -122,14 +148,6 @@ export async function GET(req: Request) {
       const projCompletedTasks = p.tasks.filter(
         (t) => t.status === "completed" || t.status === "done"
       ).length;
-
-      totalTasksCount += projTotalTasks;
-      completedTasksCount += projCompletedTasks;
-      totalResearchesCount += p.researches.length;
-      totalPrdsCount += p.prds.length;
-      totalRoadmapsCount += p.roadmaps.length;
-      totalArchitecturesCount += p.architectures.length;
-      totalDocumentsCount += p.documents.length;
 
       const hasResearch = p.researches.length > 0;
       const hasPRD = p.prds.length > 0;
@@ -265,7 +283,7 @@ export async function GET(req: Request) {
       };
     });
 
-    const remainingTasksCount = totalTasksCount - completedTasksCount;
+    const remainingTasksCount = tasksCount - completedTasksCount;
     const completionPercentage =
       projectsCount > 0
         ? Math.round(totalProjectsProgressSum / projectsCount)
@@ -338,7 +356,7 @@ export async function GET(req: Request) {
       stats: {
         projectsCount,
         tasksCount: remainingTasksCount,
-        totalTasksCount,
+        totalTasksCount: tasksCount,
         aiRequestsCount,
         completionPercentage,
       },
