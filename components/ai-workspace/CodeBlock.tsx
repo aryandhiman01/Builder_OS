@@ -36,11 +36,11 @@ export default function CodeBlock({
 
   return (
 
-    <div className="my-6 overflow-hidden rounded-2xl border border-white/10">
+    <div className="my-3 sm:my-5 overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 w-full max-w-full">
 
-      <div className="flex items-center justify-between border-b border-white/10 bg-zinc-900 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-white/10 bg-zinc-900/90 px-3 py-2 sm:px-4 sm:py-2.5">
 
-        <span className="text-sm font-medium capitalize text-zinc-400">
+        <span className="text-xs sm:text-sm font-medium capitalize text-zinc-400">
 
           {language || "code"}
 
@@ -48,21 +48,21 @@ export default function CodeBlock({
 
         <button
           onClick={handleCopy}
-          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-zinc-400 transition hover:bg-white/10 hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs text-zinc-400 transition hover:bg-white/10 hover:text-white cursor-pointer"
         >
 
           {copied ? (
 
             <>
-              <Check className="h-4 w-4 text-green-400" />
-              Copied
+              <Check className="h-3.5 w-3.5 text-green-400" />
+              <span>Copied</span>
             </>
 
           ) : (
 
             <>
-              <Copy className="h-4 w-4" />
-              Copy
+              <Copy className="h-3.5 w-3.5" />
+              <span>Copy</span>
             </>
 
           )}
@@ -71,18 +71,21 @@ export default function CodeBlock({
 
       </div>
 
-      <SyntaxHighlighter
-        language={language}
-        style={oneDark}
-        customStyle={{
-          margin: 0,
-          padding: "24px",
-          background: "#09090b",
-          fontSize: "14px",
-        }}
-      >
-        {value}
-      </SyntaxHighlighter>
+      <div className="overflow-x-auto w-full no-scrollbar">
+        <SyntaxHighlighter
+          language={language}
+          style={oneDark}
+          customStyle={{
+            margin: 0,
+            padding: "12px 14px",
+            background: "#09090b",
+            fontSize: "12.5px",
+            lineHeight: "1.5",
+          }}
+        >
+          {value}
+        </SyntaxHighlighter>
+      </div>
 
     </div>
 

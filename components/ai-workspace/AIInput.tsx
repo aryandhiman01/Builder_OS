@@ -290,7 +290,7 @@ export default function AIInput({
 
   return (
 
-    <div className="rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-3 sm:p-4 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+    <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-[#0a0a0c]/90 p-2.5 sm:p-4 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
 
       <input
         ref={fileInputRef}
@@ -301,15 +301,15 @@ export default function AIInput({
       />
 
       {(attachments.length > 0 || mode) && (
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mb-2 sm:mb-3 flex flex-wrap gap-1.5 sm:gap-2 max-h-24 overflow-y-auto no-scrollbar">
 
           {mode && (
             (() => {
               const Meta = modeMeta[mode];
               const Icon = Meta.icon;
               return (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-300">
-                  <Icon className="h-3.5 w-3.5" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs font-medium text-orange-300">
+                  <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   {Meta.label}
                   <button
                     onClick={() => setMode(null)}
@@ -326,10 +326,10 @@ export default function AIInput({
             <span
               key={item.id}
               title={item.subtitle}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-300"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 sm:px-3 py-0.5 sm:py-1 text-[11px] sm:text-xs text-zinc-300"
             >
-              <FileText className="h-3.5 w-3.5 text-zinc-500" />
-              <span className="max-w-[120px] sm:max-w-[160px] truncate">{item.name}</span>
+              <FileText className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-zinc-500" />
+              <span className="max-w-[100px] sm:max-w-[160px] truncate">{item.name}</span>
               <button
                 onClick={() => removeAttachment(item.id)}
                 className="ml-1 rounded-full p-0.5 hover:bg-white/10"
@@ -352,19 +352,19 @@ export default function AIInput({
           setMessage(e.target.value)
         }
         placeholder="Ask BuilderOS AI anything..."
-        className="max-h-[220px] min-h-[50px] sm:min-h-[56px] w-full resize-none overflow-y-auto bg-transparent text-sm sm:text-[15px] leading-6 sm:leading-7 text-white placeholder:text-zinc-500 focus:outline-none"
+        className="max-h-[200px] min-h-[42px] sm:min-h-[56px] w-full resize-none overflow-y-auto bg-transparent px-1 text-sm sm:text-[15px] leading-6 sm:leading-7 text-white placeholder:text-zinc-500 focus:outline-none"
       />
 
-      <div className="mt-3 sm:mt-4 flex items-center justify-between">
+      <div className="mt-2 sm:mt-4 flex items-center justify-between gap-2">
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 size="icon"
                 variant="ghost"
-                className="rounded-xl text-zinc-400 hover:bg-white/5 hover:text-orange-400 aria-expanded:bg-white/5 aria-expanded:text-orange-400"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-zinc-400 hover:bg-white/5 hover:text-orange-400 aria-expanded:bg-white/5 aria-expanded:text-orange-400"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -373,7 +373,7 @@ export default function AIInput({
             <DropdownMenuContent
               side="bottom"
               align="start"
-              className="w-[calc(100vw-32px)] sm:w-80 rounded-2xl border border-white/10 bg-[#0a0a0c]/95 p-2 text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+              className="w-[calc(100vw-32px)] max-w-xs sm:w-80 rounded-2xl border border-white/10 bg-[#0a0a0c]/95 p-2 text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
             >
 
               <DropdownMenuItem
@@ -474,7 +474,7 @@ export default function AIInput({
             size="icon"
             variant="ghost"
             disabled
-            className="rounded-xl text-zinc-500"
+            className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-zinc-500"
           >
             <Mic className="h-4 w-4" />
           </Button>
@@ -487,16 +487,16 @@ export default function AIInput({
 
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
 
           {message.trim().length === 0 && attachments.length === 0 && (
             <Button
               size="icon"
               variant="ghost"
               disabled
-              className="h-11 w-11 rounded-2xl border border-white/10 text-zinc-400"
+              className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl sm:rounded-2xl border border-white/10 text-zinc-400 shrink-0"
             >
-              <AudioLines className="h-5 w-5" />
+              <AudioLines className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           )}
 
@@ -507,12 +507,12 @@ export default function AIInput({
               (message.trim().length === 0 && attachments.length === 0)
             }
             onClick={handleSubmit}
-            className="btn-shimmer h-11 w-11 rounded-2xl bg-white text-black hover:bg-zinc-100 shadow-md transition-all active:scale-95 cursor-pointer"
+            className="btn-shimmer h-9 w-9 sm:h-11 sm:w-11 rounded-xl sm:rounded-2xl bg-white text-black hover:bg-zinc-100 shadow-md transition-all active:scale-95 cursor-pointer shrink-0"
           >
             {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin text-black" />
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-black" />
             ) : (
-              <ArrowUp className="h-5 w-5 text-black" strokeWidth={2.5} />
+              <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5 text-black" strokeWidth={2.5} />
             )}
           </Button>
 

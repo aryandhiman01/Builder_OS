@@ -227,7 +227,7 @@ export default function AIWorkspace() {
       {/* Main Full-Width AI Workspace Canvas */}
       <div className="flex h-full flex-1 flex-col overflow-x-hidden min-w-0 bg-[#060606]">
         {/* Top Header Bar with Back to Dashboard button */}
-        <header className="flex h-16 sm:h-[73px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#09090c]/90 px-3 sm:px-8 backdrop-blur-2xl shadow-lg">
+        <header className="flex h-14 sm:h-[73px] shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#09090c]/90 px-3 sm:px-8 backdrop-blur-2xl shadow-lg">
           {/* Left: Back to Dashboard Button & Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
@@ -242,7 +242,7 @@ export default function AIWorkspace() {
               border
               border-white/15
               bg-white/[0.05]
-              px-3 sm:px-4
+              px-2.5 sm:px-4
               py-1.5 sm:py-2
               text-xs
               font-semibold
@@ -257,7 +257,7 @@ export default function AIWorkspace() {
             >
               <ArrowLeft size={14} className="text-orange-400 shrink-0" />
               <span className="hidden sm:inline">Back to Dashboard</span>
-              <span className="sm:hidden">Dashboard</span>
+              <span className="sm:hidden text-[11px]">Dashboard</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-2 border-l border-white/10 pl-3">
@@ -271,10 +271,10 @@ export default function AIWorkspace() {
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-[#8a8a93] transition-all hover:bg-white/[0.08] hover:text-white"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-[#8a8a93] transition-all hover:bg-white/[0.08] hover:text-white"
               title="Toggle Chat History"
             >
-              <History size={14} className="text-amber-400" />
+              <History size={14} className="text-amber-400 shrink-0" />
               <span className="hidden sm:inline">History</span>
             </button>
 
@@ -284,10 +284,10 @@ export default function AIWorkspace() {
               btn-shimmer
               flex
               items-center
-              gap-1.5
+              gap-1 sm:gap-1.5
               rounded-full
               bg-white
-              px-3 sm:px-4
+              px-2.5 sm:px-4
               py-1.5
               text-xs
               font-semibold
@@ -299,7 +299,7 @@ export default function AIWorkspace() {
               active:scale-95
               "
             >
-              <Plus size={14} strokeWidth={2.5} />
+              <Plus size={14} strokeWidth={2.5} className="shrink-0" />
               <span className="hidden min-[360px]:inline">New Chat</span>
             </button>
           </div>
@@ -307,20 +307,22 @@ export default function AIWorkspace() {
 
         {/* Content Body */}
         {messages.length === 0 ? (
-          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 sm:gap-8 px-3 sm:px-8 py-6 sm:py-8 overflow-y-auto">
-            <AIWelcome />
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-start sm:justify-center gap-4 sm:gap-6 px-3 sm:px-8 py-3 sm:py-8 overflow-y-auto">
+            <div className="my-auto flex w-full flex-col items-center gap-3 sm:gap-6">
+              <AIWelcome />
 
-            <div className="w-full">
-              <AIInput loading={loading} onSend={handleSend} />
+              <div className="w-full">
+                <AIInput loading={loading} onSend={handleSend} />
+              </div>
+
+              <AIQuickActions onSelectPrompt={handleSend} />
             </div>
-
-            <AIQuickActions onSelectPrompt={handleSend} />
           </div>
         ) : (
-          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-3 sm:px-8 py-4 sm:py-6">
+          <div className="mx-auto flex w-full max-w-5xl min-h-0 flex-1 flex-col overflow-hidden px-2 sm:px-8 py-3 sm:py-6">
             <AIChat messages={messages} loading={loading} />
 
-            <div className="mt-4 sm:mt-6 shrink-0">
+            <div className="mt-2.5 sm:mt-6 shrink-0">
               <AIInput loading={loading} onSend={handleSend} />
             </div>
           </div>

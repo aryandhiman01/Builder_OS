@@ -15,7 +15,7 @@ export default function MarkdownRenderer({
 
   return (
 
-    <div className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-zinc-300 prose-li:text-zinc-300 prose-a:text-violet-300">
+    <div className="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed sm:leading-relaxed prose-headings:text-white prose-headings:font-bold prose-headings:tracking-tight prose-headings:mt-3 prose-headings:mb-1.5 prose-p:text-zinc-200 prose-p:my-1.5 sm:prose-p:my-2.5 prose-li:text-zinc-200 prose-li:my-0.5 prose-a:text-orange-400 prose-a:underline prose-code:text-orange-300 prose-code:bg-white/[0.06] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none overflow-x-auto">
 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -34,7 +34,7 @@ export default function MarkdownRenderer({
 
               return (
 
-                <code className="rounded bg-zinc-900 px-1.5 py-1 text-violet-200">
+                <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-xs text-orange-300">
 
                   {children}
 

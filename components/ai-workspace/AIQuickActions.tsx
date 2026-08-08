@@ -109,22 +109,24 @@ export default function AIQuickActions({
   onSelectPrompt,
 }: AIQuickActionsProps) {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-2">
-      {actions.map((action) => {
-        const Icon = action.icon;
+    <div className="w-full max-w-3xl">
+      <div className="grid grid-cols-2 gap-1.5 min-[480px]:grid-cols-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-2">
+        {actions.map((action) => {
+          const Icon = action.icon;
 
-        return (
-          <button
-            key={action.title}
-            onClick={() => onSelectPrompt(action.prompt)}
-            title={action.description}
-            className="group inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2 text-xs font-semibold text-[#8a8a93] backdrop-blur-md transition-all duration-200 hover:border-orange-500/30 hover:bg-white/[0.07] hover:text-white active:scale-95 cursor-pointer"
-          >
-            <Icon className="h-3.5 w-3.5 text-orange-400 group-hover:scale-110 transition-transform" />
-            <span>{action.title}</span>
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={action.title}
+              onClick={() => onSelectPrompt(action.prompt)}
+              title={action.description}
+              className="group flex w-full sm:w-auto items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-2.5 sm:px-3.5 py-2 text-[11px] sm:text-xs font-semibold text-[#8a8a93] backdrop-blur-md transition-all duration-200 hover:border-orange-500/30 hover:bg-white/[0.07] hover:text-white active:scale-95 cursor-pointer min-w-0"
+            >
+              <Icon className="h-3.5 w-3.5 text-orange-400 group-hover:scale-110 transition-transform shrink-0" />
+              <span className="truncate">{action.title}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

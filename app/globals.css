@@ -72,6 +72,15 @@
   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.13); }
 }
 
+/* Hide scrollbars for clean mobile scroll containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* ===================== KEYFRAMES ===================== */
 
 @keyframes heroShimmer {
