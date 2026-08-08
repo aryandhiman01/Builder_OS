@@ -33,6 +33,7 @@ import RoadmapExplainModal from "./RoadmapExplainModal";
 import { ResourceItem } from "./RoadmapResourcesModal";
 import ConvertProjectModal from "./ConvertProjectModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import RoadmapNotesEditor from "./RoadmapNotesEditor";
 
 interface RoadmapStepData {
   id: string;
@@ -272,18 +273,21 @@ export default function RoadmapDetailClient({
   }
 
   // Save Notes
-  async function handleSaveNotes() {
+  async function handleSaveNotes(newNotesText?: string) {
+    const textToSave = newNotesText !== undefined ? newNotesText : notesText;
     try {
       setSavingNotes(true);
       const res = await fetch(`/api/roadmaps/${roadmap.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes: notesText }),
+        body: JSON.stringify({ notes: textToSave }),
       });
       if (!res.ok) throw new Error("Failed to save notes");
+      setNotesText(textToSave);
       toast.success("Notes saved!");
     } catch (err) {
       toast.error("Failed to save notes");
+      throw err;
     } finally {
       setSavingNotes(false);
     }
@@ -676,29 +680,12 @@ export default function RoadmapDetailClient({
 
       {/* 5. Notes Tab */}
       {activeTab === "notes" && (
-        <div className="rounded-2xl border border-white/10 bg-[#09090c] p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <div>
-              <h3 className="text-base font-bold text-white">Roadmap Notes</h3>
-              <p className="text-xs text-[#8a8a93]">Personal planning thoughts, decisions, and ideas.</p>
-            </div>
-            <button
-              onClick={handleSaveNotes}
-              disabled={savingNotes}
-              className="rounded-xl bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
-            >
-              {savingNotes ? "Saving..." : "Save Notes"}
-            </button>
-          </div>
-
-          <textarea
-            rows={10}
-            value={notesText}
-            onChange={(e) => setNotesText(e.target.value)}
-            placeholder="Write down key roadmap notes, architectural decisions, links, or draft ideas..."
-            className="w-full rounded-xl border border-white/10 bg-[#09090c] p-4 text-xs text-white placeholder-[#8a8a93] focus:border-orange-500 focus:outline-none"
-          />
-        </div>
+        <RoadmapNotesEditor
+          notes={notesText}
+          roadmapTitle={roadmap.title}
+          onSave={handleSaveNotes}
+          saving={savingNotes}
+        />
       )}
 
       {/* MODALS */}
