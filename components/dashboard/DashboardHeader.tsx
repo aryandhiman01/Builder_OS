@@ -36,8 +36,9 @@ export default function DashboardHeader({
   const router = useRouter();
   const [internalModalOpen, setInternalModalOpen] = useState(false);
 
-  const [greetingInfo, setGreetingInfo] = useState<{ text: string; emoji: string }>(() => {
-    return getGreetingInfo(new Date().getHours());
+  const [greetingInfo, setGreetingInfo] = useState<{ text: string; emoji: string }>({
+    text: "Welcome",
+    emoji: "👋",
   });
 
   useEffect(() => {
