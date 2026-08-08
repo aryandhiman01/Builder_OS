@@ -53,10 +53,6 @@ export default function RoadmapCard({ roadmap, onConvert, onDelete }: RoadmapCar
               {roadmap.projectTitle || "Project Roadmap"}
             </span>
           )}
-
-          <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-mono font-semibold text-orange-400">
-            {roadmap.status}
-          </span>
         </div>
 
         {/* Title & Description */}
@@ -130,16 +126,6 @@ export default function RoadmapCard({ roadmap, onConvert, onDelete }: RoadmapCar
         <div className="mt-4 flex items-center justify-between gap-2">
           {isStandalone && (
             <div className="flex items-center gap-1.5">
-              {onConvert && (
-                <button
-                  onClick={() => onConvert(roadmap)}
-                  className="flex items-center gap-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-semibold text-orange-400 transition-all hover:bg-orange-500/20 active:scale-95"
-                >
-                  <Sparkles size={13} />
-                  <span>Convert</span>
-                </button>
-              )}
-
               {onDelete && (
                 <button
                   onClick={() => onDelete(roadmap)}

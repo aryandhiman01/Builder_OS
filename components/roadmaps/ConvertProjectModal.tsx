@@ -12,6 +12,7 @@ import {
   Brain,
   FileText,
   CheckSquare,
+  Rocket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoadmapCardData } from "./RoadmapCard";
@@ -203,13 +204,16 @@ export default function ConvertProjectModal({
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#09090c] px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none"
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#09090c] px-3.5 py-2.5 text-xs text-white focus:border-white/30 focus:outline-none cursor-pointer"
                 >
                   <option value="SaaS">SaaS</option>
-                  <option value="DevTools">DevTools</option>
+                  <option value="AI Product">AI Product</option>
+                  <option value="Web App">Web App</option>
+                  <option value="E-commerce">E-commerce</option>
                   <option value="Mobile App">Mobile App</option>
-                  <option value="AI / ML">AI / ML</option>
-                  <option value="Web3">Web3</option>
+                  <option value="Internal Tool">Internal Tool</option>
+                  <option value="Portfolio">Portfolio</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
@@ -221,7 +225,7 @@ export default function ConvertProjectModal({
                   type="color"
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="mt-1.5 h-10 w-full rounded-xl border border-white/10 bg-[#09090c] p-1"
+                  className="mt-1.5 h-10 w-full rounded-xl border border-white/10 bg-[#09090c] p-1 cursor-pointer"
                 />
               </div>
             </div>
@@ -242,10 +246,10 @@ export default function ConvertProjectModal({
 
               <button
                 type="submit"
-                className="btn-shimmer flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-2.5 text-xs font-semibold text-white transition hover:brightness-110 active:scale-95 shadow-lg shadow-orange-500/20"
+                className="btn-shimmer flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-semibold text-black shadow-lg transition hover:bg-zinc-100 active:scale-95"
               >
-                <Sparkles size={16} />
-                <span>Create & Convert</span>
+                <Rocket size={15} />
+                <span>Convert To Project</span>
               </button>
             </div>
           </form>

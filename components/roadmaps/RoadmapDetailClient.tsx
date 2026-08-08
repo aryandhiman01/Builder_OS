@@ -34,6 +34,7 @@ import { ResourceItem } from "./RoadmapResourcesModal";
 import ConvertProjectModal from "./ConvertProjectModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import RoadmapNotesEditor from "./RoadmapNotesEditor";
+import RoadmapProgressAnalytics from "./RoadmapProgressAnalytics";
 
 interface RoadmapStepData {
   id: string;
@@ -85,7 +86,7 @@ export default function RoadmapDetailClient({
   const [roadmap, setRoadmap] = useState<RoadmapDetailData>(initialRoadmap);
 
   const [activeTab, setActiveTab] = useState<
-    "milestones" | "timeline" | "resources" | "progress" | "notes"
+    "milestones" | "resources" | "progress" | "notes"
   >("milestones");
 
   // AI Feature States
@@ -325,10 +326,6 @@ export default function RoadmapDetailClient({
                   {roadmap.project?.title || "Project Roadmap"}
                 </span>
               )}
-
-              <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-0.5 text-xs font-mono font-semibold text-orange-400">
-                {roadmap.status}
-              </span>
             </div>
 
             <h1
@@ -364,19 +361,6 @@ export default function RoadmapDetailClient({
               </span>
             </button>
 
-            <button
-              onClick={() => {
-                setActiveTab("resources");
-                if (resourcesList.length === 0 && !resourcesLoading) {
-                  handleFetchResources();
-                }
-              }}
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-300 transition-all hover:bg-emerald-500/20 active:scale-95"
-            >
-              <BookOpen size={14} className="text-emerald-400" />
-              <span>Resources ({resourcesList.length})</span>
-            </button>
-
             {isStandalone && (
               <>
                 <button
@@ -410,7 +394,6 @@ export default function RoadmapDetailClient({
       <div className="flex border-b border-white/10 gap-2 overflow-x-auto scrollbar-none">
         {[
           { id: "milestones", label: "Milestones & Checklist", icon: CheckSquare },
-          { id: "timeline", label: "Timeline", icon: Calendar },
           { id: "resources", label: "Resources", icon: BookOpen },
           { id: "progress", label: "Progress", icon: BarChart2 },
           { id: "notes", label: "Notes", icon: StickyNote },
@@ -477,12 +460,12 @@ export default function RoadmapDetailClient({
                   {m.steps.map((step) => (
                     <div
                       key={step.id}
-                      className="group flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-3.5 transition-colors hover:bg-white/[0.04]"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3.5 transition-colors hover:bg-white/[0.04]"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                         <button
                           onClick={() => handleToggleStep(step.id, step.completed)}
-                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border transition-all ${
+                          className={`mt-0.5 sm:mt-0 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border transition-all ${
                             step.completed
                               ? "border-emerald-500 bg-emerald-500/20 text-emerald-400"
                               : "border-white/20 bg-white/5 text-transparent hover:border-white/40"
@@ -490,9 +473,9 @@ export default function RoadmapDetailClient({
                         >
                           <CheckCircle2 size={14} />
                         </button>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <span
-                            className={`text-xs font-semibold transition-all ${
+                            className={`text-xs font-semibold transition-all block ${
                               step.completed
                                 ? "text-[#8a8a93] line-through"
                                 : "text-white"
@@ -501,25 +484,25 @@ export default function RoadmapDetailClient({
                             {step.title}
                           </span>
                           {step.description && (
-                            <p className="text-[11px] text-[#8a8a93] mt-0.5">
+                            <p className="text-[11px] text-[#8a8a93] mt-0.5 leading-relaxed">
                               {step.description}
                             </p>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
                         {step.estimatedHours && (
                           <span className="text-[10px] font-mono text-[#8a8a93] bg-white/5 px-2 py-0.5 rounded-full">
                             {step.estimatedHours}h
                           </span>
                         )}
 
-                        {/* Explain Button */}
+                        {/* Explain Button - Always visible on mobile, hover on desktop */}
                         <button
                           onClick={() => handleAiExplain(step.title, step.description, m.title)}
                           title="Explain concept with AI"
-                          className="flex items-center gap-1 text-[11px] font-medium text-blue-400 opacity-0 group-hover:opacity-100 hover:underline transition-opacity"
+                          className="flex items-center gap-1 text-[11px] font-medium text-blue-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:underline transition-opacity"
                         >
                           <HelpCircle size={13} />
                           <span>Explain</span>
@@ -534,40 +517,7 @@ export default function RoadmapDetailClient({
         </div>
       )}
 
-      {/* 2. Timeline Tab */}
-      {activeTab === "timeline" && (
-        <div className="rounded-2xl border border-white/10 bg-[#09090c] p-6 space-y-6">
-          <div className="border-b border-white/10 pb-4">
-            <h3 className="text-base font-bold text-white">Roadmap Timeline & Phases</h3>
-            <p className="text-xs text-[#8a8a93]">Sequential breakdown across estimated duration.</p>
-          </div>
 
-          <div className="relative border-l-2 border-orange-500/30 pl-6 space-y-8 my-4 ml-3">
-            {roadmap.milestones.map((m, idx) => (
-              <div key={m.id} className="relative">
-                <div className="absolute -left-[31px] top-1 h-4 w-4 rounded-full border-2 border-orange-500 bg-[#09090c]" />
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-2">
-                  <span className="text-[11px] font-mono text-orange-400 font-bold uppercase">
-                    Phase {idx + 1}
-                  </span>
-                  <h4 className="text-sm font-bold text-white">{m.title}</h4>
-                  <div className="space-y-1.5 pt-2">
-                    {m.steps.map((s) => (
-                      <div key={s.id} className="flex items-center gap-2 text-xs text-[#8a8a93]">
-                        <CheckCircle2
-                          size={13}
-                          className={s.completed ? "text-emerald-400" : "text-zinc-600"}
-                        />
-                        <span className={s.completed ? "line-through" : ""}>{s.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* 3. Resources Tab */}
       {activeTab === "resources" && (
@@ -651,31 +601,11 @@ export default function RoadmapDetailClient({
 
       {/* 4. Progress Tab */}
       {activeTab === "progress" && (
-        <div className="rounded-2xl border border-white/10 bg-[#09090c] p-6 space-y-6">
-          <div className="border-b border-white/10 pb-4">
-            <h3 className="text-base font-bold text-white">Completion Metrics</h3>
-            <p className="text-xs text-[#8a8a93]">Overall analytics and step completion performance.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 text-center">
-              <span className="text-3xl font-bold font-mono text-orange-400">{progressPercent}%</span>
-              <p className="text-xs text-[#8a8a93] mt-1 font-semibold">Total Progress</p>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 text-center">
-              <span className="text-3xl font-bold font-mono text-emerald-400">
-                {completedSteps}/{totalSteps}
-              </span>
-              <p className="text-xs text-[#8a8a93] mt-1 font-semibold">Steps Completed</p>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 text-center">
-              <span className="text-3xl font-bold font-mono text-blue-400">{totalHours}h</span>
-              <p className="text-xs text-[#8a8a93] mt-1 font-semibold">Estimated Effort</p>
-            </div>
-          </div>
-        </div>
+        <RoadmapProgressAnalytics
+          milestones={roadmap.milestones}
+          roadmapProgress={roadmap.progress}
+          onNavigateToMilestones={() => setActiveTab("milestones")}
+        />
       )}
 
       {/* 5. Notes Tab */}
