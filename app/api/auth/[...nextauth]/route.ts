@@ -8,9 +8,8 @@ async function authHandler(
     req: NextRequest,
     context: { params: Promise<{ nextauth: string[] }> }
 ) {
-    const params = await context.params;
+    const params = context?.params ? await context.params : { nextauth: [] };
     return handler(req, { params });
 }
 
 export { authHandler as GET, authHandler as POST };
-
