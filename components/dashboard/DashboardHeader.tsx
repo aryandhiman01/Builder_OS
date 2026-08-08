@@ -94,6 +94,7 @@ export default function DashboardHeader({
             <div className="flex flex-col justify-center">
               <div className="flex items-center gap-2">
                 <h1
+                  suppressHydrationWarning
                   className="text-base sm:text-lg font-bold tracking-tight text-white leading-none"
                   style={{ fontFamily: "var(--font-sora)" }}
                 >

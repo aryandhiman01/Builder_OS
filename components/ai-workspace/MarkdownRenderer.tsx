@@ -20,6 +20,9 @@ export default function MarkdownRenderer({
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          p: ({ children }) => (
+            <div className="my-1.5 sm:my-2.5 text-zinc-200">{children}</div>
+          ),
           code(props) {
 
             const { children, className } = props;

@@ -423,7 +423,7 @@ export default function ArchitectureViewer({
                 {architecture.title}
               </h1>
 
-              <p className="mt-2 text-xs text-zinc-600">
+              <p className="mt-2 text-xs text-zinc-600" suppressHydrationWarning>
                 Generated via BuilderOS AI •{" "}
                 {new Date().toLocaleDateString()}
               </p>

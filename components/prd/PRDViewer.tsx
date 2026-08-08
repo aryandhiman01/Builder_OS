@@ -315,7 +315,7 @@ export function PRDViewer({ projectId, prd: initialPrd }: PRDViewerProps) {
             {/* Header snippet for PDF export */}
             <div className="hidden print:block border-b border-zinc-200 pb-6 mb-8">
               <h1 className="text-3xl font-bold text-black">{prd.title}</h1>
-              <p className="text-xs text-zinc-600 mt-2">
+              <p className="text-xs text-zinc-600 mt-2" suppressHydrationWarning>
                 Generated via BuilderOS AI • {new Date().toLocaleDateString()}
               </p>
             </div>

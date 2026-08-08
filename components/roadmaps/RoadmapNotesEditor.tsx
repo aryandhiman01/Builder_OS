@@ -514,7 +514,7 @@ export default function RoadmapNotesEditor({
               Unsaved changes
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-medium" suppressHydrationWarning>
               <Check size={12} />
               {lastSaved ? `Saved ${lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : "Saved"}
             </span>

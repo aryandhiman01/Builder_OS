@@ -309,7 +309,7 @@ export default function RoadmapViewer({
               <h1 className="text-3xl font-bold text-black">
                 {roadmap.title}
               </h1>
-              <p className="text-xs text-zinc-600 mt-2">
+              <p className="text-xs text-zinc-600 mt-2" suppressHydrationWarning>
                 Generated via BuilderOS AI • {new Date().toLocaleDateString()}
               </p>
             </div>

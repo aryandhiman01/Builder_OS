@@ -106,7 +106,7 @@ export default function MarkdownRenderer({
             </h3>
           ),
           p: ({ children }) => (
-            <p
+            <div
               className="
               mb-5
               leading-8
@@ -114,7 +114,7 @@ export default function MarkdownRenderer({
               "
             >
               {children}
-            </p>
+            </div>
           ),
           ul: ({ children }) => (
             <ul
