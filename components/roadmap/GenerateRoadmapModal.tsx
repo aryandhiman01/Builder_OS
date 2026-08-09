@@ -18,9 +18,10 @@ import { Label } from "@/components/ui/label";
 
 import {
   Loader2,
-  Sparkles,
+  Compass,
+  Milestone,
   FileText,
-  Map,
+  Map as MapIcon,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -34,9 +35,7 @@ interface GenerateRoadmapModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-
   prdId?: string;
-
   prds?: PRDOption[];
 }
 
@@ -47,9 +46,7 @@ export default function GenerateRoadmapModal({
   prdId: initialPrdId,
   prds = [],
 }: GenerateRoadmapModalProps) {
-
   const router = useRouter();
-
   const [loading, setLoading] = useState(false);
 
   const [selectedPrdId, setSelectedPrdId] = useState(
@@ -59,54 +56,43 @@ export default function GenerateRoadmapModal({
   const [title, setTitle] = useState("");
 
   useEffect(() => {
-
     if (initialPrdId) {
       setSelectedPrdId(initialPrdId);
     } else if (prds.length > 0) {
       setSelectedPrdId(prds[0].id);
     }
-
   }, [initialPrdId, prds, open]);
 
   useEffect(() => {
-
-    const matched = prds.find(
-      (prd) => prd.id === selectedPrdId
-    );
-
+    const matched = prds.find((prd) => prd.id === selectedPrdId);
     if (matched) {
       setTitle(`${matched.title} - Roadmap`);
-    } else {
-      setTitle("Product Roadmap");
+    } else if (!title) {
+      setTitle("Product Execution Roadmap");
     }
-
   }, [selectedPrdId, prds]);
 
   async function handleGenerate() {
-
     if (!title.trim()) {
       toast.error("Please enter a roadmap title.");
       return;
     }
 
     if (!selectedPrdId) {
-      toast.error("Please select a PRD.");
+      toast.error("Please select a PRD document.");
       return;
     }
 
     try {
-
       setLoading(true);
 
       const response = await fetch(
         `/api/projects/${projectId}/roadmap/generate`,
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             title: title.trim(),
             prdId: selectedPrdId,
@@ -117,193 +103,112 @@ export default function GenerateRoadmapModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to generate roadmap."
-        );
+        throw new Error(data.message || "Failed to generate roadmap.");
       }
 
       toast.success("Roadmap generated successfully!");
-
       onOpenChange(false);
 
       if (data?.roadmap?.id) {
-
-        router.push(
-          `/projects/${projectId}/roadmap/${data.roadmap.id}`
-        );
-
+        router.push(`/projects/${projectId}/roadmap/${data.roadmap.id}`);
       } else {
-
         router.refresh();
-
       }
-
     } catch (error) {
-
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate roadmap."
+        error instanceof Error ? error.message : "Failed to generate roadmap."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
   return (
-
-    <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
-    >
-
-      <DialogContent className="sm:max-w-lg border-white/10 bg-[#0a0a0c] text-white backdrop-blur-2xl">
-
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg border-white/15 bg-[#09090c] text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
         <DialogHeader>
-
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
-
-            <Map className="h-6 w-6" />
-
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10 text-orange-400 mb-2">
+            <Milestone className="h-5 w-5" />
           </div>
-
-          <DialogTitle className="text-2xl font-bold">
-
+          <DialogTitle className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "var(--font-sora)" }}>
             Generate AI Roadmap
-
           </DialogTitle>
-
-          <DialogDescription className="text-zinc-400">
-
-            Transform your PRD into a detailed execution roadmap with milestones,
-            sprint planning and implementation phases.
-
+          <DialogDescription className="text-[#8a8a93] text-xs leading-relaxed">
+            Transform your Product Requirements Document into a detailed execution roadmap with milestones and sprint planning using AI.
           </DialogDescription>
-
         </DialogHeader>
 
-        <div className="space-y-5">
-
+        <div className="space-y-5 py-1">
+          {/* PRD Selector */}
           {prds.length > 0 && (
-
             <div className="space-y-2">
-
-              <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400">
-
-                <FileText className="h-3.5 w-3.5 text-blue-400" />
-
-                Source PRD
-
+              <Label className="text-xs font-semibold uppercase tracking-wider text-[#8a8a93] flex items-center gap-2">
+                <FileText className="h-3.5 w-3.5 text-sky-400" />
+                Select Source PRD
               </Label>
-
               <select
                 value={selectedPrdId}
-                onChange={(e) =>
-                  setSelectedPrdId(e.target.value)
-                }
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+                onChange={(e) => setSelectedPrdId(e.target.value)}
+                className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-xs sm:text-sm text-white outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
               >
-
                 {prds.map((prd) => (
-
                   <option
                     key={prd.id}
                     value={prd.id}
-                    className="bg-[#0a0a0c]"
+                    className="bg-[#09090c] text-white"
                   >
-
                     {prd.title}
-
                   </option>
-
                 ))}
-
               </select>
-
             </div>
-
           )}
 
+          {/* Title Input */}
           <div className="space-y-2">
-
-            <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400">
-
-              <Map className="h-3.5 w-3.5 text-emerald-400" />
-
-              Roadmap Title
-
+            <Label className="text-xs font-semibold uppercase tracking-wider text-[#8a8a93] flex items-center gap-2">
+              <MapIcon className="h-3.5 w-3.5 text-orange-400" />
+              Roadmap Document Title
             </Label>
-
             <Input
               value={title}
-              onChange={(e) =>
-                setTitle(e.target.value)
-              }
-              placeholder="BuilderOS Roadmap"
-              className="rounded-xl border-white/10 bg-white/[0.05] text-white"
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. BuilderOS Product Roadmap"
+              className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3.5 text-xs sm:text-sm text-white placeholder-[#8a8a93] outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
             />
-
           </div>
-
         </div>
 
-        <DialogFooter className="pt-3">
-
+        <DialogFooter className="gap-2 sm:gap-3">
           <Button
+            type="button"
             variant="outline"
+            onClick={() => onOpenChange(false)}
             disabled={loading}
-            onClick={() =>
-              onOpenChange(false)
-            }
-            className="border-white/10 bg-white/5 text-white"
+            className="rounded-xl border border-white/15 px-5 py-2.5 text-xs font-semibold text-[#8a8a93] hover:bg-white/10 hover:text-white"
           >
-
             Cancel
-
           </Button>
 
           <Button
-            disabled={
-              loading || !selectedPrdId
-            }
             onClick={handleGenerate}
-            className="bg-white text-black hover:bg-zinc-200"
+            disabled={loading || !selectedPrdId}
+            className="btn-shimmer inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-zinc-100 disabled:opacity-50"
           >
-
             {loading ? (
-
               <>
-
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-
-                Generating...
-
+                <Loader2 className="h-4 w-4 animate-spin text-black" />
+                <span>Generating Roadmap...</span>
               </>
-
             ) : (
-
               <>
-
-                <Sparkles className="mr-2 h-4 w-4" />
-
-                Generate Roadmap
-
+                <Compass className="h-4 w-4 text-orange-500" />
+                <span>Generate Roadmap</span>
               </>
-
             )}
-
           </Button>
-
         </DialogFooter>
-
       </DialogContent>
-
     </Dialog>
-
   );
-
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -11,15 +12,19 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Sparkles,
+  Compass,
+  Milestone,
+  FileText,
   Download,
   FileDown,
   Pencil,
   Trash2,
   ListOrdered,
   Clock,
-  Map,
+  Map as MapIcon,
   BookOpen,
+  Zap,
+  Layers,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -32,18 +37,14 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface RoadmapViewerProps {
   projectId: string;
-
   roadmap: {
     id: string;
     title: string;
     content: string;
-
     model: string | null;
     tokens: number | null;
     generationTime: number | null;
-
     createdAt: Date | string;
-
     prd?: {
       id: string;
       title: string;
@@ -135,133 +136,187 @@ export default function RoadmapViewer({
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 pb-24">
-      {/* Top Action & Navigation Bar (Hidden during print) */}
-      <div className="print:hidden flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
-          <Button
-            asChild
-            variant="ghost"
-            className="mb-1 -ml-3 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl text-xs"
-          >
-            <Link href={`/projects/${projectId}/roadmap`} prefetch={true}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Roadmaps List
-            </Link>
-          </Button>
+      {/* Navigation & Action Bar (Hidden during print) */}
+      <div className="print:hidden flex items-center justify-between flex-wrap gap-4">
+        <Link
+          href={`/projects/${projectId}/roadmap`}
+          className="
+          btn-shimmer
+          inline-flex
+          items-center
+          gap-2
+          rounded-full
+          border
+          border-white/15
+          bg-white/[0.05]
+          px-4
+          py-2
+          text-xs
+          font-semibold
+          text-white
+          shadow-md
+          transition-all
+          hover:bg-white/10
+          active:scale-95
+          "
+        >
+          <ArrowLeft size={14} className="text-orange-400" />
+          <span>Back to Roadmaps</span>
+        </Link>
 
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setEditOpen(true)}
+            className="btn-shimmer inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-white/10 active:scale-95"
+          >
+            <Pencil size={13} className="text-sky-400" />
+            <span>Edit Roadmap</span>
+          </button>
+
+          <button
+            onClick={handlePrintPDF}
+            className="btn-shimmer inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-white/10 active:scale-95"
+          >
+            <FileDown size={13} className="text-emerald-400" />
+            <span>Print / PDF</span>
+          </button>
+
+          <button
+            onClick={downloadMarkdown}
+            className="btn-shimmer inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-white/10 active:scale-95"
+          >
+            <Download size={13} className="text-purple-400" />
+            <span>Export .MD</span>
+          </button>
+
+          <button
+            onClick={copyMarkdown}
+            className="btn-shimmer inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-bold text-white shadow-md transition hover:bg-white/10 active:scale-95"
+          >
+            {copied ? (
+              <>
+                <Check size={13} className="text-emerald-400" />
+                <span>Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy size={13} className="text-orange-400" />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={() => setDeleteOpen(true)}
+            className="inline-flex items-center justify-center rounded-full border border-rose-500/20 bg-rose-500/10 p-2 text-rose-400 transition hover:bg-rose-500/20"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Landing Page & Dashboard Mockup Card Header Banner */}
+      <motion.section
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="
+        mockup-card
+        relative
+        overflow-hidden
+        rounded-3xl
+        border
+        border-white/10
+        bg-[#09090c]/95
+        backdrop-blur-2xl
+        shadow-2xl
+        p-6
+        sm:p-8
+        space-y-6
+        "
+      >
+        {/* Top Window Dots Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-white/[0.07]">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-3 w-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
+              <div className="h-3 w-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-1 shadow-inner">
+            <Layers className="h-3.5 w-3.5 text-orange-400" />
+            <span className="text-xs font-semibold text-white/90">
+              BuilderOS — Product Execution Roadmap
+            </span>
+          </div>
+
+          <div className="hidden sm:block w-16" />
+        </div>
+
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-3.5 py-1 text-xs font-mono font-semibold text-sky-400">
+            <Compass size={14} />
+            <span>{roadmap.model ?? "Gemini 3.6 Flash"}</span>
+          </div>
+
+          <h1
+            className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight"
+            style={{ fontFamily: "var(--font-sora)" }}
+          >
             {roadmap.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 pt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-0.5 text-blue-400 font-medium">
-              <Map className="h-3 w-3" />
-              {roadmap.model ?? "Gemini Pro"}
+          <div className="flex flex-wrap items-center gap-4 text-xs text-[#8a8a93] pt-2">
+            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-white">
+              <BookOpen className="h-3.5 w-3.5 text-sky-400" />
+              {metrics.words.toLocaleString()} Words
             </span>
 
-            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-0.5 text-zinc-300">
-              <BookOpen className="h-3 w-3 text-purple-400" />
-              {metrics.words.toLocaleString()} words
-            </span>
-
-            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-0.5 text-zinc-300">
-              <Clock className="h-3 w-3 text-emerald-400" />
+            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-white">
+              <Clock className="h-3.5 w-3.5 text-emerald-400" />
               ~{metrics.readTimeMinutes} min read
             </span>
 
             {roadmap.tokens && (
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-0.5 font-mono text-zinc-300">
-                {roadmap.tokens.toLocaleString()} tokens
+              <span className="flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 font-mono text-orange-400">
+                <Zap size={12} />
+                {roadmap.tokens.toLocaleString()} Tokens
               </span>
             )}
 
             {roadmap.generationTime && (
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-0.5 font-mono text-zinc-300">
-                {roadmap.generationTime}s to generate
+              <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 font-mono text-zinc-300">
+                <Clock size={12} className="text-amber-400" />
+                {roadmap.generationTime}s generation
               </span>
             )}
           </div>
         </div>
+      </motion.section>
 
-        {/* Actions Button Bar */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={() => setEditOpen(true)}
-            variant="outline"
-            className="border-white/10 bg-white/5 text-white hover:bg-white/10 rounded-xl text-xs font-medium"
-          >
-            <Pencil className="mr-2 h-3.5 w-3.5 text-blue-400" />
-            Edit Roadmap
-          </Button>
-
-          <Button
-            onClick={handlePrintPDF}
-            variant="outline"
-            className="border-white/10 bg-white/5 text-white hover:bg-white/10 rounded-xl text-xs font-medium"
-          >
-            <FileDown className="mr-2 h-3.5 w-3.5 text-emerald-400" />
-            Download PDF
-          </Button>
-
-          <Button
-            onClick={downloadMarkdown}
-            variant="outline"
-            className="border-white/10 bg-white/5 text-white hover:bg-white/10 rounded-xl text-xs font-medium"
-          >
-            <Download className="mr-2 h-3.5 w-3.5 text-purple-400" />
-            Export .MD
-          </Button>
-
-          <Button
-            onClick={copyMarkdown}
-            variant="outline"
-            className="border-white/10 bg-white/5 text-white hover:bg-white/10 rounded-xl text-xs font-medium"
-          >
-            {copied ? (
-              <>
-                <Check className="mr-2 h-3.5 w-3.5 text-emerald-400" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="mr-2 h-3.5 w-3.5" />
-                Copy
-              </>
-            )}
-          </Button>
-
-          <Button
-            onClick={() => setDeleteOpen(true)}
-            variant="outline"
-            className="border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl text-xs font-medium"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Linked PRD banner */}
+      {/* Linked PRD Banner */}
       {roadmap.prd && (
-        <div className="print:hidden flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5">
+        <div className="print:hidden flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-sky-500/20 bg-sky-500/5 p-6 backdrop-blur-2xl shadow-xl">
           <div>
-            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-0.5 text-xs font-semibold text-blue-400">
-              <Sparkles className="h-3 w-3" />
-              Linked PRD
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-0.5 text-xs font-semibold text-sky-400 font-mono">
+              <FileText className="h-3 w-3" />
+              Linked Source PRD
             </span>
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
               {roadmap.prd.title}
             </h3>
-            <p className="mt-1 text-sm text-zinc-400">
-              This roadmap was generated from an existing PRD.
+            <p className="mt-1 text-xs text-[#8a8a93]">
+              This roadmap was generated directly from a Product Requirements Document.
             </p>
           </div>
 
           <Button
             asChild
-            className="bg-white text-black hover:bg-zinc-200 font-semibold rounded-xl"
+            className="btn-shimmer rounded-full bg-white px-5 py-2.5 text-xs font-bold text-black hover:bg-zinc-200"
           >
             <Link href={`/projects/${projectId}/prd/${roadmap.prd.id}`}>
-              View PRD
+              <span>View Linked PRD</span>
             </Link>
           </Button>
         </div>
@@ -269,26 +324,27 @@ export default function RoadmapViewer({
 
       {/* Main Grid: Table of Contents Sidebar + Markdown Document View */}
       <div className="grid gap-8 lg:grid-cols-4">
-        {/* Table of Contents Sidebar (Hidden on print) */}
+        {/* Table of Contents Sidebar */}
         {metrics.headings.length > 0 && (
           <div className="print:hidden lg:col-span-1">
-            <div className="sticky top-28 rounded-2xl border border-white/10 bg-[#0a0a0c]/80 p-5 backdrop-blur-xl space-y-4">
+            <div className="sticky top-28 rounded-3xl border border-white/10 bg-[#09090c]/90 p-5 backdrop-blur-2xl space-y-4 shadow-xl">
               <div className="flex items-center gap-2 border-b border-white/10 pb-3 text-xs font-bold uppercase tracking-wider text-white">
-                <ListOrdered className="h-4 w-4 text-blue-400" />
+                <ListOrdered className="h-4 w-4 text-orange-400" />
                 <span>Table of Contents</span>
               </div>
 
-              <nav className="max-h-[70vh] overflow-y-auto space-y-1.5 pr-1 text-xs">
+              <nav className="max-h-[70vh] overflow-y-auto space-y-1.5 pr-1 text-xs no-scrollbar">
                 {metrics.headings.map((h, index) => (
                   <a
                     key={index}
                     href={`#${h.id}`}
-                    className={`block rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/10 hover:text-white ${h.level === 1
-                        ? "font-semibold text-white bg-white/5"
+                    className={`block rounded-xl px-3 py-2 transition-colors hover:bg-white/10 hover:text-white ${
+                      h.level === 1
+                        ? "font-bold text-white bg-white/[0.04]"
                         : h.level === 2
-                          ? "pl-4 text-zinc-300"
-                          : "pl-6 text-zinc-400"
-                      }`}
+                        ? "pl-4 text-zinc-300"
+                        : "pl-6 text-[#8a8a93]"
+                    }`}
                   >
                     {h.title}
                   </a>
@@ -300,10 +356,11 @@ export default function RoadmapViewer({
 
         {/* Document Printable View Container */}
         <div
-          className={`${metrics.headings.length > 0 ? "lg:col-span-3" : "lg:col-span-4"
-            } space-y-6`}
+          className={`${
+            metrics.headings.length > 0 ? "lg:col-span-3" : "lg:col-span-4"
+          } space-y-6`}
         >
-          <Card className="print:border-none print:shadow-none print:bg-white print:text-black p-8 sm:p-14 border-white/10 bg-[#0a0a0c]/90 backdrop-blur-2xl shadow-2xl rounded-3xl">
+          <Card className="print:border-none print:shadow-none print:bg-white print:text-black p-6 sm:p-12 border-white/10 bg-[#09090c]/90 backdrop-blur-2xl shadow-2xl rounded-3xl">
             {/* Header snippet for PDF export */}
             <div className="hidden print:block border-b border-zinc-200 pb-6 mb-8">
               <h1 className="text-3xl font-bold text-black">
@@ -324,22 +381,23 @@ export default function RoadmapViewer({
               prose-headings:tracking-tight
               prose-headings:text-white
               print:prose-headings:text-black
-              prose-h1:text-3xl
+              prose-h1:text-2xl
               prose-h1:border-b
               prose-h1:border-white/10
               prose-h1:pb-3
               prose-h1:mt-6
-              prose-h2:text-2xl
+              prose-h2:text-xl
               prose-h2:border-b
               prose-h2:border-white/10
               prose-h2:pb-2
-              prose-h2:mt-10
-              prose-h3:text-xl
+              prose-h2:mt-8
+              prose-h3:text-lg
               prose-h3:mt-6
               prose-p:text-zinc-300
               print:prose-p:text-zinc-800
               prose-p:leading-relaxed
-              prose-p:text-sm
+              prose-p:text-xs
+              sm:prose-p:text-sm
               prose-strong:text-white
               print:prose-strong:text-black
               prose-code:rounded-lg
@@ -347,8 +405,8 @@ export default function RoadmapViewer({
               print:prose-code:bg-zinc-100
               prose-code:px-2
               prose-code:py-1
-              prose-code:text-blue-300
-              print:prose-code:text-blue-700
+              prose-code:text-sky-300
+              print:prose-code:text-sky-700
               prose-code:before:content-none
               prose-code:after:content-none
               prose-pre:rounded-2xl
@@ -384,8 +442,8 @@ export default function RoadmapViewer({
               prose-td:text-zinc-300
               print:prose-td:text-zinc-800
               prose-blockquote:border-l-4
-              prose-blockquote:border-emerald-500
-              prose-blockquote:bg-emerald-500/5
+              prose-blockquote:border-orange-500
+              prose-blockquote:bg-orange-500/5
               prose-blockquote:py-2
               prose-blockquote:px-5
               prose-blockquote:rounded-r-xl

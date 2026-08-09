@@ -19,10 +19,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 import {
   Loader2,
-  Sparkles,
+  Compass,
   FileText,
   Wand2,
-  Map,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -41,9 +40,7 @@ export default function GenerateCustomRoadmapModal({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
   const [title, setTitle] = useState("");
-
   const [prompt, setPrompt] = useState("");
 
   async function handleGenerate() {
@@ -77,27 +74,20 @@ export default function GenerateCustomRoadmapModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to generate roadmap."
-        );
+        throw new Error(data.message || "Failed to generate roadmap.");
       }
 
       toast.success("Custom roadmap generated successfully!");
-
       onOpenChange(false);
 
       if (data?.roadmap?.id) {
-        router.push(
-          `/projects/${projectId}/roadmap/${data.roadmap.id}`
-        );
+        router.push(`/projects/${projectId}/roadmap/${data.roadmap.id}`);
       } else {
         router.refresh();
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate roadmap."
+        error instanceof Error ? error.message : "Failed to generate roadmap."
       );
     } finally {
       setLoading(false);
@@ -106,114 +96,84 @@ export default function GenerateCustomRoadmapModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl border-white/10 bg-[#0a0a0c] text-white backdrop-blur-2xl">
-
+      <DialogContent className="sm:max-w-2xl border-white/15 bg-[#09090c] text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
         <DialogHeader>
-
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
-            <Map className="h-6 w-6" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10 text-orange-400 mb-2">
+            <Wand2 className="h-5 w-5" />
           </div>
 
-          <DialogTitle className="text-2xl font-bold">
+          <DialogTitle className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
             Generate Custom Roadmap
           </DialogTitle>
 
-          <DialogDescription className="text-zinc-400">
-            Describe your implementation strategy and let AI create
-            a complete product roadmap.
+          <DialogDescription className="text-[#8a8a93] text-xs leading-relaxed">
+            Describe your implementation strategy and let AI create a complete execution roadmap from scratch.
           </DialogDescription>
-
         </DialogHeader>
 
         <div className="space-y-5">
-
           <div className="space-y-2">
-
-            <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400">
-
-              <FileText className="h-3.5 w-3.5 text-blue-400" />
-
+            <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-[#8a8a93]">
+              <FileText className="h-3.5 w-3.5 text-sky-400" />
               Roadmap Title
-
             </Label>
 
             <Input
-              placeholder="BuilderOS Roadmap"
+              placeholder="e.g. Mobile App Implementation Roadmap"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="rounded-xl border-white/10 bg-white/[0.05] text-white"
+              className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3.5 text-xs sm:text-sm text-white placeholder-[#8a8a93] outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
             />
-
           </div>
 
           <div className="space-y-2">
-
-            <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400">
-
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-
-              AI Prompt
-
+            <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-[#8a8a93]">
+              <Compass className="h-3.5 w-3.5 text-orange-400" />
+              AI Prompt / Execution Strategy
             </Label>
 
             <Textarea
-              rows={10}
+              rows={8}
+              placeholder={`Create a detailed product roadmap for BuilderOS including:
+- Development Phases
+- Sprint Planning & Milestones
+- Risk & Deployment Strategy...`}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={`Example:
-
-Create a detailed product roadmap for BuilderOS.
-
-Include:
-
-- Development Phases
-- Sprint Planning
-- Milestones
-- Timeline
-- Team Responsibilities
-- Risks
-- Success Metrics
-- Deployment Strategy
-
-Return the roadmap in professional markdown.`}
-              className="resize-none rounded-xl border-white/10 bg-white/[0.05] text-white placeholder:text-zinc-500"
+              className="w-full resize-none rounded-xl border border-white/15 bg-black/60 px-4 py-3.5 text-xs sm:text-sm text-white placeholder-[#8a8a93] outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all"
             />
-
           </div>
-
         </div>
 
-        <DialogFooter className="pt-3">
-
+        <DialogFooter className="gap-2 sm:gap-3">
           <Button
+            type="button"
             variant="outline"
-            disabled={loading}
             onClick={() => onOpenChange(false)}
-            className="border-white/10 bg-white/5 text-white"
+            disabled={loading}
+            className="rounded-xl border border-white/15 px-5 py-2.5 text-xs font-semibold text-[#8a8a93] hover:bg-white/10 hover:text-white"
           >
             Cancel
           </Button>
 
           <Button
-            disabled={loading}
             onClick={handleGenerate}
-            className="bg-white text-black hover:bg-zinc-200"
+            disabled={loading}
+            className="btn-shimmer inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-zinc-100 disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                <Loader2 className="h-4 w-4 animate-spin text-black" />
+                <span>Generating Roadmap...</span>
               </>
             ) : (
               <>
-                <Wand2 className="mr-2 h-4 w-4" />
-                Generate Roadmap
+                <Wand2 className="h-4 w-4 text-orange-500" />
+                <span>Generate Custom Roadmap</span>
               </>
             )}
           </Button>
-
         </DialogFooter>
-
       </DialogContent>
     </Dialog>
   );
