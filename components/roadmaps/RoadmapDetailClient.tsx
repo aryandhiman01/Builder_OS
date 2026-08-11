@@ -298,61 +298,61 @@ export default function RoadmapDetailClient({
     roadmap.type === "STANDALONE" && !roadmap.projectId && !roadmap.project;
 
   return (
-    <div className="space-y-8 max-w-full pb-20">
+    <div className="space-y-4 max-w-full pb-16">
       {/* Top Header & Breadcrumb */}
-      <div className="flex flex-col gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col gap-2.5 border-b border-white/10 pb-3">
         <div className="flex items-center gap-2">
           <Link
             href="/roadmaps"
             prefetch={true}
-            className="flex items-center gap-1.5 text-xs text-[#8a8a93] hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-[11px] text-[#8a8a93] hover:text-white transition-colors"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={13} />
             <span>Back to Roadmaps</span>
           </Link>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               {isStandalone ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-400">
-                  <Layers size={13} />
+                <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-purple-400">
+                  <Layers size={11} />
                   Standalone
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400">
-                  <FolderKanban size={13} />
+                <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">
+                  <FolderKanban size={11} />
                   {roadmap.project?.title || "Project Roadmap"}
                 </span>
               )}
             </div>
 
             <h1
-              className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-white"
+              className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-white"
               style={{ fontFamily: "var(--font-sora)" }}
             >
               {roadmap.title}
             </h1>
 
             {roadmap.description && (
-              <p className="mt-1 text-xs text-[#8a8a93] max-w-3xl leading-relaxed">
+              <p className="mt-0.5 text-[11px] text-[#8a8a93] max-w-3xl leading-snug">
                 {roadmap.description}
               </p>
             )}
           </div>
 
           {/* AI Quick Actions Bar */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleAiImprove}
               disabled={improving}
-              className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3.5 py-2 text-xs font-semibold text-purple-300 transition-all hover:bg-purple-500/20 active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-3 py-1.5 text-xs font-semibold text-purple-300 transition-all hover:bg-purple-500/20 active:scale-95 disabled:opacity-50"
             >
               {improving ? (
-                <Loader2 size={14} className="animate-spin text-purple-400" />
+                <Loader2 size={13} className="animate-spin text-purple-400" />
               ) : (
-                <Wand2 size={14} className="text-purple-400" />
+                <Wand2 size={13} className="text-purple-400" />
               )}
               <span>
                 {roadmap.milestones.length === 0
@@ -365,9 +365,9 @@ export default function RoadmapDetailClient({
               <>
                 <button
                   onClick={() => setConvertOpen(true)}
-                  className="btn-shimmer flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-semibold text-black shadow-lg transition hover:bg-zinc-100 active:scale-95"
+                  className="btn-shimmer flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-md transition hover:bg-zinc-100 active:scale-95"
                 >
-                  <Rocket size={14} />
+                  <Rocket size={13} />
                   <span>Convert To Project</span>
                 </button>
 
@@ -375,12 +375,12 @@ export default function RoadmapDetailClient({
                   onClick={() => setDeleteOpen(true)}
                   disabled={deleting}
                   title="Delete Standalone Roadmap"
-                  className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-400 transition-all hover:bg-red-500/20 active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-400 transition-all hover:bg-red-500/20 active:scale-95 disabled:opacity-50"
                 >
                   {deleting ? (
-                    <Loader2 size={14} className="animate-spin text-red-400" />
+                    <Loader2 size={13} className="animate-spin text-red-400" />
                   ) : (
-                    <Trash2 size={14} className="text-red-400" />
+                    <Trash2 size={13} className="text-red-400" />
                   )}
                   <span>Delete</span>
                 </button>
@@ -391,7 +391,7 @@ export default function RoadmapDetailClient({
       </div>
 
       {/* Tabs Bar */}
-      <div className="flex border-b border-white/10 gap-2 overflow-x-auto scrollbar-none">
+      <div className="flex border-b border-white/10 gap-1 overflow-x-auto scrollbar-none">
         {[
           { id: "milestones", label: "Milestones & Checklist", icon: CheckSquare },
           { id: "resources", label: "Resources", icon: BookOpen },
@@ -404,13 +404,13 @@ export default function RoadmapDetailClient({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition-all whitespace-nowrap ${
                 isActive
                   ? "border-orange-500 text-orange-400"
                   : "border-transparent text-[#8a8a93] hover:text-white"
               }`}
             >
-              <Icon size={15} />
+              <Icon size={14} />
               <span>{tab.label}</span>
             </button>
           );

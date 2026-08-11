@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useDeferredValue, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -165,8 +165,8 @@ const CODE_TEMPLATES: Record<
   },
 };
 
-// CodeBlock renderer component for markdown preview
-function CodeBlock({ language, value }: { language: string; value: string }) {
+// CodeBlock renderer component for markdown preview (memoized to avoid typing lag)
+const CodeBlock = memo(function CodeBlock({ language, value }: { language: string; value: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyCode = () => {
@@ -237,7 +237,131 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
       </div>
     </div>
   );
-}
+});
+
+// Line numbers gutter component (memoized)
+const LineNumbers = memo(function LineNumbers({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i}>{i + 1}</div>
+      ))}
+    </>
+  );
+});
+
+// Live Rendered Markdown Preview (memoized so typing in editor does NOT re-evaluate syntax highlighting/markdown)
+const MemoizedMarkdownPreview = memo(function MarkdownPreview({
+  content,
+}: {
+  content: string;
+}) {
+  if (!content.trim()) {
+    return (
+      <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/5 rounded-xl">
+        <FileText size={32} className="text-[#4a4a52] mb-2" />
+        <p className="text-xs font-semibold text-[#8a8a93]">
+          No Notes Content Yet
+        </p>
+        <p className="text-[11px] text-[#5a5a63] mt-1 max-w-xs">
+          Switch to Edit mode or use AI Assistant to draft technical specs and multi-language code snippets.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="prose prose-invert prose-sm max-w-none space-y-3 text-xs sm:text-sm text-slate-200">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          h1: ({ children }) => (
+            <h1 className="text-lg sm:text-2xl font-extrabold text-white pb-2 border-b border-white/10 font-sora mt-5 mb-3">
+              {children}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-base sm:text-xl font-bold text-white mt-5 mb-2 font-sora text-orange-400">
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-sm sm:text-base font-semibold text-white mt-4 mb-1 font-sora text-amber-300">
+              {children}
+            </h3>
+          ),
+          p: ({ children }) => (
+            <div className="text-xs sm:text-sm text-slate-300 leading-relaxed my-2">
+              {children}
+            </div>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc pl-5 space-y-1 text-slate-300 my-2">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal pl-5 space-y-1 text-slate-300 my-2">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="my-0.5 text-slate-300">{children}</li>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-orange-500/60 bg-orange-500/5 px-4 py-2.5 rounded-r-xl italic text-slate-300 my-4 shadow-sm">
+              {children}
+            </blockquote>
+          ),
+          pre: ({ children }) => <>{children}</>,
+          code: ({ inline, className, children, ...props }: any) => {
+            const match = /language-(\w+)/.exec(className || "");
+            const lang = match ? match[1] : "";
+            const codeString = String(children).replace(/\n$/, "");
+
+            if (inline) {
+              return (
+                <code
+                  className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-amber-300 border border-amber-500/20"
+                  {...props}
+                >
+                  {children}
+                </code>
+              );
+            }
+
+            return <CodeBlock language={lang} value={codeString} />;
+          },
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-4 rounded-xl border border-white/10 bg-white/[0.01]">
+              <table className="w-full text-left text-xs border-collapse">
+                {children}
+              </table>
+            </div>
+          ),
+          th: ({ children }) => (
+            <th className="border-b border-white/10 bg-white/[0.04] p-3 font-semibold text-white">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="border-b border-white/5 p-3 text-slate-300">
+              {children}
+            </td>
+          ),
+          mark: ({ children }) => (
+            <mark className="rounded bg-yellow-500/20 px-1 py-0.5 text-yellow-300 font-semibold border border-yellow-500/30">
+              {children}
+            </mark>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+});
 
 export default function RoadmapNotesEditor({
   notes,
@@ -251,6 +375,7 @@ export default function RoadmapNotesEditor({
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -260,8 +385,86 @@ export default function RoadmapNotesEditor({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const lineNumbersRef = useRef<HTMLDivElement | null>(null);
   const previewScrollRef = useRef<HTMLDivElement | null>(null);
+  const aiMenuRef = useRef<HTMLDivElement | null>(null);
+  const langMenuRef = useRef<HTMLDivElement | null>(null);
+  const actionsMenuRef = useRef<HTMLDivElement | null>(null);
   const isSyncingEditorScroll = useRef<boolean>(false);
   const isSyncingPreviewScroll = useRef<boolean>(false);
+
+  // Close dropdown menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        aiMenuRef.current &&
+        !aiMenuRef.current.contains(event.target as Node)
+      ) {
+        setAiMenuOpen(false);
+      }
+      if (
+        langMenuRef.current &&
+        !langMenuRef.current.contains(event.target as Node)
+      ) {
+        setLangMenuOpen(false);
+      }
+      if (
+        actionsMenuRef.current &&
+        !actionsMenuRef.current.contains(event.target as Node)
+      ) {
+        setActionsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Toggle Fullscreen mode with native browser support
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      setIsFullscreen(true);
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } else {
+      setIsFullscreen(false);
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  };
+
+  // Sync fullscreen state with native browser exit and Esc key
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setIsFullscreen(false);
+      }
+    };
+
+    if (isFullscreen) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("fullscreenchange", handleFullscreenChange);
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 50);
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, [isFullscreen]);
 
   // Debounce preview rendering to eliminate typing lag
   useEffect(() => {
@@ -271,14 +474,22 @@ export default function RoadmapNotesEditor({
     return () => clearTimeout(timer);
   }, [value]);
 
-  // Auto-grow textarea height natively without internal middle scrollbars
+  // Manage textarea height for normal mode vs fullscreen mode
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (!textarea || isFullscreen) return;
-    textarea.style.height = "auto";
-    const contentHeight = textarea.scrollHeight;
-    textarea.style.height = `${Math.max(500, contentHeight)}px`;
-  }, [value, isFullscreen, mode]);
+    if (!textarea) return;
+
+    if (isFullscreen) {
+      textarea.style.height = "100%";
+    } else {
+      const handleResize = () => {
+        textarea.style.height = "auto";
+        const contentHeight = textarea.scrollHeight;
+        textarea.style.height = `${Math.max(500, contentHeight)}px`;
+      };
+      requestAnimationFrame(handleResize);
+    }
+  }, [debouncedValue, isFullscreen, mode]);
 
   // Custom Undo / Redo History Stack Management
   const historyRef = useRef<HistoryEntry[]>([]);
@@ -1028,7 +1239,6 @@ export default function RoadmapNotesEditor({
     const blob = new Blob([value], { type: "text/markdown;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
@@ -1037,13 +1247,16 @@ export default function RoadmapNotesEditor({
     toast.success(`Exported as ${filename}`);
   };
 
-  // Stats calculation
+  // Deferred value for non-urgent rendering tasks like stats calculation
+  const deferredValue = useDeferredValue(value);
+
+  // Stats calculation (deferred to avoid keypress lag)
   const lineCount = useMemo(() => value.split("\n").length, [value]);
   const wordCount = useMemo(() => {
-    const trimmed = value.trim();
+    const trimmed = deferredValue.trim();
     return trimmed ? trimmed.split(/\s+/).length : 0;
-  }, [value]);
-  const charCount = value.length;
+  }, [deferredValue]);
+  const charCount = deferredValue.length;
   const readingTimeMin = Math.max(1, Math.ceil(wordCount / 200));
 
   const canUndo = historyIndexRef.current > 0;
@@ -1051,27 +1264,24 @@ export default function RoadmapNotesEditor({
 
   return (
     <div
-      className={`rounded-2xl border border-white/10 bg-[#09090c] shadow-2xl transition-all duration-300 ${isFullscreen
-          ? "fixed inset-2 z-50 flex flex-col bg-[#09090c]/98 backdrop-blur-2xl overflow-hidden"
-          : "space-y-0 overflow-hidden"
+      className={`bg-[#09090c] transition-all duration-200 ${isFullscreen
+          ? "fixed inset-0 z-[99999] flex flex-col h-screen w-screen bg-[#08080c] overflow-hidden rounded-none border-none"
+          : "rounded-2xl border border-white/10 shadow-2xl space-y-0 overflow-hidden"
         }`}
     >
       {/* ── 1. Top Header & Primary Controls ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] p-3.5 sm:p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-white/10 bg-white/[0.02] p-3.5 sm:px-5 sm:py-3.5">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-400 shadow-inner">
             <FileText size={18} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white tracking-tight font-sora">
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight font-sora">
                 Roadmap Notes & Code Specs
               </h3>
-              <span className="flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-amber-400">
-                <Sparkles size={10} /> Smart Code IDE
-              </span>
             </div>
-            <p className="text-[11px] text-[#8a8a93]">
+            <p className="text-xs text-[#8a8a93]">
               Rich Markdown, Auto-Indent Braces, Multi-Language Code Snippets & AI.
             </p>
           </div>
@@ -1117,7 +1327,7 @@ export default function RoadmapNotesEditor({
           </div>
 
           {/* AI Tools Dropdown Menu */}
-          <div className="relative">
+          <div className="relative" ref={aiMenuRef}>
             <button
               onClick={() => setAiMenuOpen(!aiMenuOpen)}
               disabled={!!aiLoading}
@@ -1129,7 +1339,10 @@ export default function RoadmapNotesEditor({
                 <Wand2 size={13} className="text-amber-400" />
               )}
               <span>AI Assistant</span>
-              <ChevronDown size={12} />
+              <ChevronDown
+                size={12}
+                className={`transition-transform duration-200 ${aiMenuOpen ? "rotate-180" : ""}`}
+              />
             </button>
 
             <AnimatePresence>
@@ -1139,7 +1352,7 @@ export default function RoadmapNotesEditor({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.96 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-white/10 bg-[#0d0d12] p-2 shadow-2xl backdrop-blur-xl"
+                  className="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-white/15 bg-[#0e0e14] p-2 shadow-2xl backdrop-blur-2xl"
                 >
                   <button
                     onClick={() => runAiAction("polish")}
@@ -1186,57 +1399,103 @@ export default function RoadmapNotesEditor({
 
           {/* Fullscreen Toggle */}
           <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] p-1.5 text-xs text-[#8a8a93] hover:border-white/20 hover:text-white transition-all"
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+            onClick={toggleFullscreen}
+            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs transition-all ${isFullscreen
+                ? "border-orange-500/40 bg-orange-500/10 text-orange-300 font-medium"
+                : "border-white/10 bg-white/[0.04] text-[#8a8a93] hover:border-white/20 hover:text-white"
+              }`}
+            title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Mode"}
           >
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+            <span className="hidden sm:inline">{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
           </button>
 
-          {/* Copy & Export */}
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-[#8a8a93] hover:border-white/20 hover:text-white transition-all"
-            title="Copy Markdown"
-          >
-            {copied ? (
-              <Check size={13} className="text-emerald-400" />
-            ) : (
-              <Copy size={13} />
-            )}
-          </button>
+          {/* Copy & Export Dropdown */}
+          <div className="relative" ref={actionsMenuRef}>
+            <button
+              onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-[#8a8a93] hover:border-white/20 hover:text-white transition-all active:scale-95"
+              title="Copy & Export Options"
+            >
+              {copied ? (
+                <Check size={13} className="text-emerald-400" />
+              ) : (
+                <Download size={13} />
+              )}
+              <ChevronDown
+                size={11}
+                className={`transition-transform duration-200 ${
+                  actionsMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          <button
-            onClick={handleExportMd}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs text-[#8a8a93] hover:border-white/20 hover:text-white transition-all"
-            title="Export as .md File"
-          >
-            <Download size={13} />
-          </button>
+            <AnimatePresence>
+              {actionsMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute right-0 z-50 mt-2 w-52 rounded-2xl border border-white/15 bg-[#0e0e14] p-1.5 shadow-2xl backdrop-blur-2xl space-y-0.5"
+                >
+                  <button
+                    onClick={() => {
+                      handleCopy();
+                      setActionsMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white hover:bg-white/10 transition-all"
+                  >
+                    {copied ? (
+                      <Check size={14} className="text-emerald-400 shrink-0" />
+                    ) : (
+                      <Copy size={14} className="text-slate-300 shrink-0" />
+                    )}
+                    <div>
+                      <div className="font-semibold">{copied ? "Copied!" : "Copy Markdown"}</div>
+                      <div className="text-[10px] text-[#8a8a93]">Copy text to clipboard</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleExportMd();
+                      setActionsMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs text-white hover:bg-white/10 transition-all"
+                  >
+                    <Download size={14} className="text-slate-300 shrink-0" />
+                    <div>
+                      <div className="font-semibold">Export as .md</div>
+                      <div className="text-[10px] text-[#8a8a93]">Download markdown file</div>
+                    </div>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Save Button */}
           <button
             onClick={handleSave}
             disabled={saving}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-semibold text-white shadow-lg transition-all ${isDirty
-                ? "bg-orange-500 hover:bg-orange-600 shadow-orange-500/20"
-                : "bg-white/10 hover:bg-white/20 text-white/90"
-              }`}
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-md transition-all active:scale-95 ${
+              isDirty
+                ? "bg-white text-black hover:bg-slate-200 shadow-white/20"
+                : "bg-white/90 text-black hover:bg-white"
+            }`}
+            title="Save Notes (Ctrl+S)"
           >
             {saving ? (
-              <Loader2 size={13} className="animate-spin" />
+              <Loader2 size={12} className="animate-spin text-black" />
             ) : (
-              <Save size={13} />
+              <Save size={12} className="text-black" />
             )}
-            <span>{saving ? "Saving..." : "Save Notes"}</span>
-            <span className="hidden lg:inline-block text-[10px] text-white/60 font-mono">
-              (Ctrl+S)
-            </span>
+            <span>{saving ? "Saving..." : "Save"}</span>
           </button>
         </div>
       </div>
 
-      {/* ── 2. Rich Formatting & Code Snippet Toolbar ── */}
       {mode !== "preview" && (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#0d0d12] px-4 py-2">
           {/* Formatting & History buttons */}
@@ -1402,14 +1661,17 @@ export default function RoadmapNotesEditor({
           {/* Code Language Dropdown & Shortcuts Legend */}
           <div className="flex items-center gap-2">
             {/* Multi-Language Snippet Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={langMenuRef}>
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                 className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20 transition-all active:scale-95"
               >
                 <FileCode size={13} className="text-emerald-400" />
                 <span>Insert Code</span>
-                <ChevronDown size={11} />
+                <ChevronDown
+                  size={11}
+                  className={`transition-transform duration-200 ${langMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               <AnimatePresence>
@@ -1419,25 +1681,27 @@ export default function RoadmapNotesEditor({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.95 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute right-0 z-50 mt-1.5 grid w-64 grid-cols-2 gap-1 rounded-xl border border-white/10 bg-[#0d0d12] p-2 shadow-2xl backdrop-blur-xl max-h-72 overflow-y-auto custom-scrollbar"
+                    className="absolute right-0 z-50 mt-2 w-80 rounded-2xl border border-white/15 bg-[#0e0e14] p-3 shadow-2xl backdrop-blur-2xl max-h-80 overflow-y-auto custom-scrollbar"
                   >
-                    <div className="col-span-2 px-2 py-1 text-[10px] font-bold text-[#8a8a93] uppercase tracking-wider">
+                    <div className="px-2 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-white/10 mb-2">
                       Select Programming Language
                     </div>
-                    {Object.entries(CODE_TEMPLATES).map(([key, template]) => (
-                      <button
-                        key={key}
-                        onClick={() => insertCodeTemplate(key)}
-                        className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs text-white hover:bg-white/10 transition-all font-mono"
-                      >
-                        <span className="font-semibold text-emerald-300">
-                          {template.label}
-                        </span>
-                        <span className="text-[10px] text-[#8a8a93]">
-                          .{template.lang}
-                        </span>
-                      </button>
-                    ))}
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {Object.entries(CODE_TEMPLATES).map(([key, template]) => (
+                        <button
+                          key={key}
+                          onClick={() => insertCodeTemplate(key)}
+                          className="flex items-center justify-between gap-1.5 rounded-xl border border-transparent px-2.5 py-2 text-left text-xs text-white hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-all group font-mono"
+                        >
+                          <span className="font-semibold text-slate-200 group-hover:text-emerald-300 truncate text-[11px]">
+                            {template.label}
+                          </span>
+                          <span className="text-[10px] text-slate-400 group-hover:text-emerald-400/80 font-mono px-1.5 py-0.5 rounded bg-white/5 shrink-0">
+                            .{template.lang}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1460,19 +1724,17 @@ export default function RoadmapNotesEditor({
         className={`grid gap-0 ${mode === "split"
             ? "grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10"
             : "grid-cols-1"
-          } ${isFullscreen ? "flex-1 min-h-0" : ""}`}
+          } ${isFullscreen ? "flex-1 min-h-0 overflow-hidden" : ""}`}
       >
         {/* Editor Area with Synced Line Numbers */}
         {mode !== "preview" && (
-          <div className="relative flex h-full bg-[#09090c] overflow-hidden">
+          <div className={`relative flex bg-[#09090c] overflow-hidden ${isFullscreen ? "h-full min-h-0 flex-1" : "h-full"}`}>
             {/* Line numbers gutter */}
             <div
               ref={lineNumbersRef}
               className="select-none py-4 pl-3 pr-2.5 text-right text-[#4a4a52] bg-[#07070a] border-r border-white/5 font-mono text-xs sm:text-sm overflow-hidden leading-relaxed shrink-0 min-w-[44px]"
             >
-              {Array.from({ length: lineCount }).map((_, i) => (
-                <div key={i}>{i + 1}</div>
-              ))}
+              <LineNumbers count={lineCount} />
             </div>
 
             {/* Textarea Code/Notes Editor */}
@@ -1494,110 +1756,10 @@ export default function RoadmapNotesEditor({
           <div
             ref={previewScrollRef}
             onScroll={handlePreviewScroll}
-            className={`flex flex-col bg-[#07070a] p-4 sm:p-6 custom-scrollbar ${isFullscreen ? "h-full overflow-y-auto" : "min-h-[500px] h-auto"
+            className={`flex flex-col bg-[#07070a] p-4 sm:p-6 custom-scrollbar ${isFullscreen ? "h-full overflow-y-auto flex-1 min-h-0" : "min-h-[500px] h-auto"
               }`}
           >
-            {debouncedValue.trim() ? (
-              <div className="prose prose-invert prose-sm max-w-none space-y-3 text-xs sm:text-sm text-slate-200">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={{
-                    h1: ({ children }) => (
-                      <h1 className="text-lg sm:text-2xl font-extrabold text-white pb-2 border-b border-white/10 font-sora mt-5 mb-3">
-                        {children}
-                      </h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-base sm:text-xl font-bold text-white mt-5 mb-2 font-sora text-orange-400">
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-sm sm:text-base font-semibold text-white mt-4 mb-1 font-sora text-amber-300">
-                        {children}
-                      </h3>
-                    ),
-                    p: ({ children }) => (
-                      <div className="text-xs sm:text-sm text-slate-300 leading-relaxed my-2">
-                        {children}
-                      </div>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc pl-5 space-y-1 text-slate-300 my-2">
-                        {children}
-                      </ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal pl-5 space-y-1 text-slate-300 my-2">
-                        {children}
-                      </ol>
-                    ),
-                    li: ({ children }) => (
-                      <li className="my-0.5 text-slate-300">{children}</li>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-4 border-orange-500/60 bg-orange-500/5 px-4 py-2.5 rounded-r-xl italic text-slate-300 my-4 shadow-sm">
-                        {children}
-                      </blockquote>
-                    ),
-                    pre: ({ children }) => <>{children}</>,
-                    code: ({ inline, className, children, ...props }: any) => {
-                      const match = /language-(\w+)/.exec(className || "");
-                      const lang = match ? match[1] : "";
-                      const codeString = String(children).replace(/\n$/, "");
-
-                      if (inline) {
-                        return (
-                          <code
-                            className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-amber-300 border border-amber-500/20"
-                            {...props}
-                          >
-                            {children}
-                          </code>
-                        );
-                      }
-
-                      return <CodeBlock language={lang} value={codeString} />;
-                    },
-                    table: ({ children }) => (
-                      <div className="overflow-x-auto my-4 rounded-xl border border-white/10 bg-white/[0.01]">
-                        <table className="w-full text-left text-xs border-collapse">
-                          {children}
-                        </table>
-                      </div>
-                    ),
-                    th: ({ children }) => (
-                      <th className="border-b border-white/10 bg-white/[0.04] p-3 font-semibold text-white">
-                        {children}
-                      </th>
-                    ),
-                    td: ({ children }) => (
-                      <td className="border-b border-white/5 p-3 text-slate-300">
-                        {children}
-                      </td>
-                    ),
-                    mark: ({ children }) => (
-                      <mark className="rounded bg-yellow-500/20 px-1 py-0.5 text-yellow-300 font-semibold border border-yellow-500/30">
-                        {children}
-                      </mark>
-                    ),
-                  }}
-                >
-                  {debouncedValue}
-                </ReactMarkdown>
-              </div>
-            ) : (
-              <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center p-6 border-2 border-dashed border-white/5 rounded-xl">
-                <FileText size={32} className="text-[#4a4a52] mb-2" />
-                <p className="text-xs font-semibold text-[#8a8a93]">
-                  No Notes Content Yet
-                </p>
-                <p className="text-[11px] text-[#5a5a63] mt-1 max-w-xs">
-                  Switch to Edit mode or use AI Assistant to draft technical specs and multi-language code snippets.
-                </p>
-              </div>
-            )}
+            <MemoizedMarkdownPreview content={debouncedValue} />
           </div>
         )}
       </div>
