@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 
 import {
   Loader2,
-  Sparkles,
+  Cpu,
   Blocks,
   Map,
 } from "lucide-react";
@@ -245,7 +245,7 @@ export default function GenerateArchitectureModal({
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
+                <Cpu className="mr-2 h-4 w-4" />
                 Generate Architecture
               </>
             )}

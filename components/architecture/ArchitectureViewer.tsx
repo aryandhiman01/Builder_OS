@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   Copy,
   Check,
-  Sparkles,
+  Cpu,
+  Workflow,
   Download,
   FileDown,
   Pencil,
@@ -286,7 +287,7 @@ export default function ArchitectureViewer({
 
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-500/10 px-3.5 py-1 text-xs font-mono font-semibold text-sky-400">
-            <Sparkles size={14} />
+            <Cpu size={14} />
             <span>{architecture.model ?? "Gemini 3.6 Flash"}</span>
           </div>
 
@@ -330,7 +331,7 @@ export default function ArchitectureViewer({
         <div className="print:hidden flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/10 bg-[#09090c]/90 p-6 backdrop-blur-2xl shadow-xl">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-0.5 text-xs font-semibold text-sky-400 mb-1">
-              <Sparkles className="h-3 w-3" />
+              <Workflow className="h-3 w-3" />
               <span>Linked Roadmap Source</span>
             </div>
 

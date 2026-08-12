@@ -22,7 +22,7 @@ import GenerateCustomArchitectureModal from "@/components/architecture/GenerateC
 
 import {
   Blocks,
-  Sparkles,
+  Cpu,
   Search,
   FileCode2,
   Network,
@@ -184,7 +184,7 @@ export default function ArchitecturePageClient({
         <div className="relative p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1 text-[11px] text-[#8a8a93] backdrop-blur-sm shadow-inner">
-              <Sparkles className="h-3 w-3 text-orange-400" />
+              <Cpu className="h-3 w-3 text-orange-400" />
               <span className="font-semibold text-white/90">AI Architecture Suite</span>
               <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
               <span className="text-orange-400 font-mono">{initialArchitectures.length} Specs</span>
@@ -234,7 +234,7 @@ export default function ArchitecturePageClient({
                     cursor-pointer
                     "
                   >
-                    <Sparkles size={14} className="text-orange-500" />
+                    <Cpu size={14} className="text-orange-500" />
                     <span>New Architecture</span>
                     <ChevronDown size={13} />
                   </button>
@@ -560,7 +560,7 @@ export default function ArchitecturePageClient({
                           }}
                           className="btn-shimmer w-full bg-white text-black hover:bg-zinc-200 font-bold text-xs rounded-xl"
                         >
-                          <Sparkles className="mr-2 h-4 w-4 text-orange-500" />
+                          <Cpu className="mr-2 h-4 w-4 text-orange-500" />
                           <span>Generate Architecture for this Roadmap</span>
                         </Button>
                       )}

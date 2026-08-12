@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import {
   Loader2,
-  Sparkles,
+  Cpu,
   Blocks,
   Wand2,
 } from "lucide-react";
@@ -170,7 +170,7 @@ export default function GenerateCustomArchitectureModal({
 
             <Label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-400">
 
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <Cpu className="h-3.5 w-3.5 text-amber-400" />
 
               AI Prompt
 
