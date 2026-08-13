@@ -71,21 +71,21 @@ export default function TimelineView({ tasks, loading, onTaskClick }: TimelineVi
   const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 sm:space-y-4">
       {/* Nav */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
         <button
           onClick={() => scroll("left")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
         >
           <ChevronLeft size={15} />
         </button>
-        <span className="text-sm font-semibold text-white">
+        <span className="text-xs sm:text-sm font-semibold text-white">
           {MONTHS_SHORT[days[2].getMonth()]} {days[2].getFullYear()}
         </span>
         <button
           onClick={() => scroll("right")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
         >
           <ChevronRight size={15} />
         </button>
@@ -221,7 +221,7 @@ export default function TimelineView({ tasks, loading, onTaskClick }: TimelineVi
 
                 {tasksWithDates.length === 0 && (
                   <div className="flex h-32 items-center justify-center">
-                    <p className="text-sm text-[#8a8a93]">No tasks with due dates in this timeline range.</p>
+                    <p className="text-xs sm:text-sm text-[#8a8a93]">No tasks with due dates in this timeline range.</p>
                   </div>
                 )}
               </div>
@@ -231,8 +231,8 @@ export default function TimelineView({ tasks, loading, onTaskClick }: TimelineVi
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-4 text-[10px] text-[#8a8a93]">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 text-[10px] text-[#8a8a93]">
+        <div className="flex items-center gap-3 sm:gap-4">
           {Object.entries(PRIORITY_CONFIG).map(([key, cfg]) => (
             <div key={key} className="flex items-center gap-1.5 capitalize">
               <span className={`h-2.5 w-4 rounded-sm ${cfg.bar}`} />

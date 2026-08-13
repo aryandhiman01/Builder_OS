@@ -88,7 +88,7 @@ export default function ListView({ tasks, loading, onTaskClick, onTaskUpdate }: 
   }
 
   return (
-    <div className="space-y-8 w-full">
+    <div className="space-y-6 sm:space-y-8 w-full">
       {grouped.map(({ label, tasks: groupTasks }, gi) => (
         <motion.div
           key={label}
@@ -97,7 +97,7 @@ export default function ListView({ tasks, loading, onTaskClick, onTaskUpdate }: 
           transition={{ duration: 0.3, delay: gi * 0.05 }}
         >
           {/* Group header */}
-          <div className="mb-3 flex items-center gap-3">
+          <div className="mb-2.5 sm:mb-3 flex items-center gap-2.5 sm:gap-3">
             <span
               className={`text-xs font-bold uppercase tracking-widest ${
                 label === "Overdue"
@@ -127,7 +127,7 @@ export default function ListView({ tasks, loading, onTaskClick, onTaskUpdate }: 
                 <div
                   key={task.id}
                   onClick={() => onTaskClick(task)}
-                  className="group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition cursor-pointer hover:border-white/[0.12] hover:bg-white/[0.04]"
+                  className="group flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 sm:px-4 py-2.5 sm:py-3 transition cursor-pointer hover:border-white/[0.12] hover:bg-white/[0.04]"
                 >
                   {/* Checkbox */}
                   <button
@@ -148,7 +148,7 @@ export default function ListView({ tasks, loading, onTaskClick, onTaskUpdate }: 
 
                   {/* Title */}
                   <span
-                    className={`flex-1 truncate text-sm font-medium ${
+                    className={`flex-1 truncate text-xs sm:text-sm font-medium ${
                       isCompleted ? "line-through text-[#8a8a93]" : "text-white"
                     }`}
                   >
@@ -156,23 +156,23 @@ export default function ListView({ tasks, loading, onTaskClick, onTaskUpdate }: 
                   </span>
 
                   {/* Project */}
-                  <span className="hidden sm:flex shrink-0 items-center gap-1.5 text-xs text-[#8a8a93]">
+                  <span className="flex shrink-0 items-center gap-1.5 text-[11px] sm:text-xs text-[#8a8a93] max-w-[100px] sm:max-w-none">
                     <span
-                      className="h-2 w-2 rounded-full"
+                      className="h-2 w-2 shrink-0 rounded-full"
                       style={{ background: task.project.color || "#8a8a93" }}
                     />
-                    {task.project.title}
+                    <span className="truncate">{task.project.title}</span>
                   </span>
 
                   {/* Est hours */}
                   {task.estimatedHours && (
-                    <span className="hidden md:flex shrink-0 items-center gap-1 text-[11px] text-[#8a8a93]">
+                    <span className="hidden sm:flex shrink-0 items-center gap-1 text-[11px] text-[#8a8a93]">
                       <Clock size={11} /> {task.estimatedHours}h
                     </span>
                   )}
 
                   {/* Open arrow */}
-                  <ChevronRight size={14} className="shrink-0 text-[#8a8a93] opacity-0 group-hover:opacity-100 transition" />
+                  <ChevronRight size={14} className="shrink-0 text-[#8a8a93] opacity-60 sm:opacity-0 sm:group-hover:opacity-100 transition" />
                 </div>
               );
             })}

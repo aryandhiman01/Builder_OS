@@ -106,34 +106,34 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
           <button
             onClick={() => setOffset((v) => v - 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
           >
             <ChevronLeft size={15} />
           </button>
-          <span className="min-w-[180px] text-center text-sm font-semibold text-white">
+          <span className="flex-1 sm:min-w-[170px] text-center text-xs sm:text-sm font-semibold text-white truncate px-1">
             {mode === "month" ? monthGrid.monthLabel : weekGrid.label}
           </span>
           <button
             onClick={() => setOffset((v) => v + 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
           >
             <ChevronRight size={15} />
           </button>
           <button
             onClick={() => setOffset(0)}
-            className="ml-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
+            className="ml-1 sm:ml-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 sm:px-3 py-1.5 text-xs text-[#8a8a93] transition hover:text-white hover:bg-white/[0.07]"
           >
             Today
           </button>
         </div>
 
-        <div className="flex rounded-xl border border-white/10 bg-white/[0.03] p-0.5">
+        <div className="flex rounded-xl border border-white/10 bg-white/[0.03] p-0.5 self-end sm:self-auto">
           {(["month", "week"] as CalendarMode[]).map((m) => (
             <button
               key={m}
@@ -150,11 +150,11 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
 
       {/* Month View */}
       {mode === "month" && (
-        <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
+        <div className="rounded-2xl border border-white/[0.07] overflow-hidden bg-[#09090c]">
           {/* Day headers */}
-          <div className="grid grid-cols-7 border-b border-white/[0.07]">
+          <div className="grid grid-cols-7 border-b border-white/[0.07] bg-white/[0.02]">
             {WEEKDAYS.map((d) => (
-              <div key={d} className="py-2 text-center text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
+              <div key={d} className="py-2 text-center text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
                 {d}
               </div>
             ))}
@@ -170,15 +170,15 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
               return (
                 <div
                   key={i}
-                  className={`min-h-[80px] border-b border-r border-white/[0.04] p-2 transition ${
+                  className={`min-h-[55px] sm:min-h-[80px] border-b border-r border-white/[0.04] p-1 sm:p-2 transition ${
                     !cell.isCurrentMonth ? "opacity-30" : ""
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                      className={`flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full text-[10px] sm:text-xs font-semibold ${
                         isTodayCell
-                          ? "bg-orange-500 text-white"
+                          ? "bg-orange-500 text-white font-bold"
                           : "text-[#8a8a93]"
                       }`}
                     >
@@ -190,7 +190,7 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
                       <button
                         key={task.id}
                         onClick={() => onTaskClick(task)}
-                        className="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] font-medium text-white transition hover:bg-white/[0.07] truncate"
+                        className="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[9px] sm:text-[10px] font-medium text-white transition hover:bg-white/[0.07] truncate"
                       >
                         <span
                           className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOTS[task.priority] || "bg-[#8a8a93]"}`}
@@ -199,7 +199,7 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
                       </button>
                     ))}
                     {cellTasks.length > 2 && (
-                      <span className="text-[10px] text-[#8a8a93]">+{cellTasks.length - 2} more</span>
+                      <span className="text-[9px] sm:text-[10px] text-[#8a8a93] pl-1 font-medium">+{cellTasks.length - 2} more</span>
                     )}
                   </div>
                 </div>
@@ -211,48 +211,50 @@ export default function CalendarView({ tasks, loading, onTaskClick }: CalendarVi
 
       {/* Week View */}
       {mode === "week" && (
-        <div className="rounded-2xl border border-white/[0.07] overflow-hidden">
-          <div className="grid grid-cols-7 divide-x divide-white/[0.05]">
-            {weekGrid.days.map((day) => {
-              const dayTasks = getDateTasks(day);
-              const isTodayDay = isToday(day);
+        <div className="rounded-2xl border border-white/[0.07] overflow-hidden bg-[#09090c]">
+          <div className="overflow-x-auto scrollbar-none">
+            <div className="grid grid-cols-7 divide-x divide-white/[0.05] min-w-[550px] sm:min-w-0">
+              {weekGrid.days.map((day) => {
+                const dayTasks = getDateTasks(day);
+                const isTodayDay = isToday(day);
 
-              return (
-                <div key={day.toISOString()} className="min-h-[300px] p-3">
-                  <div className="mb-3 text-center">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
-                      {WEEKDAYS[day.getDay()]}
-                    </div>
-                    <div
-                      className={`mx-auto mt-1 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold ${
-                        isTodayDay ? "bg-orange-500 text-white" : "text-white"
-                      }`}
-                    >
-                      {day.getDate()}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {dayTasks.map((task) => (
-                      <button
-                        key={task.id}
-                        onClick={() => onTaskClick(task)}
-                        className="flex w-full items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03] px-2 py-1.5 text-left transition hover:border-white/15 hover:bg-white/[0.06]"
-                      >
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOTS[task.priority] || "bg-[#8a8a93]"}`}
-                        />
-                        <span className="truncate text-[10px] font-medium text-white">{task.title}</span>
-                      </button>
-                    ))}
-                    {dayTasks.length === 0 && (
-                      <div className="flex h-16 items-center justify-center rounded-lg border border-dashed border-white/[0.05]">
-                        <span className="text-[10px] text-[#8a8a93]/40">No tasks</span>
+                return (
+                  <div key={day.toISOString()} className="min-h-[260px] sm:min-h-[300px] p-2 sm:p-3">
+                    <div className="mb-2.5 sm:mb-3 text-center">
+                      <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">
+                        {WEEKDAYS[day.getDay()]}
                       </div>
-                    )}
+                      <div
+                        className={`mx-auto mt-1 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full text-xs sm:text-sm font-bold ${
+                          isTodayDay ? "bg-orange-500 text-white" : "text-white"
+                        }`}
+                      >
+                        {day.getDate()}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      {dayTasks.map((task) => (
+                        <button
+                          key={task.id}
+                          onClick={() => onTaskClick(task)}
+                          className="flex w-full items-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03] px-1.5 sm:px-2 py-1 sm:py-1.5 text-left transition hover:border-white/15 hover:bg-white/[0.06]"
+                        >
+                          <span
+                            className={`h-1.5 sm:h-2 w-1.5 sm:w-2 shrink-0 rounded-full ${PRIORITY_DOTS[task.priority] || "bg-[#8a8a93]"}`}
+                          />
+                          <span className="truncate text-[10px] font-medium text-white">{task.title}</span>
+                        </button>
+                      ))}
+                      {dayTasks.length === 0 && (
+                        <div className="flex h-14 sm:h-16 items-center justify-center rounded-lg border border-dashed border-white/[0.05]">
+                          <span className="text-[10px] text-[#8a8a93]/40">No tasks</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

@@ -176,10 +176,10 @@ function DroppableColumn({
   return (
     <div className="flex flex-col min-w-0 flex-1">
       {/* Column Header */}
-      <div className={`mb-3.5 flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 ${color} bg-[#0d0d12]/80 backdrop-blur-md shadow-sm`}>
-        <span className={`h-2.5 w-2.5 rounded-full shadow-sm ${dot}`} />
-        <span className="text-xs font-black uppercase tracking-widest">{label}</span>
-        <span className="ml-auto rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-white">
+      <div className={`mb-2.5 sm:mb-3.5 flex items-center gap-2 sm:gap-2.5 rounded-xl border px-3 sm:px-3.5 py-2 sm:py-2.5 ${color} bg-[#0d0d12]/80 backdrop-blur-md shadow-sm`}>
+        <span className={`h-2 sm:h-2.5 w-2 sm:w-2.5 rounded-full shadow-sm ${dot}`} />
+        <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest">{label}</span>
+        <span className="ml-auto rounded-full bg-white/[0.08] px-2 sm:px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-white">
           {tasks.length}
         </span>
       </div>
@@ -187,7 +187,7 @@ function DroppableColumn({
       {/* Column Drop Area */}
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-[380px] space-y-2.5 rounded-2xl border p-3 transition-all duration-200 ${
+        className={`flex-1 min-h-[220px] sm:min-h-[380px] space-y-2 sm:space-y-2.5 rounded-2xl border p-2.5 sm:p-3 transition-all duration-200 ${
           isOver
             ? "border-amber-500/50 bg-amber-500/[0.05] shadow-lg shadow-amber-500/5"
             : "border-white/[0.06] bg-[#09090c]"
@@ -200,9 +200,9 @@ function DroppableColumn({
         </SortableContext>
 
         {tasks.length === 0 && (
-          <div className="flex h-36 flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.08] p-4 text-center">
+          <div className="flex h-28 sm:h-36 flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.08] p-3 text-center">
             <p className="text-xs font-semibold text-[#8a8a93]">No tasks in {label}</p>
-            <p className="mt-1 text-[11px] text-[#52525b]">Drag tasks here to change status</p>
+            <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-[11px] text-[#52525b]">Drag tasks here to change status</p>
           </div>
         )}
       </div>

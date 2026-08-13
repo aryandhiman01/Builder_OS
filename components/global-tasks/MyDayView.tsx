@@ -113,24 +113,24 @@ export default function MyDayView({
   }
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4 sm:space-y-6 w-full">
       {/* ─── Hero Greeting ────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 sm:p-7"
+        className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 sm:p-6 lg:p-7"
       >
-        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
           <div>
-            <div className="flex items-center gap-2.5 mb-2">
-              <GreetingIcon size={20} className="text-orange-400" />
-              <span className="text-sm font-medium text-[#8a8a93]">{greeting}</span>
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+              <GreetingIcon size={18} className="text-orange-400 sm:w-5 sm:h-5" />
+              <span className="text-xs sm:text-sm font-medium text-[#8a8a93]">{greeting}</span>
             </div>
-            <h2 className="text-3xl font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white" style={{ fontFamily: "var(--font-sora)" }}>
               {userName.split(" ")[0]} 👋
             </h2>
-            <p className="mt-2 text-sm text-[#8a8a93]">
+            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-[#8a8a93]">
               {stats?.today
                 ? `You have ${stats.today} task${stats.today !== 1 ? "s" : ""} today`
                 : "No tasks scheduled for today"}
@@ -139,10 +139,10 @@ export default function MyDayView({
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 text-right">
-            <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-center">
+          <div className="flex shrink-0">
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 sm:py-3 text-left sm:text-center w-full sm:w-auto flex sm:flex-col items-center justify-between sm:justify-center gap-2 sm:gap-0.5">
               <div className="text-[10px] font-bold uppercase tracking-widest text-[#8a8a93]">Focus Time</div>
-              <div className="mt-0.5 text-xl font-bold text-white">
+              <div className="text-lg sm:text-xl font-bold text-white">
                 {stats?.totalFocusHours ? `${stats.totalFocusHours}h` : "—"}
               </div>
             </div>
@@ -156,19 +156,19 @@ export default function MyDayView({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex items-center justify-between gap-4 rounded-xl border border-orange-500/20 bg-orange-500/[0.05] px-5 py-4"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 rounded-xl border border-orange-500/20 bg-orange-500/[0.05] p-3.5 sm:px-5 sm:py-4"
         >
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-500/15 border border-orange-500/20">
               <Zap size={14} className="text-orange-400" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-[10px] font-bold uppercase tracking-widest text-orange-400/80">AI Recommendation</div>
-              <p className="text-sm font-semibold text-white truncate">
+              <p className="text-xs sm:text-sm font-semibold text-white truncate">
                 Continue:{" "}
                 <span className="text-orange-300">{smartSuggestion.title}</span>
               </p>
-              <p className="text-xs text-[#8a8a93]">
+              <p className="text-[11px] sm:text-xs text-[#8a8a93] truncate">
                 {smartSuggestion.project.title}
                 {smartSuggestion.estimatedHours ? ` · ~${smartSuggestion.estimatedHours}h estimated` : ""}
               </p>
@@ -176,7 +176,7 @@ export default function MyDayView({
           </div>
           <button
             onClick={() => onTaskClick(smartSuggestion)}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-semibold text-orange-400 transition hover:bg-orange-500/20"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 px-3.5 py-1.5 text-xs font-semibold text-orange-400 transition hover:bg-orange-500/20 shrink-0 self-end sm:self-auto"
           >
             Resume <ArrowRight size={12} />
           </button>
@@ -190,9 +190,9 @@ export default function MyDayView({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
         >
-          <div className="mb-3 flex items-center gap-2">
+          <div className="mb-2.5 sm:mb-3 flex items-center gap-2">
             <AlertTriangle size={14} className="text-red-400" />
-            <span className="text-sm font-semibold text-red-400">
+            <span className="text-xs sm:text-sm font-semibold text-red-400">
               {overdueTasks.length} Overdue {overdueTasks.length === 1 ? "Task" : "Tasks"}
             </span>
           </div>
@@ -210,10 +210,10 @@ export default function MyDayView({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-2.5 sm:mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-blue-400" />
-            <span className="text-sm font-semibold text-white">Today</span>
+            <span className="text-xs sm:text-sm font-semibold text-white">Today</span>
             <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] text-[#8a8a93]">
               {todayTasks.length}
             </span>
@@ -227,11 +227,11 @@ export default function MyDayView({
         </div>
 
         {todayTasks.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/[0.08] p-8 text-center">
-            <p className="text-sm text-[#8a8a93]">No tasks scheduled for today.</p>
+          <div className="rounded-xl border border-dashed border-white/[0.08] p-6 sm:p-8 text-center">
+            <p className="text-xs sm:text-sm text-[#8a8a93]">No tasks scheduled for today.</p>
             <button
               onClick={onCreateTask}
-              className="mt-3 text-xs font-semibold text-orange-400 transition hover:text-orange-300"
+              className="mt-2.5 sm:mt-3 text-xs font-semibold text-orange-400 transition hover:text-orange-300"
             >
               + Schedule a task
             </button>
@@ -259,11 +259,10 @@ function TaskRow({
 }) {
   const isCompleted = task.status === "completed";
   const priority = PRIORITY_CONFIG[task.priority as keyof typeof PRIORITY_CONFIG];
-  const statusCfg = STATUS_CONFIG[task.status as keyof typeof STATUS_CONFIG];
 
   return (
     <div
-      className="group flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 transition hover:border-white/10 hover:bg-white/[0.04] cursor-pointer"
+      className="group flex items-center gap-2.5 sm:gap-3 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 sm:px-4 py-2.5 sm:py-3 transition hover:border-white/10 hover:bg-white/[0.04] cursor-pointer"
       onClick={onClick}
     >
       {/* Checkbox */}
@@ -283,7 +282,7 @@ function TaskRow({
 
       {/* Title */}
       <span
-        className={`flex-1 truncate text-sm font-medium transition ${
+        className={`flex-1 truncate text-xs sm:text-sm font-medium transition ${
           isCompleted ? "line-through text-[#8a8a93]" : "text-white group-hover:text-orange-50"
         }`}
       >
@@ -291,18 +290,18 @@ function TaskRow({
       </span>
 
       {/* Project badge */}
-      <span className="hidden sm:flex shrink-0 items-center gap-1.5 text-xs text-[#8a8a93]">
+      <span className="flex shrink-0 items-center gap-1.5 text-[11px] sm:text-xs text-[#8a8a93] max-w-[120px] sm:max-w-none">
         <span
-          className="h-2 w-2 rounded-full"
+          className="h-2 w-2 shrink-0 rounded-full"
           style={{ background: task.project.color || "#8a8a93" }}
         />
-        {task.project.title}
+        <span className="truncate">{task.project.title}</span>
       </span>
 
       {/* Priority badge */}
       {priority && (
         <span
-          className={`hidden md:inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${priority.bg} ${priority.color}`}
+          className={`shrink-0 items-center rounded-full border px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold ${priority.bg} ${priority.color}`}
         >
           {priority.label}
         </span>
@@ -310,7 +309,7 @@ function TaskRow({
 
       {/* Estimated hours */}
       {task.estimatedHours && (
-        <span className="hidden lg:flex shrink-0 items-center gap-1 text-[10px] text-[#8a8a93]">
+        <span className="hidden sm:flex shrink-0 items-center gap-1 text-[10px] text-[#8a8a93]">
           <Clock size={10} /> {task.estimatedHours}h
         </span>
       )}
