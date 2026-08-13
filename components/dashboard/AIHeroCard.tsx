@@ -10,7 +10,7 @@ import {
   LayoutTemplate,
   Rocket,
   Search,
-  Sparkles,
+  Workflow,
   Zap,
   Layers,
   Cpu,
@@ -215,7 +215,7 @@ export default function AIHeroCard() {
       {/* Bottom Status Bar */}
       <div className="border-t border-white/[0.07] bg-white/[0.02] px-6 py-3 flex items-center justify-between text-xs text-[#8a8a93]">
         <span className="flex items-center gap-2 font-medium text-white/80">
-          <Sparkles className="h-3.5 w-3.5 text-orange-400" />
+          <Workflow className="h-3.5 w-3.5 text-orange-400" />
           Unified Product OS Engine
         </span>
 
