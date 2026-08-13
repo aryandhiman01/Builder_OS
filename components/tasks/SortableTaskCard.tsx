@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 
@@ -10,9 +11,12 @@ interface SortableTaskCardProps {
   task: Task;
 }
 
-export default function SortableTaskCard({
-  task,
-}: SortableTaskCardProps) {
+export default function SortableTaskCard({ task }: SortableTaskCardProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     attributes,
@@ -24,15 +28,13 @@ export default function SortableTaskCard({
   } = useSortable({
     id: task.id,
     data: {
-        type: "task",
-        task,
+      type: "task",
+      task,
     },
   });
 
   const style = {
-    transform: CSS.Transform.toString(
-      transform
-    ),
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.3 : 1,
   };
@@ -41,15 +43,14 @@ export default function SortableTaskCard({
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
+      {...(mounted ? attributes : {})}
+      {...(mounted ? listeners : {})}
       className={`
         touch-none
         select-none
-        ${
-          isDragging
-            ? "z-50 cursor-grabbing"
-            : "cursor-grab hover:shadow-md transition-shadow active:cursor-grabbing"
+        ${isDragging
+          ? "z-50 cursor-grabbing"
+          : "cursor-grab hover:shadow-md transition-shadow active:cursor-grabbing"
         }
       `}
     >

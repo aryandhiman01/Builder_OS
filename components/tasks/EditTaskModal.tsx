@@ -6,82 +6,82 @@ import { useRouter } from "next/navigation";
 import { Loader2, X } from "lucide-react";
 
 interface EditTaskModalProps {
-    open: boolean;
+  open: boolean;
 
-    onClose: () => void;
+  onClose: () => void;
 
-    task: {
-        id: string;
-        title: string;
-        description: string | null;
-        priority: "low" | "medium" | "high";
-        dueDate: string | Date | null;
-    } | null;
+  task: {
+    id: string;
+    title: string;
+    description: string | null;
+    priority: "low" | "medium" | "high";
+    dueDate: string | Date | null;
+  } | null;
 }
 
 export default function EditTaskModal({ open, onClose, task }: EditTaskModalProps) {
-    const router = useRouter();
+  const router = useRouter();
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-    const [dueDate, setDueDate] = useState("");
-    const [loading, setLoading] = useState(false);
-    
-    useEffect(() => {
-        if (!task) return;
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [dueDate, setDueDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-        setTitle(task.title);
+  useEffect(() => {
+    if (!task) return;
 
-        setDescription(task.description ?? "");
+    setTitle(task.title);
 
-        setPriority(task.priority);
+    setDescription(task.description ?? "");
 
-        setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "");
-    }, [task]);
+    setPriority(task.priority);
 
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
+    setDueDate(task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "");
+  }, [task]);
 
-        if(!task) return;
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
-        try{
-            setLoading(true);
+    if (!task) return;
 
-            const response = await fetch(
-                `/api/tasks/${task.id}`,
-                {
-                    method: "PATCH",
+    try {
+      setLoading(true);
 
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        title,
-                        description,
-                        priority,
-                        dueDate: dueDate || null,
-                    }),
-                }
-            );
+      const response = await fetch(
+        `/api/tasks/${task.id}`,
+        {
+          method: "PATCH",
 
-            if(!response.ok) {
-                throw new Error("Failed to Update Task");
-            }
-
-            router.refresh();
-
-            onClose();
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title,
+            description,
+            priority,
+            dueDate: dueDate || null,
+          }),
         }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to Update Task");
+      }
+
+      router.refresh();
+
+      onClose();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    if(!open) return null;
+  if (!open) return null;
 
-      return (
+  return (
     <div
       className="
       fixed
@@ -251,9 +251,9 @@ export default function EditTaskModal({ open, onClose, task }: EditTaskModalProp
                 onChange={(e) =>
                   setPriority(
                     e.target.value as
-                      | "low"
-                      | "medium"
-                      | "high"
+                    | "low"
+                    | "medium"
+                    | "high"
                   )
                 }
                 className="
