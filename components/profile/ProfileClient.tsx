@@ -153,7 +153,11 @@ export default function ProfileClient() {
       setUser((prev) => (prev ? { ...prev, name: data.user.name, image: data.user.image } : null));
       try {
         if (updateSession) {
-          await updateSession({ name: data.user.name, image: data.user.image });
+          await updateSession({
+            name: data.user.name,
+            image: data.user.image,
+            user: { name: data.user.name, image: data.user.image },
+          });
         }
       } catch {
         // ignore
