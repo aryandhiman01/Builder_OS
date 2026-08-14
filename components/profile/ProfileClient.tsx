@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -51,6 +52,7 @@ interface UserStatsData {
 
 export default function ProfileClient() {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [user, setUser] = useState<UserProfileData | null>(null);
   const [stats, setStats] = useState<UserStatsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,6 +151,13 @@ export default function ProfileClient() {
       if (!res.ok) throw new Error(data.error || "Failed to update profile");
 
       setUser((prev) => (prev ? { ...prev, name: data.user.name, image: data.user.image } : null));
+      try {
+        if (updateSession) {
+          await updateSession({ name: data.user.name, image: data.user.image });
+        }
+      } catch {
+        // ignore
+      }
       toast.success("Profile updated successfully!");
       router.refresh();
     } catch (err) {

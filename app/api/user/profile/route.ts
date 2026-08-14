@@ -117,3 +117,56 @@ export async function GET() {
     );
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { name, image } = body;
+
+    if (name !== undefined && typeof name === "string" && !name.trim()) {
+      return NextResponse.json(
+        { error: "Full name cannot be empty" },
+        { status: 400 }
+      );
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        ...(name !== undefined ? { name: name.trim() } : {}),
+        ...(image !== undefined ? { image: image ? image.trim() : null } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        createdAt: true,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Profile updated successfully",
+      user: {
+        ...updatedUser,
+        name: updatedUser.name ?? "",
+        image: updatedUser.image ?? "",
+      },
+    });
+  } catch (error) {
+    console.error("PATCH /api/user/profile error:", error);
+    return NextResponse.json(
+      { error: "Failed to update user profile" },
+      { status: 500 }
+    );
+  }
+}
+
+export const PUT = PATCH;
+
