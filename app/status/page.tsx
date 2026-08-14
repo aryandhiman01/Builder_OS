@@ -148,23 +148,21 @@ export default function StatusPage() {
     >
       {/* Overall Banner */}
       <div
-        className={`rounded-3xl border p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 backdrop-blur-2xl transition-all ${
-          isAllOperational
+        className={`rounded-3xl border p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 backdrop-blur-2xl transition-all ${isAllOperational
             ? "border-emerald-500/30 bg-emerald-500/10"
             : isDegraded
-            ? "border-amber-500/30 bg-amber-500/10"
-            : "border-red-500/30 bg-red-500/10"
-        }`}
+              ? "border-amber-500/30 bg-amber-500/10"
+              : "border-red-500/30 bg-red-500/10"
+          }`}
       >
         <div className="flex items-center gap-4">
           <div
-            className={`h-12 w-12 rounded-2xl border flex items-center justify-center shrink-0 ${
-              isAllOperational
+            className={`h-12 w-12 rounded-2xl border flex items-center justify-center shrink-0 ${isAllOperational
                 ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
                 : isDegraded
-                ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
-                : "bg-red-500/20 border-red-500/30 text-red-400"
-            }`}
+                  ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
+                  : "bg-red-500/20 border-red-500/30 text-red-400"
+              }`}
           >
             {isAllOperational ? (
               <CheckCircle2 className="h-6 w-6" />
@@ -179,13 +177,12 @@ export default function StatusPage() {
               {isAllOperational
                 ? "All Systems Operational"
                 : isDegraded
-                ? "Some Systems Degraded"
-                : "System Outage Detected"}
+                  ? "Some Systems Degraded"
+                  : "System Outage Detected"}
             </h2>
             <p
-              className={`text-xs sm:text-sm mt-0.5 ${
-                isAllOperational ? "text-emerald-300" : isDegraded ? "text-amber-300" : "text-red-300"
-              }`}
+              className={`text-xs sm:text-sm mt-0.5 ${isAllOperational ? "text-emerald-300" : isDegraded ? "text-amber-300" : "text-red-300"
+                }`}
             >
               {isAllOperational
                 ? "All core AI engines, APIs, database pools, and services are performing normally."
@@ -280,11 +277,10 @@ export default function StatusPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <div
-                        className={`h-2 w-2 rounded-full ${
-                          isOp
+                        className={`h-2 w-2 rounded-full ${isOp
                             ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
                             : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                        }`}
+                          }`}
                       />
                       <span className="text-sm font-semibold text-white">{svc.name}</span>
                       <span className="text-[10px] text-zinc-500 bg-white/[0.03] px-2 py-0.5 rounded border border-white/[0.05]">
@@ -300,11 +296,10 @@ export default function StatusPage() {
                     Latency: <strong className="text-emerald-400 font-mono">{svc.latency}</strong>
                   </span>
                   <span
-                    className={`px-2.5 py-1 rounded font-semibold border ${
-                      isOp
+                    className={`px-2.5 py-1 rounded font-semibold border ${isOp
                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                         : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                    }`}
+                      }`}
                   >
                     {svc.status}
                   </span>
