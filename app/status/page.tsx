@@ -149,19 +149,19 @@ export default function StatusPage() {
       {/* Overall Banner */}
       <div
         className={`rounded-3xl border p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 backdrop-blur-2xl transition-all ${isAllOperational
-            ? "border-emerald-500/30 bg-emerald-500/10"
-            : isDegraded
-              ? "border-amber-500/30 bg-amber-500/10"
-              : "border-red-500/30 bg-red-500/10"
+          ? "border-emerald-500/30 bg-emerald-500/10"
+          : isDegraded
+            ? "border-amber-500/30 bg-amber-500/10"
+            : "border-red-500/30 bg-red-500/10"
           }`}
       >
         <div className="flex items-center gap-4">
           <div
             className={`h-12 w-12 rounded-2xl border flex items-center justify-center shrink-0 ${isAllOperational
-                ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                : isDegraded
-                  ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
-                  : "bg-red-500/20 border-red-500/30 text-red-400"
+              ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+              : isDegraded
+                ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
+                : "bg-red-500/20 border-red-500/30 text-red-400"
               }`}
           >
             {isAllOperational ? (
@@ -278,8 +278,8 @@ export default function StatusPage() {
                     <div className="flex items-center gap-2">
                       <div
                         className={`h-2 w-2 rounded-full ${isOp
-                            ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
-                            : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                          ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
+                          : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]"
                           }`}
                       />
                       <span className="text-sm font-semibold text-white">{svc.name}</span>
@@ -297,8 +297,8 @@ export default function StatusPage() {
                   </span>
                   <span
                     className={`px-2.5 py-1 rounded font-semibold border ${isOp
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                       }`}
                   >
                     {svc.status}
