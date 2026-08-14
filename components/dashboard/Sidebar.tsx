@@ -12,6 +12,7 @@ import {
   Map,
   Settings,
   BarChart2,
+  Activity,
   PanelLeftClose,
   PanelLeftOpen,
   X,
@@ -33,6 +34,7 @@ const sidebarItems = [
   { title: "Tasks", href: "/tasks", icon: CheckSquare },
   { title: "Roadmaps", href: "/roadmaps", icon: Map },
   { title: "Analytics", href: "/analytics", icon: BarChart2 },
+  { title: "System Status", href: "/status", icon: Activity },
   { title: "Settings", href: "/settings", icon: Settings },
 ];
 
