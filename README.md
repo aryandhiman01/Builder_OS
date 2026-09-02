@@ -232,7 +232,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <p align="center">
   Crafted with ❤️ by <a href="https://github.com/aryandhiman01">Aryan Dhiman</a>.
 </p>
-<<<<<<< HEAD
 
-=======
->>>>>>> 2064afa9289aa8d4d99a2966bc1ee2bc1f9127ce
