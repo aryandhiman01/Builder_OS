@@ -230,7 +230,7 @@ If you discover any security issues, please review our [Security Policy](.github
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <p align="center">
-  Crafted with ❤️ by <a href="https://github.com/aryandhiman01">Aryan Dhiman</a>.
+  Crafted with ❤️ by <a href="https://github.com/aryandhiman01">Aryan</a>.
 </p>
 
 
